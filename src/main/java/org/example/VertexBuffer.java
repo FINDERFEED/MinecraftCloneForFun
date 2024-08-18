@@ -66,6 +66,30 @@ public class VertexBuffer implements AutoCloseable{
         glBindVertexArray(0);
     }
 
+    public void drawLines(boolean clearOnDraw){
+        if (vertexCount % 2 != 0){
+            throw new RuntimeException("Incomplete buffer!");
+        }
+        glBindVertexArray(vao);
+        this.loadVBO(clearOnDraw);
+        this.loadLinesEBO(clearOnDraw);
+        this.initiateVAO(clearOnDraw);
+
+        glDrawElements(GL_LINES,this.vertexCount,GL_UNSIGNED_INT,MemoryUtil.NULL);
+
+        vaoReady = true;
+        if (clearOnDraw){
+            this.reset();
+        }
+        for (int i = 0; i < this.format.elements.size();i++){
+            glDisableVertexAttribArray(i);
+        }
+
+        glBindBuffer(GL_ARRAY_BUFFER,0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0);
+        glBindVertexArray(0);
+    }
+
     public void initiateVAO(boolean clearOnDraw){
 
         int offset = 0;
@@ -100,6 +124,19 @@ public class VertexBuffer implements AutoCloseable{
                 buf.put(2 + i * 4);
                 buf.put(3 + i * 4);
                 buf.put(i * 4);
+            }
+            buf.flip();
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER,buf,GL_STATIC_DRAW);
+            MemoryUtil.memFree(buf);
+        }
+    }
+
+    public void loadLinesEBO(boolean clearOnDraw){
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,this.ebo);
+        if (clearOnDraw || !vaoReady){
+            IntBuffer buf = MemoryUtil.memAllocInt(vertexCount);
+            for (int i = 0; i < this.vertexCount;i++){
+                buf.put(i);
             }
             buf.flip();
             glBufferData(GL_ELEMENT_ARRAY_BUFFER,buf,GL_STATIC_DRAW);

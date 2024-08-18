@@ -31,7 +31,6 @@ public class Chunk implements AutoCloseable{
                 }
             }
         }
-        buffer = new VertexBuffer(2048, VertexFormat.POSITION_COLOR_UV_NORMAL);
         this.world = world;
     }
 
@@ -45,6 +44,9 @@ public class Chunk implements AutoCloseable{
     }
 
     private void rebuild(World world){
+        if (buffer == null){
+            buffer = new VertexBuffer(2048,VertexFormat.POSITION_COLOR_UV_NORMAL);
+        }
         buffer.reset();
         Vector2i globalPos = this.pos.normalPos();
         for (int y = 0; y < HEIGHT;y++){
@@ -61,9 +63,10 @@ public class Chunk implements AutoCloseable{
 
 
     public void generate(){
+        int rheight = r.nextInt(4) - 2;
         for (int x = 0; x < CHUNK_SIZE; x++){
             for (int z = 0; z < CHUNK_SIZE; z++){
-                int h = HEIGHT / 2 + r.nextInt(2) - 1;
+                int h = HEIGHT / 2 + rheight;
                 for (int y = 0; y < h;y++) {
                     if (y == h - 1) {
                         this.setBlock(Block.GRASS, x, y, z);
@@ -88,7 +91,8 @@ public class Chunk implements AutoCloseable{
 
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         this.buffer.destroy();
+        this.buffer = null;
     }
 }

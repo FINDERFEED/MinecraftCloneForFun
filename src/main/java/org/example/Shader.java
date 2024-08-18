@@ -87,6 +87,11 @@ public class Shader {
     public void run(){
         glUseProgram(shaderProgramId);
     }
+    public void run(Matrix4f projection,Matrix4f modelview){
+        glUseProgram(shaderProgramId);
+        mat4Uniform("projection",projection);
+        mat4Uniform("modelview",modelview);
+    }
 
     public void clear(){
         glUseProgram(0);

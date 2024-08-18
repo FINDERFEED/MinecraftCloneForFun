@@ -1,5 +1,7 @@
 package org.example;
 
+import org.example.util.MathUtil;
+import org.example.world.ChunkPos;
 import org.joml.AxisAngle4f;
 import org.joml.Math;
 import org.joml.Matrix3f;
@@ -12,25 +14,46 @@ public class Camera {
     public float yaw = 0;
     public float pitch = 0;
     public Vector3f pos;
+    public Vector3f oldPos;
+    public boolean movedBetweenChunks = true;
+
+
+
     public Vector3f look;
+
 
     public Camera(Vector3f pos){
         this.pos = new Vector3f(pos);
-        this.calculateModelviewMatrix();
+        this.oldPos = new Vector3f(pos);
+        this.calculateModelviewMatrix(0);
     }
 
 
     public void update(){
-
+        ChunkPos currentcPos = new ChunkPos(pos);
+        ChunkPos oldcPos = new ChunkPos(this.oldPos);
+        if (!currentcPos.equals(oldcPos)){
+            movedBetweenChunks = true;
+        }else{
+            movedBetweenChunks = false;
+        }
+        this.oldPos = new Vector3f(pos);
     }
 
 
-    public void calculateModelviewMatrix(){
+    public void calculateModelviewMatrix(float pticks){
         Matrix3f mt = new Matrix3f().rotate(Math.toRadians(yaw),0,1,0).rotate(Math.toRadians(pitch),1,0,0);
         look = mt.transform(0,0,-1,new Vector3f());
+
+        Vector3f p = new Vector3f(
+                MathUtil.lerp(oldPos.x,pos.x,pticks),
+                MathUtil.lerp(oldPos.y,pos.y,pticks),
+                MathUtil.lerp(oldPos.z,pos.z,pticks)
+        );
+
         modelviewMatrix = new Matrix4f().lookAt(
-                pos,
-                pos.add(look,new Vector3f()),
+                p,
+                p.add(look,new Vector3f()),
                 new Vector3f(0,1,0)
         );
     }
@@ -75,7 +98,6 @@ public class Camera {
 
     public void move(float x,float y,float z){
         this.pos.add(x,y,z);
-        this.calculateModelviewMatrix();
     }
 
 

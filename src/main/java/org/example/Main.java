@@ -1,6 +1,5 @@
 package org.example;
 
-import org.example.blocks.Block;
 import org.example.util.MathUtil;
 import org.example.world.World;
 import org.joml.Math;
@@ -23,6 +22,8 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class Main {
 
+
+    public static int chunkRenderDistance = 5;
     public static Mouse mouse;
     public static Camera camera;
     public static Matrix4f projectionMatrix;
@@ -32,16 +33,17 @@ public class Main {
     public static final float Z_FAR = 100000f;
     public static Texture atlas = null;
     public static World world;
+    public static Timer timer = new Timer();
+    public static boolean drawChunkLines = false;
 
-
+    public static Shader POSITION_COLOR;
 
     private static void loop() {
 
         createCapabilities();
 
         mouse = new Mouse();
-        camera = new Camera(new Vector3f());
-        camera.calculateModelviewMatrix();
+        camera = new Camera(new Vector3f(0,15,0));
 
         int texturesAmount = 4;
         int square = (int) Math.sqrt(texturesAmount);
@@ -53,37 +55,29 @@ public class Main {
 
 
         world = new World();
-        for (int x = -2; x <= 2;x++){
-            for (int z = -2; z <= 2;z++){
-                if (x == 1 && z == 1){
-                    continue;
-                }
-                world.getBlock(x * 16,0,z * 16,true);
-            }
-        }
 
         Shader shader = new Shader("block",VertexFormat.POSITION_COLOR_UV_NORMAL);
+        POSITION_COLOR = new Shader("position_color",VertexFormat.POSITION_COLOR);
+
+
 
 
         while ( !glfwWindowShouldClose(window) ) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-            camera.calculateModelviewMatrix();
+            for (int i = 0; i < Math.min(timer.advanceTime(),20);i++){
+                tick();
+            }
+
+            camera.calculateModelviewMatrix(timer.partialTick);
             updateProjectionMatrix();
-
-
             GL11.glEnable(GL_DEPTH_TEST);
-
-
-
-
             shader.run();
             shader.mat4Uniform("projection",projectionMatrix);
             shader.mat4Uniform("modelview",camera.getModelviewMatrix());
             atlas.bind(0);
             shader.samplerUniform(0);
-
 
             world.render();
 
@@ -92,9 +86,18 @@ public class Main {
             shader.clear();
 
 
+
+
             glfwSwapBuffers(window);
             glfwPollEvents();
         }
+    }
+
+
+
+    public static void tick(){
+        world.tick();
+        camera.update();
     }
 
 
@@ -143,6 +146,8 @@ public class Main {
             }else{
                 glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
             }
+        }else if (key == GLFW_KEY_L){
+            drawChunkLines = !drawChunkLines;
         }
     }
 
