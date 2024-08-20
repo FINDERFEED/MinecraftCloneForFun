@@ -148,6 +148,9 @@ public class VertexBuffer implements AutoCloseable{
 
     public void putFloat(float a){
         this.ensureCapacity(Float.BYTES);
+        if (this.buffer.limit() == 0){
+            System.out.println("Shit");
+        }
         this.buffer.putFloat(a);
     }
 
@@ -220,11 +223,12 @@ public class VertexBuffer implements AutoCloseable{
         if (capacity != finalCapacity){
             buffer = MemoryUtil.memRealloc(buffer,finalCapacity);
         }
+        buffer.limit(buffer.capacity());
     }
 
 
     public void reset(){
-        this.buffer.rewind();
+        this.buffer.clear();
         this.vertexCount = 0;
         this.vaoReady = false;
         this.currentElement = 0;

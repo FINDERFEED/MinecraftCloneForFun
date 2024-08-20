@@ -5,22 +5,20 @@ import org.example.Main;
 import org.example.VertexBuffer;
 import org.example.VertexFormat;
 import org.example.blocks.Block;
+import org.example.util.MathUtil;
 import org.example.util.Util;
 import org.joml.Vector2i;
 import org.joml.Vector3i;
 import org.lwjgl.opengl.GL11;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 
 public class World {
 
 
     public HashMap<Long,Chunk> chunkHashMap = new LinkedHashMap<>();
 
-    public List<Chunk> chunksToRender;
+    public List<Chunk> chunksToRender = new ArrayList<>();
 
     public boolean initialized = false;
 
@@ -36,23 +34,47 @@ public class World {
 
         ChunkPos currentPos = new ChunkPos(camera.pos);
 
-        if (!initialized){
-            var list = this.getChunksInRenderDistance(currentPos,true);
-            chunksToRender = list;
-            initialized = true;
-        }else if (camera.movedBetweenChunks){
-            var list = this.getChunksInRenderDistance(currentPos,true);
-            var oldChunks = chunksToRender.stream().filter(chunk->!list.contains(chunk)).toList();
-            for (Chunk c : oldChunks){
-                c.close();
-            }
-            for (Chunk c : chunksToRender){
-                if (c != null){
-                    c.changed = true;
+        if (camera.movedBetweenChunks || !initialized){
+            List<Chunk> chunks = this.getChunksInRenderDistance(currentPos,true);
+            for (Chunk c : chunks){
+                if (!chunksToRender.contains(c)){
+                    chunksToRender.add(c);
+                    this.alertNeighboringChunks(c);
                 }
             }
-            this.chunksToRender = list;
+            this.chunksToRender.sort(Comparator.comparingInt(chunk->{
+                ChunkPos pos = chunk.pos;
+                return Math.abs(currentPos.x - pos.x) + Math.abs(currentPos.z - pos.z);
+            }));
+            initialized = false;
         }
+
+
+
+        Iterator<Chunk> chunkIterator = this.chunksToRender.iterator();
+        while (chunkIterator.hasNext()){
+            Chunk chunk = chunkIterator.next();
+            if (!chunk.compiling && !this.isChunkInRenderDistance(chunk,currentPos,Main.chunkRenderDistance)){
+                this.alertNeighboringChunks(chunk);
+                chunk.close();
+                chunkIterator.remove();
+            }
+        }
+
+
+    }
+
+    public void alertNeighboringChunks(Chunk chunk){
+        Chunk north = this.getChunkAt(chunk.pos.north(),false); if (north != null) north.changed = true;
+        Chunk west = this.getChunkAt(chunk.pos.west(),false); if (west != null) west.changed = true;
+        Chunk east = this.getChunkAt(chunk.pos.east(),false); if (east != null) east.changed = true;
+        Chunk south = this.getChunkAt(chunk.pos.south(),false); if (south != null) south.changed = true;
+    }
+
+    public boolean isChunkInRenderDistance(Chunk chunk,ChunkPos currentPos,int renderDistance){
+        ChunkPos chunkPos = chunk.pos;
+        return MathUtil.isValueBetween(chunkPos.x,currentPos.x - renderDistance,currentPos.x + renderDistance) &&
+                MathUtil.isValueBetween(chunkPos.z,currentPos.z - renderDistance,currentPos.z + renderDistance);
     }
 
     public void render(){
@@ -114,7 +136,7 @@ public class World {
 
 
     public Chunk getChunkAt(ChunkPos pos,boolean generate){
-        return this.getChunkAt(pos.x << 4,pos.y << 4, generate);
+        return this.getChunkAt(pos.x << 4,pos.z << 4, generate);
     }
 
     public Chunk getChunkAt(int x,int z,boolean generate){

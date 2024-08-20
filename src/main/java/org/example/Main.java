@@ -12,6 +12,8 @@ import org.lwjgl.opengl.GL30;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.IntBuffer;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.opengl.GL.*;
@@ -23,7 +25,9 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 public class Main {
 
 
-    public static int chunkRenderDistance = 5;
+    public static ExecutorService renderExecutor;
+
+    public static int chunkRenderDistance = 2;
     public static Mouse mouse;
     public static Camera camera;
     public static Matrix4f projectionMatrix;
@@ -39,6 +43,8 @@ public class Main {
     public static Shader POSITION_COLOR;
 
     private static void loop() {
+
+        renderExecutor = Executors.newSingleThreadExecutor();
 
         createCapabilities();
 
@@ -58,6 +64,8 @@ public class Main {
 
         Shader shader = new Shader("block",VertexFormat.POSITION_COLOR_UV_NORMAL);
         POSITION_COLOR = new Shader("position_color",VertexFormat.POSITION_COLOR);
+
+
 
 
 
@@ -91,6 +99,10 @@ public class Main {
             glfwSwapBuffers(window);
             glfwPollEvents();
         }
+
+
+        renderExecutor.shutdown();
+
     }
 
 
@@ -148,6 +160,12 @@ public class Main {
             }
         }else if (key == GLFW_KEY_L){
             drawChunkLines = !drawChunkLines;
+        }else if (key == GLFW_KEY_N){
+            chunkRenderDistance++;
+            System.out.println(chunkRenderDistance);
+        }else if (key == GLFW_KEY_M){
+            chunkRenderDistance = Math.clamp(chunkRenderDistance - 1,1,Integer.MAX_VALUE);
+            System.out.println(chunkRenderDistance);
         }
     }
 
