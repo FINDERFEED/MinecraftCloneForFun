@@ -27,7 +27,7 @@ public class Main {
 
     public static ExecutorService renderExecutor;
 
-    public static int chunkRenderDistance = 2;
+    public static int chunkRenderDistance = 10;
     public static Mouse mouse;
     public static Camera camera;
     public static Matrix4f projectionMatrix;
@@ -42,9 +42,12 @@ public class Main {
 
     public static Shader POSITION_COLOR;
 
+    public static int ticks = 1;
+    public static int framesRendered = 0;
+
     private static void loop() {
 
-        renderExecutor = Executors.newSingleThreadExecutor();
+        renderExecutor = Executors.newFixedThreadPool(5);
 
         createCapabilities();
 
@@ -60,7 +63,7 @@ public class Main {
                 ,true);
 
 
-        world = new World();
+        world = new World(5434544);
 
         Shader shader = new Shader("block",VertexFormat.POSITION_COLOR_UV_NORMAL);
         POSITION_COLOR = new Shader("position_color",VertexFormat.POSITION_COLOR);
@@ -75,9 +78,15 @@ public class Main {
 
 
             for (int i = 0; i < Math.min(timer.advanceTime(),20);i++){
+                ticks++;
                 tick();
+                if (ticks % Timer.TICKS_PER_SECOND == 0){
+                    System.out.println("FPS: " + framesRendered);
+                    framesRendered = 0;
+                }
             }
 
+            framesRendered++;
             camera.calculateModelviewMatrix(timer.partialTick);
             updateProjectionMatrix();
             GL11.glEnable(GL_DEPTH_TEST);

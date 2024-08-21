@@ -4,6 +4,7 @@ import org.example.Main;
 import org.example.VertexBuffer;
 import org.example.VertexFormat;
 import org.example.blocks.Block;
+import org.example.util.noises.Perlin3D;
 import org.joml.Random;
 import org.joml.Vector2i;
 
@@ -13,7 +14,7 @@ public class Chunk implements AutoCloseable{
 
     public static final int CHUNK_SIZE_SQRT = 4;
     public static final int CHUNK_SIZE = CHUNK_SIZE_SQRT * CHUNK_SIZE_SQRT;
-    public static final int HEIGHT = 10;
+    public static final int HEIGHT = 100;
 
     public volatile World world;
     public ChunkPos pos;
@@ -81,11 +82,28 @@ public class Chunk implements AutoCloseable{
 
 
     public void generate(){
-        int rheight = r.nextInt(4) - 2;
+        Perlin3D noise = this.world.perlin;
+
+        Vector2i global = this.pos.normalPos();
+
+        int baseHeight = 20;
+
         for (int x = 0; x < CHUNK_SIZE; x++){
             for (int z = 0; z < CHUNK_SIZE; z++){
-                int h = HEIGHT / 2 + rheight;
+                float xn = (global.x + x) / 120.345f;
+                float zn = (global.y + z) / 120.345f;
+
+                float noiseValue = noise.get(xn,212.432f,zn);
+
+                int ph = (int)( (noiseValue + 1) / 2 * (HEIGHT - baseHeight));
+
+                int h = baseHeight + ph;
+
+
                 for (int y = 0; y < h;y++) {
+
+
+
                     if (y == h - 1) {
                         this.setBlock(Block.GRASS, x, y, z);
                     } else {

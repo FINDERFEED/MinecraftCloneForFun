@@ -7,6 +7,8 @@ import org.example.VertexFormat;
 import org.example.blocks.Block;
 import org.example.util.MathUtil;
 import org.example.util.Util;
+import org.example.util.noises.Perlin3D;
+import org.joml.SimplexNoise;
 import org.joml.Vector2i;
 import org.joml.Vector3i;
 import org.lwjgl.opengl.GL11;
@@ -24,7 +26,10 @@ public class World {
 
     private VertexBuffer lines;
 
-    public World(){
+    public Perlin3D perlin;
+
+    public World(int seed){
+        perlin = new Perlin3D(seed);
         lines = new VertexBuffer(1024, VertexFormat.POSITION_COLOR);
     }
 
@@ -99,7 +104,7 @@ public class World {
             for (int i = -dist;i <= dist + 1;i++){
                 for (int g = -dist;g <= dist + 1;g++){
                     lines.position(p.x + i * 16,-20,p.y + g * 16).color(1f,0,0,1f);
-                    lines.position(p.x + i * 16,20,p.y + g * 16).color(1f,0,0,1f);
+                    lines.position(p.x + i * 16,Chunk.HEIGHT * 2,p.y + g * 16).color(1f,0,0,1f);
                 }
             }
             lines.drawLines(true);
