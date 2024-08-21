@@ -4,7 +4,7 @@ import org.joml.Random;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 
-public class Perlin3D {
+public class Perlin3D implements Noise {
 
     public static final int[][] GRADIENTS3D = new int[][]{
             {1,0,0},
@@ -43,21 +43,6 @@ public class Perlin3D {
         }
     }
 
-
-
-    public float get(float x,float y,float z,int octaves){
-        float val = get(x,y,z);
-        float ampl = 0.5f;
-        for (int i = 0; i < octaves;i++){
-            x *= 2;
-            y *= 2;
-            z *= 2;
-            val += get(x,y,z) * ampl;
-            val /= (1 + ampl);
-            ampl *= 0.5f;
-        }
-        return val;
-    }
 
 
     public float get(float x,float y,float z){

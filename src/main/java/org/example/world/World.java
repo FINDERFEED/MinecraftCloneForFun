@@ -7,8 +7,9 @@ import org.example.VertexFormat;
 import org.example.blocks.Block;
 import org.example.util.MathUtil;
 import org.example.util.Util;
+import org.example.util.noises.Noise;
 import org.example.util.noises.Perlin3D;
-import org.joml.SimplexNoise;
+import org.example.util.noises.Simplex3D;
 import org.joml.Vector2i;
 import org.joml.Vector3i;
 import org.lwjgl.opengl.GL11;
@@ -26,10 +27,10 @@ public class World {
 
     private VertexBuffer lines;
 
-    public Perlin3D perlin;
+    public Noise noise;
 
     public World(int seed){
-        perlin = new Perlin3D(seed);
+        noise = new Simplex3D(seed);
         lines = new VertexBuffer(1024, VertexFormat.POSITION_COLOR);
     }
 

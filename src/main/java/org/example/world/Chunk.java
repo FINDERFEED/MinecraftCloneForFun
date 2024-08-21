@@ -4,7 +4,7 @@ import org.example.Main;
 import org.example.VertexBuffer;
 import org.example.VertexFormat;
 import org.example.blocks.Block;
-import org.example.util.noises.Perlin3D;
+import org.example.util.noises.Noise;
 import org.joml.Random;
 import org.joml.Vector2i;
 
@@ -14,7 +14,7 @@ public class Chunk implements AutoCloseable{
 
     public static final int CHUNK_SIZE_SQRT = 4;
     public static final int CHUNK_SIZE = CHUNK_SIZE_SQRT * CHUNK_SIZE_SQRT;
-    public static final int HEIGHT = 100;
+    public static final int HEIGHT = 256;
 
     public volatile World world;
     public ChunkPos pos;
@@ -51,7 +51,9 @@ public class Chunk implements AutoCloseable{
 
     private void rebuild(World world){
         if (buffer == null){
-            buffer = new VertexBuffer(65536,VertexFormat.POSITION_COLOR_UV_NORMAL);
+            VertexFormat format = VertexFormat.POSITION_COLOR_UV_NORMAL;
+            int size = HEIGHT * CHUNK_SIZE * CHUNK_SIZE * format.byteSize * 8;
+            buffer = new VertexBuffer(size,format);
         }
         buffer.reset();
         compiling = true;
@@ -82,33 +84,38 @@ public class Chunk implements AutoCloseable{
 
 
     public void generate(){
-        Perlin3D noise = this.world.perlin;
+        Noise noise = this.world.noise;
 
         Vector2i global = this.pos.normalPos();
 
         int baseHeight = 20;
 
+        float mod = 137.345f;
         for (int x = 0; x < CHUNK_SIZE; x++){
             for (int z = 0; z < CHUNK_SIZE; z++){
-                float xn = (global.x + x) / 120.345f;
-                float zn = (global.y + z) / 120.345f;
+                float xn = (global.x + x) / mod;
+                float zn = (global.y + z) / mod;
 
-                float noiseValue = noise.get(xn,212.432f,zn);
+//                int ph = (int)( (noiseValue + 1) / 2 * (HEIGHT - baseHeight));
 
-                int ph = (int)( (noiseValue + 1) / 2 * (HEIGHT - baseHeight));
-
-                int h = baseHeight + ph;
+                int h = HEIGHT;
 
 
                 for (int y = 0; y < h;y++) {
 
 
+                    float noiseValue = noise.get(xn,y / mod,zn);
 
-                    if (y == h - 1) {
-                        this.setBlock(Block.GRASS, x, y, z);
-                    } else {
-                        this.setBlock(Block.STONE, x, y, z);
+                    if (noiseValue > 0){
+                        this.setBlock(Block.STONE,x,y,z);
+                    }else{
+                        this.setBlock(Block.AIR,x,y,z);
                     }
+//                    if (y == h - 1) {
+//                        this.setBlock(Block.GRASS, x, y, z);
+//                    } else {
+//                        this.setBlock(Block.STONE, x, y, z);
+//                    }
                 }
             }
         }

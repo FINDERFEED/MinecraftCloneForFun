@@ -109,6 +109,7 @@ public class VertexBuffer implements AutoCloseable{
         if (clearOnDraw || !vaoReady){
             buffer.flip();
             glBufferData(GL_ARRAY_BUFFER,buffer,GL_STATIC_DRAW);
+            buffer.clear();
         }
     }
 
@@ -148,9 +149,6 @@ public class VertexBuffer implements AutoCloseable{
 
     public void putFloat(float a){
         this.ensureCapacity(Float.BYTES);
-        if (this.buffer.limit() == 0){
-            System.out.println("Shit");
-        }
         this.buffer.putFloat(a);
     }
 

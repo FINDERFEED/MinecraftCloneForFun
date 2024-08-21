@@ -1,6 +1,7 @@
 package org.example;
 
 import org.example.util.MathUtil;
+import org.example.world.Chunk;
 import org.example.world.World;
 import org.joml.Math;
 import org.joml.Matrix4f;
@@ -52,7 +53,7 @@ public class Main {
         createCapabilities();
 
         mouse = new Mouse();
-        camera = new Camera(new Vector3f(0,15,0));
+        camera = new Camera(new Vector3f(0, Chunk.HEIGHT / 2,0));
 
         int texturesAmount = 4;
         int square = (int) Math.sqrt(texturesAmount);
