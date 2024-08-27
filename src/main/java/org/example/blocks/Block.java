@@ -47,7 +47,7 @@ public class Block {
 
 
 
-    public void render(World world, VertexBuffer buffer, float x, float y, float z){
+    public void render(World world, VertexBuffer buffer, float x, float y, float z,int gx,int gy,int gz){
         if (this.isAir()){
             return;
         }
@@ -58,7 +58,7 @@ public class Block {
         float sV = vById(this.side) - step;
 
         Vector3i normal;
-        if (this.shouldRenderSide(world,Side.SOUTH,(int) x, (int) y,(int) z)) {
+        if (this.shouldRenderSide(world,Side.SOUTH,(int) gx, (int) gy,(int) gz)) {
             normal = Side.SOUTH.normal;
             buffer.position(x, y, z).color(1f, 1f, 1f, 1f).uv(sU, sV).normal(normal.x, normal.y, normal.z);
             buffer.position(x + 1, y, z).color(1f, 1f, 1f, 1f).uv(sU + step, sV).normal(normal.x, normal.y, normal.z);
@@ -66,7 +66,7 @@ public class Block {
             buffer.position(x, y + 1, z).color(1f, 1f, 1f, 1f).uv(sU, sV + step).normal(normal.x, normal.y, normal.z);
         }
 
-        if (this.shouldRenderSide(world,Side.NORTH,(int) x, (int) y,(int) z)) {
+        if (this.shouldRenderSide(world,Side.NORTH,(int) gx, (int) gy,(int) gz)) {
             normal = Side.NORTH.normal;
             buffer.position(x, y, z + 1).color(1f, 1f, 1f, 1f).uv(sU + step, sV).normal(normal.x, normal.y, normal.z);
             buffer.position(x + 1, y, z + 1).color(1f, 1f, 1f, 1f).uv(sU, sV).normal(normal.x, normal.y, normal.z);
@@ -74,7 +74,7 @@ public class Block {
             buffer.position(x, y + 1, z + 1).color(1f, 1f, 1f, 1f).uv(sU + step, sV + step).normal(normal.x, normal.y, normal.z);
         }
 
-        if (this.shouldRenderSide(world,Side.WEST,(int) x, (int) y,(int) z)) {
+        if (this.shouldRenderSide(world,Side.WEST,(int) gx, (int) gy,(int) gz)) {
             normal = Side.WEST.normal;
             buffer.position(x, y, z).color(1f, 1f, 1f, 1f).uv(sU + step, sV).normal(normal.x, normal.y, normal.z);
             buffer.position(x, y, z + 1).color(1f, 1f, 1f, 1f).uv(sU, sV).normal(normal.x, normal.y, normal.z);
@@ -82,7 +82,7 @@ public class Block {
             buffer.position(x, y + 1, z).color(1f, 1f, 1f, 1f).uv(sU + step, sV + step).normal(normal.x, normal.y, normal.z);
         }
 
-        if (this.shouldRenderSide(world,Side.EAST,(int) x, (int) y,(int) z)) {
+        if (this.shouldRenderSide(world,Side.EAST,(int) gx, (int) gy,(int) gz)) {
             normal = Side.EAST.normal;
             buffer.position(x + 1, y, z).color(1f, 1f, 1f, 1f).uv(sU, sV).normal(normal.x, normal.y, normal.z);
             buffer.position(x + 1, y, z + 1).color(1f, 1f, 1f, 1f).uv(sU + step, sV).normal(normal.x, normal.y, normal.z);
@@ -92,7 +92,7 @@ public class Block {
         float dU = uById(this.bottom);
         float dV = vById(this.bottom) - step;
 
-        if (this.shouldRenderSide(world,Side.BOTTOM,(int) x, (int) y,(int) z)) {
+        if (this.shouldRenderSide(world,Side.BOTTOM,(int) gx, (int) gy,(int) gz)) {
             normal = Side.BOTTOM.normal;
             buffer.position(x, y, z).color(1f, 1f, 1f, 1f).uv(dU, dV).normal(normal.x, normal.y, normal.z);
             buffer.position(x + 1, y, z).color(1f, 1f, 1f, 1f).uv(dU + step, dV).normal(normal.x, normal.y, normal.z);
@@ -102,7 +102,7 @@ public class Block {
         float tU = uById(this.top);
         float tV = vById(this.top) - step;
 
-        if (this.shouldRenderSide(world,Side.TOP,(int) x, (int) y,(int) z)) {
+        if (this.shouldRenderSide(world,Side.TOP,(int) gx, (int) gy,(int) gz)) {
             normal = Side.TOP.normal;
             buffer.position(x, y + 1, z).color(1f, 1f, 1f, 1f).uv(tU, tV).normal(normal.x, normal.y, normal.z);
             buffer.position(x + 1, y + 1, z).color(1f, 1f, 1f, 1f).uv(tU + step, tV).normal(normal.x, normal.y, normal.z);

@@ -2,19 +2,16 @@ package org.example;
 
 import org.example.util.MathUtil;
 import org.example.world.ChunkPos;
-import org.joml.AxisAngle4f;
+import org.joml.*;
 import org.joml.Math;
-import org.joml.Matrix3f;
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
 
 public class Camera {
 
-    private Matrix4f modelviewMatrix;
+    private Matrix4fStack modelviewMatrix;
     public float yaw = 0;
     public float pitch = 0;
-    public Vector3f pos;
-    public Vector3f oldPos;
+    public Vector3d pos;
+    public Vector3d oldPos;
     public boolean movedBetweenChunks = true;
 
 
@@ -22,9 +19,9 @@ public class Camera {
     public Vector3f look;
 
 
-    public Camera(Vector3f pos){
-        this.pos = new Vector3f(pos);
-        this.oldPos = new Vector3f(pos);
+    public Camera(Vector3d pos){
+        this.pos = new Vector3d(pos);
+        this.oldPos = new Vector3d(pos);
         this.calculateModelviewMatrix(0);
     }
 
@@ -37,7 +34,7 @@ public class Camera {
         }else{
             movedBetweenChunks = false;
         }
-        this.oldPos = new Vector3f(pos);
+        this.oldPos = new Vector3d(pos);
     }
 
 
@@ -45,20 +42,31 @@ public class Camera {
         Matrix3f mt = new Matrix3f().rotate(Math.toRadians(yaw),0,1,0).rotate(Math.toRadians(pitch),1,0,0);
         look = mt.transform(0,0,-1,new Vector3f());
 
-        Vector3f p = new Vector3f(
+        Vector3d p = new Vector3d(
                 MathUtil.lerp(oldPos.x,pos.x,pticks),
                 MathUtil.lerp(oldPos.y,pos.y,pticks),
                 MathUtil.lerp(oldPos.z,pos.z,pticks)
         );
 
-        modelviewMatrix = new Matrix4f().lookAt(
-                p,
-                p.add(look,new Vector3f()),
+        modelviewMatrix = new Matrix4fStack(16);
+
+        modelviewMatrix.lookAt(
+                new Vector3f(0,(float) p.y,0),
+                new Vector3f(0,(float) p.y,0).add(look,new Vector3f()),
                 new Vector3f(0,1,0)
         );
     }
 
-    public Matrix4f getModelviewMatrix() {
+    public Vector3d calculateCameraPos(float pticks){
+        Vector3d p = new Vector3d(
+                MathUtil.lerp(oldPos.x,pos.x,pticks),
+                MathUtil.lerp(oldPos.y,pos.y,pticks),
+                MathUtil.lerp(oldPos.z,pos.z,pticks)
+        );
+        return p;
+    }
+
+    public Matrix4fStack getModelviewMatrix() {
         return modelviewMatrix;
     }
 

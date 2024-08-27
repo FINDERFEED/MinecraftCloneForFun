@@ -1,6 +1,7 @@
 package org.example.world;
 
 import org.joml.Vector2i;
+import org.joml.Vector3d;
 import org.joml.Vector3f;
 
 import java.util.Objects;
@@ -12,6 +13,10 @@ public class ChunkPos {
 
 
     public ChunkPos(Vector3f pos){
+        this.x = (int) pos.x >> Chunk.CHUNK_SIZE_SQRT;
+        this.z = (int) pos.z >> Chunk.CHUNK_SIZE_SQRT;
+    }
+    public ChunkPos(Vector3d pos){
         this.x = (int) pos.x >> Chunk.CHUNK_SIZE_SQRT;
         this.z = (int) pos.z >> Chunk.CHUNK_SIZE_SQRT;
     }
@@ -37,6 +42,14 @@ public class ChunkPos {
 
     public ChunkPos offset(int x,int z){
         return new ChunkPos(this.x + x,this.z + z);
+    }
+
+    public ChunkPos add(ChunkPos other){
+        return new ChunkPos(this.x + other.x,this.z + other.z);
+    }
+
+    public ChunkPos subtract(ChunkPos other){
+        return new ChunkPos(this.x - other.x,this.z - other.z);
     }
 
     public Vector2i normalPos(){

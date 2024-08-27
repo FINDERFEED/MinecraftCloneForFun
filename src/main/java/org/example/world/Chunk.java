@@ -1,12 +1,12 @@
 package org.example.world;
 
+import org.example.Camera;
 import org.example.Main;
 import org.example.VertexBuffer;
 import org.example.VertexFormat;
 import org.example.blocks.Block;
 import org.example.util.noises.Noise;
-import org.joml.Random;
-import org.joml.Vector2i;
+import org.joml.*;
 
 public class Chunk implements AutoCloseable{
 
@@ -14,7 +14,7 @@ public class Chunk implements AutoCloseable{
 
     public static final int CHUNK_SIZE_SQRT = 4;
     public static final int CHUNK_SIZE = CHUNK_SIZE_SQRT * CHUNK_SIZE_SQRT;
-    public static final int HEIGHT = 256;
+    public static final int HEIGHT = 128;
 
     public volatile World world;
     public ChunkPos pos;
@@ -45,7 +45,29 @@ public class Chunk implements AutoCloseable{
             changed = false;
         }
         if (!compiling && buffer != null) {
+
+            Camera camera = Main.camera;
+
+            Vector3d pos = camera.calculateCameraPos(Main.timer.partialTick);
+
+
+
+            Vector3d offset = new Vector3d(-pos.x + this.pos.x * CHUNK_SIZE,0, -pos.z + this.pos.z * CHUNK_SIZE);
+
+
+            var matrix = camera.getModelviewMatrix();
+
+            matrix.pushMatrix();
+
+            matrix.translate((float) offset.x,0,(float) offset.z);
+
+
+
+            Main.BLOCK.mat4Uniform("modelview",matrix);
+
             buffer.draw(false);
+
+            matrix.popMatrix();
         }
     }
 
@@ -71,7 +93,7 @@ public class Chunk implements AutoCloseable{
                         Block block = this.getBlock(x, y, z);
                         int gx = globalPos.x + x;
                         int gz = globalPos.y + z;
-                        block.render(world, buffer, gx, y, gz);
+                        block.render(world, buffer,x,y,z, gx, y, gz);
                     }
                 }
             }
@@ -95,27 +117,27 @@ public class Chunk implements AutoCloseable{
             for (int z = 0; z < CHUNK_SIZE; z++){
                 float xn = (global.x + x) / mod;
                 float zn = (global.y + z) / mod;
+                float noiseValue = noise.get(xn,232.433f,zn);
 
-//                int ph = (int)( (noiseValue + 1) / 2 * (HEIGHT - baseHeight));
+                int ph = (int)( (noiseValue + 1) / 2 * (baseHeight));
 
-                int h = HEIGHT;
+                int h = HEIGHT/2 + ph;
 
 
                 for (int y = 0; y < h;y++) {
 
 
-                    float noiseValue = noise.get(xn,y / mod,zn);
 
-                    if (noiseValue > 0){
-                        this.setBlock(Block.STONE,x,y,z);
-                    }else{
-                        this.setBlock(Block.AIR,x,y,z);
-                    }
-//                    if (y == h - 1) {
-//                        this.setBlock(Block.GRASS, x, y, z);
-//                    } else {
-//                        this.setBlock(Block.STONE, x, y, z);
+//                    if (noiseValue > 0){
+//                        this.setBlock(Block.STONE,x,y,z);
+//                    }else{
+//                        this.setBlock(Block.AIR,x,y,z);
 //                    }
+                    if (y == h - 1) {
+                        this.setBlock(Block.GRASS, x, y, z);
+                    } else {
+                        this.setBlock(Block.STONE, x, y, z);
+                    }
                 }
             }
         }

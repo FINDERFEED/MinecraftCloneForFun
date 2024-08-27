@@ -32,4 +32,8 @@ public class MathUtil {
         return (x2 - x1) * p + x1;
     }
 
+    public static double lerp(double x1,double x2,double p){
+        return (x2 - x1) * p + x1;
+    }
+
 }

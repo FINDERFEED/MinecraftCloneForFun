@@ -5,6 +5,7 @@ import org.example.world.Chunk;
 import org.example.world.World;
 import org.joml.Math;
 import org.joml.Matrix4f;
+import org.joml.Vector3d;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
@@ -42,6 +43,7 @@ public class Main {
     public static boolean drawChunkLines = false;
 
     public static Shader POSITION_COLOR;
+    public static Shader BLOCK;
 
     public static int ticks = 1;
     public static int framesRendered = 0;
@@ -53,7 +55,7 @@ public class Main {
         createCapabilities();
 
         mouse = new Mouse();
-        camera = new Camera(new Vector3f(0, Chunk.HEIGHT / 2,0));
+        camera = new Camera(new Vector3d(Integer.MAX_VALUE - 5000, Chunk.HEIGHT / 2,Integer.MAX_VALUE - 5000));
 
         int texturesAmount = 4;
         int square = (int) Math.sqrt(texturesAmount);
@@ -66,7 +68,7 @@ public class Main {
 
         world = new World(5434544);
 
-        Shader shader = new Shader("block",VertexFormat.POSITION_COLOR_UV_NORMAL);
+        BLOCK = new Shader("block",VertexFormat.POSITION_COLOR_UV_NORMAL);
         POSITION_COLOR = new Shader("position_color",VertexFormat.POSITION_COLOR);
 
 
@@ -88,20 +90,22 @@ public class Main {
             }
 
             framesRendered++;
+
             camera.calculateModelviewMatrix(timer.partialTick);
             updateProjectionMatrix();
+
             GL11.glEnable(GL_DEPTH_TEST);
-            shader.run();
-            shader.mat4Uniform("projection",projectionMatrix);
-            shader.mat4Uniform("modelview",camera.getModelviewMatrix());
+            BLOCK.run();
+            BLOCK.mat4Uniform("projection",projectionMatrix);
+            BLOCK.mat4Uniform("modelview",camera.getModelviewMatrix());
             atlas.bind(0);
-            shader.samplerUniform(0);
+            BLOCK.samplerUniform(0);
 
             world.render();
 
 
 
-            shader.clear();
+            BLOCK.clear();
 
 
 
@@ -148,15 +152,15 @@ public class Main {
 
     public static void keyCallback(long window, int key, int scancode, int action, int mods){
         if (action != GLFW_PRESS && action != GLFW_REPEAT) return;
-
+        float speed = 0.5f;
         if (key == GLFW_KEY_W){
-            camera.moveForward(0.5f);
+            camera.moveForward(speed);
         }else if (key == GLFW_KEY_S){
-            camera.moveForward(-0.5f);
+            camera.moveForward(-speed);
         }else if (key == GLFW_KEY_A){
-            camera.moveSidewards(-0.5f);
+            camera.moveSidewards(-speed);
         }else if (key == GLFW_KEY_D){
-            camera.moveSidewards(0.5f);
+            camera.moveSidewards(speed);
         }else if (key == GLFW_KEY_SPACE){
             camera.move(0,1,0);
         }else if (key == GLFW_KEY_LEFT_SHIFT){
