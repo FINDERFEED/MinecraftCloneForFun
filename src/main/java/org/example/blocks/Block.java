@@ -3,6 +3,7 @@ package org.example.blocks;
 import org.example.Main;
 import org.example.VertexBuffer;
 import org.example.world.World;
+import org.example.world.WorldAccessor;
 import org.joml.Matrix4f;
 import org.joml.Vector3i;
 
@@ -40,14 +41,14 @@ public class Block {
     }
 
 
-    public boolean shouldRenderSide(World world,Side side,int x,int y,int z){
+    public boolean shouldRenderSide(WorldAccessor world,Side side,int x,int y,int z){
         Block block = world.getBlock(new Vector3i(x,y,z).add(side.normal));
         return block.isAir() || block == Block.NULL_AIR;
     }
 
 
 
-    public void render(World world, VertexBuffer buffer, float x, float y, float z,int gx,int gy,int gz){
+    public void render(WorldAccessor world, VertexBuffer buffer, float x, float y, float z, int gx, int gy, int gz){
         if (this.isAir()){
             return;
         }

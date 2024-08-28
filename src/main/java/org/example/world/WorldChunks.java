@@ -29,7 +29,7 @@ public class WorldChunks {
         Camera camera = Main.camera;
         ChunkPos currentPos = new ChunkPos(camera.pos);
         if (camera.movedBetweenChunks || !initialized){
-            var list = this.getChunksInRenderDistance(currentPos,null);
+            var list = this.getChunksInSquareRadius(currentPos,null,Main.chunkRenderDistance);
             for (Chunk c : list){
                 if (c.status == ChunkStatus.EMPTY) {
                     c.generate();
@@ -73,9 +73,8 @@ public class WorldChunks {
 
 
 
-    public List<Chunk> getChunksInRenderDistance(ChunkPos pos,List<ChunkStatus> status){
+    public List<Chunk> getChunksInSquareRadius(ChunkPos pos, List<ChunkStatus> status, int distance){
         List<Chunk> chunks = new ArrayList<>();
-        int distance = Main.chunkRenderDistance;
 
         Chunk c = this.getChunk(pos);
         if (status == null || status.contains(c.status)) chunks.add(c);
@@ -111,7 +110,7 @@ public class WorldChunks {
     }
 
 
-    public synchronized Chunk getChunk(ChunkPos pos){
+    public Chunk getChunk(ChunkPos pos){
         long lpos = Util.coordsToLong(pos.x,pos.z);
         return this.chunkHashMap.computeIfAbsent(lpos,l->new Chunk(world,pos));
     }

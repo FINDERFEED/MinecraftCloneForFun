@@ -1,10 +1,9 @@
 package org.example.world;
 
 import org.example.blocks.Block;
-import org.joml.Vector3d;
 import org.joml.Vector3i;
 
-public interface WorldAcessor {
+public interface WorldAccessor {
 
     Block getBlock(int x,int y,int z);
 

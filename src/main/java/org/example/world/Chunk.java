@@ -81,12 +81,13 @@ public class Chunk implements AutoCloseable{
         }
         buffer.reset();
         this.status = ChunkStatus.COMPILING;
+        LocalChunkWorld localChunkWorld = new LocalChunkWorld(world,this.pos,1);
         Main.renderExecutor.submit(()->{
-            this.renderBlocks(buffer);
+            this.renderBlocks(localChunkWorld,buffer);
         });
     }
 
-    private void renderBlocks(VertexBuffer buffer){
+    private void renderBlocks(WorldAccessor world,VertexBuffer buffer){
         try {
             Vector2i globalPos = this.pos.normalPos();
             for (int y = 0; y < HEIGHT; y++) {

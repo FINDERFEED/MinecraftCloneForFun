@@ -13,7 +13,7 @@ import org.lwjgl.opengl.GL11;
 
 import java.util.*;
 
-public class World implements WorldAcessor {
+public class World implements WorldAccessor {
 
 
     public List<Chunk> chunksToRender = new ArrayList<>();
@@ -123,7 +123,7 @@ public class World implements WorldAcessor {
         return Block.NULL_AIR;
     }
 
-    public boolean isYInBounds(int y){
+    public static boolean isYInBounds(int y){
         return y >= 0 && y < Chunk.HEIGHT;
     }
 
