@@ -41,7 +41,7 @@ public class Block {
 
 
     public boolean shouldRenderSide(World world,Side side,int x,int y,int z){
-        Block block = world.getBlock(new Vector3i(x,y,z).add(side.normal),false);
+        Block block = world.getBlock(new Vector3i(x,y,z).add(side.normal));
         return block.isAir() || block == Block.NULL_AIR;
     }
 

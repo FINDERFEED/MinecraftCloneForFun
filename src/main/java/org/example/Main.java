@@ -52,10 +52,12 @@ public class Main {
 
         renderExecutor = Executors.newFixedThreadPool(5);
 
+
+
         createCapabilities();
 
         mouse = new Mouse();
-        camera = new Camera(new Vector3d(Integer.MAX_VALUE - 5000, Chunk.HEIGHT / 2,Integer.MAX_VALUE - 5000));
+        camera = new Camera(new Vector3d(0, Chunk.HEIGHT / 2,0));
 
         int texturesAmount = 4;
         int square = (int) Math.sqrt(texturesAmount);
@@ -128,6 +130,7 @@ public class Main {
 
 
     public static void main(String[] args) {
+
         run();
     }
 

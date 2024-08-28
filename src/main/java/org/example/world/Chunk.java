@@ -26,6 +26,8 @@ public class Chunk implements AutoCloseable{
 
     public boolean changed = true;
 
+    public ChunkStatus status = ChunkStatus.EMPTY;
+
     public Chunk(World world,ChunkPos pos){
         this.pos = pos;
         for (int i = 0; i < HEIGHT;i++){
@@ -40,11 +42,11 @@ public class Chunk implements AutoCloseable{
 
 
     public void render(World world){
-        if (!compiling && (changed || buffer == null)){
+        if (this.status.value + 1 == ChunkStatus.COMPILING.value || (changed && status.value > ChunkStatus.COMPILING.value)){
             this.rebuild(world);
             changed = false;
         }
-        if (!compiling && buffer != null) {
+        if (this.status == ChunkStatus.FULL && buffer != null) {
 
             Camera camera = Main.camera;
 
@@ -78,7 +80,7 @@ public class Chunk implements AutoCloseable{
             buffer = new VertexBuffer(size,format);
         }
         buffer.reset();
-        compiling = true;
+        this.status = ChunkStatus.COMPILING;
         Main.renderExecutor.submit(()->{
             this.renderBlocks(buffer);
         });
@@ -101,11 +103,12 @@ public class Chunk implements AutoCloseable{
             e.printStackTrace();
             throw new RuntimeException("Failed to render chunk at: " + this.pos,e);
         }
-        compiling = false;
+        this.status = ChunkStatus.FULL;
     }
 
 
     public void generate(){
+        this.status = ChunkStatus.GENERATING;
         Noise noise = this.world.noise;
 
         Vector2i global = this.pos.normalPos();
@@ -125,14 +128,6 @@ public class Chunk implements AutoCloseable{
 
 
                 for (int y = 0; y < h;y++) {
-
-
-
-//                    if (noiseValue > 0){
-//                        this.setBlock(Block.STONE,x,y,z);
-//                    }else{
-//                        this.setBlock(Block.AIR,x,y,z);
-//                    }
                     if (y == h - 1) {
                         this.setBlock(Block.GRASS, x, y, z);
                     } else {
@@ -143,6 +138,7 @@ public class Chunk implements AutoCloseable{
         }
 
 
+        this.status = ChunkStatus.GENERATED;
     }
 
     public void setBlock(Block block,int x, int y, int z){
