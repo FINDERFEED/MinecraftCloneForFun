@@ -13,12 +13,12 @@ public class ChunkPos {
 
 
     public ChunkPos(Vector3f pos){
-        this.x = (int) pos.x >> Chunk.CHUNK_SIZE_SQRT;
-        this.z = (int) pos.z >> Chunk.CHUNK_SIZE_SQRT;
+        this.x = (int) pos.x >> WorldChunk.CHUNK_SIZE_SQRT;
+        this.z = (int) pos.z >> WorldChunk.CHUNK_SIZE_SQRT;
     }
     public ChunkPos(Vector3d pos){
-        this.x = (int) pos.x >> Chunk.CHUNK_SIZE_SQRT;
-        this.z = (int) pos.z >> Chunk.CHUNK_SIZE_SQRT;
+        this.x = (int) pos.x >> WorldChunk.CHUNK_SIZE_SQRT;
+        this.z = (int) pos.z >> WorldChunk.CHUNK_SIZE_SQRT;
     }
 
     public ChunkPos(int x,int z){
@@ -54,8 +54,8 @@ public class ChunkPos {
 
     public Vector2i normalPos(){
         return new Vector2i(
-                x << Chunk.CHUNK_SIZE_SQRT,
-                z << Chunk.CHUNK_SIZE_SQRT
+                x << WorldChunk.CHUNK_SIZE_SQRT,
+                z << WorldChunk.CHUNK_SIZE_SQRT
         );
     }
 

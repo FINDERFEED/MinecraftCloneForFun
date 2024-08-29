@@ -1,12 +1,11 @@
 package org.example;
 
 import org.example.util.MathUtil;
-import org.example.world.Chunk;
+import org.example.world.WorldChunk;
 import org.example.world.World;
 import org.joml.Math;
 import org.joml.Matrix4f;
 import org.joml.Vector3d;
-import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL11;
@@ -57,7 +56,7 @@ public class Main {
         createCapabilities();
 
         mouse = new Mouse();
-        camera = new Camera(new Vector3d(0, Chunk.HEIGHT / 2,0));
+        camera = new Camera(new Vector3d(0, WorldChunk.HEIGHT / 2,0));
 
         int texturesAmount = 4;
         int square = (int) Math.sqrt(texturesAmount);
@@ -155,7 +154,7 @@ public class Main {
 
     public static void keyCallback(long window, int key, int scancode, int action, int mods){
         if (action != GLFW_PRESS && action != GLFW_REPEAT) return;
-        float speed = 0.5f;
+        float speed = 10f;
         if (key == GLFW_KEY_W){
             camera.moveForward(speed);
         }else if (key == GLFW_KEY_S){
