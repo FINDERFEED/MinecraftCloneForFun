@@ -24,7 +24,7 @@ public class World implements WorldAccessor {
 
     public Noise noise;
 
-    public WorldChunks chunks;
+    public volatile WorldChunks chunks;
 
     public World(int seed){
         noise = new Simplex3D(seed);

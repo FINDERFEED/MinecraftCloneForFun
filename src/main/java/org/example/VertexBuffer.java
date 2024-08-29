@@ -234,6 +234,7 @@ public class VertexBuffer implements AutoCloseable{
 
     public void destroy(){
         MemoryUtil.memFree(buffer);
+        this.buffer = null;
         glDeleteBuffers(vbo);
         glDeleteBuffers(ebo);
         glDeleteVertexArrays(vao);

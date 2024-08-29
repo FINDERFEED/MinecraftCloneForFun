@@ -15,22 +15,32 @@ public abstract class Chunk implements AutoCloseable {
 
     public ChunkPos pos;
 
-    public short[][][] blocks = new short[HEIGHT][CHUNK_SIZE][CHUNK_SIZE];
+    public short[][][] blocks;
 
     public boolean changed = false;
 
     public Chunk(World world, ChunkPos pos){
         this.pos = pos;
-        for (int i = 0; i < HEIGHT;i++){
-            for (int g = 0; g < CHUNK_SIZE; g++){
-                for (int g2 = 0; g2 < CHUNK_SIZE; g2++){
-                    blocks[i][g][g2] = (short) Block.AIR.registeredId;
-                }
-            }
-        }
+        this.initIfNecessary();
         this.world = world;
     }
 
+    public void initIfNecessary(){
+        if (blocks == null){
+            blocks = new short[HEIGHT][CHUNK_SIZE][CHUNK_SIZE];
+            for (int i = 0; i < HEIGHT;i++){
+                for (int g = 0; g < CHUNK_SIZE; g++){
+                    for (int g2 = 0; g2 < CHUNK_SIZE; g2++){
+                        blocks[i][g][g2] = (short) Block.AIR.registeredId;
+                    }
+                }
+            }
+        }
+    }
+
+    public boolean isInitialized(){
+        return blocks != null;
+    }
 
     public abstract void render(World world);
 

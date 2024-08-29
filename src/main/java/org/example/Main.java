@@ -13,8 +13,7 @@ import org.lwjgl.opengl.GL30;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.IntBuffer;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.opengl.GL.*;
@@ -25,6 +24,8 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class Main {
 
+
+    public static ExecutorService utilExecutor;
 
     public static ExecutorService renderExecutor;
 
@@ -37,7 +38,7 @@ public class Main {
     public static final float Z_NEAR = 0.05f;
     public static final float Z_FAR = 100000f;
     public static Texture atlas = null;
-    public static World world;
+
     public static Timer timer = new Timer();
     public static boolean drawChunkLines = false;
 
@@ -47,10 +48,12 @@ public class Main {
     public static int ticks = 1;
     public static int framesRendered = 0;
 
+    public static volatile boolean close = false;
+
     private static void loop() {
 
         renderExecutor = Executors.newFixedThreadPool(5);
-
+        utilExecutor = Executors.newFixedThreadPool(10);
 
 
         createCapabilities();
@@ -67,7 +70,7 @@ public class Main {
                 ,true);
 
 
-        world = new World(5434544);
+        World world = new World(5434544);
 
         BLOCK = new Shader("block",VertexFormat.POSITION_COLOR_UV_NORMAL);
         POSITION_COLOR = new Shader("position_color",VertexFormat.POSITION_COLOR);
@@ -83,7 +86,7 @@ public class Main {
 
             for (int i = 0; i < Math.min(timer.advanceTime(),20);i++){
                 ticks++;
-                tick();
+                tick(world);
                 if (ticks % Timer.TICKS_PER_SECOND == 0){
                     System.out.println("FPS: " + framesRendered);
                     framesRendered = 0;
@@ -117,19 +120,20 @@ public class Main {
 
 
         renderExecutor.shutdown();
+        utilExecutor.shutdown();
+        close = true;
 
     }
 
 
 
-    public static void tick(){
+    public static void tick(World world){
         world.tick();
         camera.update();
     }
 
 
     public static void main(String[] args) {
-
         run();
     }
 

@@ -1,5 +1,6 @@
 package org.example.world;
 
+import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import org.example.Camera;
 import org.example.Main;
 import org.example.util.Util;
@@ -12,7 +13,7 @@ import java.util.concurrent.ExecutionException;
 public class WorldChunks {
 
 
-    public HashMap<Long, WorldChunk> chunkHashMap = new LinkedHashMap<>();
+    public Long2ObjectLinkedOpenHashMap<WorldChunk> chunkHashMap = new Long2ObjectLinkedOpenHashMap<>();
 
     private List<CompletableFuture<WorldChunk>> chunkGenerationTasks = new ArrayList<>();
 
@@ -29,20 +30,33 @@ public class WorldChunks {
         Camera camera = Main.camera;
         ChunkPos currentPos = new ChunkPos(camera.pos);
         if (camera.movedBetweenChunks || !initialized){
-            var list = this.getChunksInSquareRadius(currentPos,null,Main.chunkRenderDistance + 1);
+
+
+            var entryIterator = this.chunkHashMap.long2ObjectEntrySet().iterator();
+
+            while (entryIterator.hasNext()){
+
+                var c = entryIterator.next();
+
+                WorldChunk chunk = c.getValue();
+                var pos = chunk.pos;
+                ChunkPos b = currentPos.subtract(pos);
+                int dist = Math.max(Math.abs(b.x),Math.abs(b.z));
+                if (dist > Main.chunkRenderDistance * 2 && (chunk.status == ChunkStatus.FULL || chunk.status == ChunkStatus.LOADED)){
+                    chunk.close();
+                    entryIterator.remove();
+                }
+            }
+
+            var list = this.getChunksInSquareRadius(currentPos, null, Main.chunkRenderDistance + 1);
             boolean addedImmediate = false;
             for (WorldChunk c : list){
-//                if (c.status == ChunkStatus.EMPTY) {
-//                    c.generate();
-//                }
-//                if (!world.chunksToRender.contains(c)) {
-//                    world.chunksToRender.add(c);
-//                }
                 if (c.status == ChunkStatus.EMPTY) {
+                    c.status = ChunkStatus.LOADING;
                     CompletableFuture<WorldChunk> task = CompletableFuture.supplyAsync(() -> {
                         c.generate();
                         return c;
-                    }).handle((chunk, exception) -> {
+                    },Main.utilExecutor).handle((chunk, exception) -> {
                         if (exception != null) {
                             throw new RuntimeException(exception);
                         }
@@ -62,8 +76,8 @@ public class WorldChunks {
                     return Math.abs(currentPos.x - pos.x) + Math.abs(currentPos.z - pos.z);
                 }));
             }
-
             initialized = false;
+
         }
         Iterator<CompletableFuture<WorldChunk>> tasks = this.chunkGenerationTasks.iterator();
         boolean wasAdded = false;

@@ -10,7 +10,7 @@ import java.util.List;
 public class LocalChunkWorld implements WorldAccessor {
 
 
-    public volatile HashMap<Long, WorldChunk> chunkHashMap = new LinkedHashMap<>();
+    public HashMap<Long, WorldChunk> chunkHashMap = new LinkedHashMap<>();
 
     public LocalChunkWorld(World world,ChunkPos pos,int chunkRadius){
         List<WorldChunk> chunks = world.chunks.getChunksInSquareRadius(pos,null,chunkRadius);

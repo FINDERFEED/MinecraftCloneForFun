@@ -5,10 +5,15 @@ import org.example.Main;
 import org.example.VertexBuffer;
 import org.example.VertexFormat;
 import org.example.blocks.Block;
-import org.example.util.noises.Noise;
-import org.joml.*;
 
-public class WorldChunk extends Chunk implements AutoCloseable{
+import org.example.util.MathUtil;
+import org.joml.*;
+import org.spongepowered.noise.Noise;
+import org.spongepowered.noise.NoiseQuality;
+import org.spongepowered.noise.module.NoiseModule;
+import org.spongepowered.noise.module.source.Perlin;
+
+public class WorldChunk extends Chunk implements AutoCloseable {
 
 
     public volatile VertexBuffer buffer;
@@ -68,6 +73,8 @@ public class WorldChunk extends Chunk implements AutoCloseable{
         }
     }
 
+
+
     private void renderBlocks(WorldAccessor world,VertexBuffer buffer){
         try {
             Vector2i globalPos = this.pos.normalPos();
@@ -81,17 +88,31 @@ public class WorldChunk extends Chunk implements AutoCloseable{
                     }
                 }
             }
+            this.status = ChunkStatus.FULL;
         }catch (Exception e){
             e.printStackTrace();
             throw new RuntimeException("Failed to render chunk at: " + this.pos,e);
         }
-        this.status = ChunkStatus.FULL;
+    }
+
+
+    public static final Perlin p1 = new Perlin();
+    public static final Perlin p2 = new Perlin();
+    public static final Perlin p3 = new Perlin();
+
+    static {
+        p1.setNoiseQuality(NoiseQuality.STANDARD);
+        p1.setOctaveCount(1);
+        p1.setFrequency(1);
+        p1.setSeed(423425434);
+        p2.setSeed(93425434);
+        p3.setSeed(564564953);
     }
 
 
     public void generate(){
+        this.initIfNecessary();
         this.status = ChunkStatus.LOADING;
-        Noise noise = this.world.noise;
 
         Vector2i global = this.pos.normalPos();
 
@@ -100,21 +121,27 @@ public class WorldChunk extends Chunk implements AutoCloseable{
         float mod = 137.345f;
         for (int x = 0; x < CHUNK_SIZE; x++){
             for (int z = 0; z < CHUNK_SIZE; z++){
-                float xn = (global.x + x) / mod;
-                float zn = (global.y + z) / mod;
-                float noiseValue = noise.get(xn,232.433f,zn);
+                float xn = (global.x + x);
+                float zn = (global.y + z);
+//                float noiseValue = (float) p1.get(xn,232.433f,zn);
 
-                int ph = (int)( (noiseValue + 1) / 2 * (baseHeight));
+//                int ph = (int)( (noiseValue + 1) / 2 * (baseHeight));
 
-                int h = HEIGHT/2 + ph;
+                int h = HEIGHT/*/2 + ph*/;
 
 
                 for (int y = 0; y < h;y++) {
-                    if (y == h - 1) {
-                        this.setBlock(Block.GRASS, x, y, z);
-                    } else {
-                        this.setBlock(Block.STONE, x, y, z);
+
+//                    double val1 = Noise.gradientCoherentNoise3D(xn / 143.34,y / 134.34,zn / 143.34,342534534,NoiseQuality.STANDARD);
+//                    double val2 = Noise.gradientCoherentNoise3D(xn / 243.34,y / 255.34,zn / 423.221,232534534,NoiseQuality.STANDARD);
+//                    double val3 = Noise.gradientCoherentNoise3D(xn / 434.23,y / 34.34,zn/ 542.232,652534534,NoiseQuality.STANDARD);
+//                    double val = MathUtil.lerp(val1,val2,val3) * 2 - 1;
+                    if (y > HEIGHT / 2f){
+                        this.setBlock(Block.AIR,x,y,z);
+                    }else{
+                        this.setBlock(Block.STONE,x,y,z);
                     }
+
                 }
             }
         }
@@ -128,8 +155,10 @@ public class WorldChunk extends Chunk implements AutoCloseable{
 
     @Override
     public void close() {
-        this.buffer.destroy();
-        this.buffer = null;
+        if (this.buffer != null) {
+            this.buffer.destroy();
+            this.buffer = null;
+        }
         super.close();
     }
 }
