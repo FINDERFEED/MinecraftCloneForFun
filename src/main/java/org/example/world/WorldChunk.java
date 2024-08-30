@@ -132,11 +132,11 @@ public class WorldChunk extends Chunk implements AutoCloseable {
 
                 for (int y = 0; y < h;y++) {
 
-//                    double val1 = Noise.gradientCoherentNoise3D(xn / 143.34,y / 134.34,zn / 143.34,342534534,NoiseQuality.STANDARD);
-//                    double val2 = Noise.gradientCoherentNoise3D(xn / 243.34,y / 255.34,zn / 423.221,232534534,NoiseQuality.STANDARD);
-//                    double val3 = Noise.gradientCoherentNoise3D(xn / 434.23,y / 34.34,zn/ 542.232,652534534,NoiseQuality.STANDARD);
-//                    double val = MathUtil.lerp(val1,val2,val3) * 2 - 1;
-                    if (y > HEIGHT / 2f){
+                    double val1 = Noise.gradientCoherentNoise3D(xn / 143.34,y / 134.34,zn / 143.34,342534534,NoiseQuality.STANDARD);
+                    double val2 = Noise.gradientCoherentNoise3D(xn / 243.34,y / 255.34,zn / 423.221,232534534,NoiseQuality.STANDARD);
+                    double val3 = Noise.gradientCoherentNoise3D(xn / 434.23,y / 34.34,zn/ 542.232,652534534,NoiseQuality.STANDARD);
+                    double val = MathUtil.lerp(val1,val2,val3) * 2 - 1;
+                    if (val > 0){
                         this.setBlock(Block.AIR,x,y,z);
                     }else{
                         this.setBlock(Block.STONE,x,y,z);

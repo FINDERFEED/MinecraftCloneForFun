@@ -42,8 +42,10 @@ public class WorldChunks {
                 var pos = chunk.pos;
                 ChunkPos b = currentPos.subtract(pos);
                 int dist = Math.max(Math.abs(b.x),Math.abs(b.z));
-                if (dist > Main.chunkRenderDistance * 2 && (chunk.status == ChunkStatus.FULL || chunk.status == ChunkStatus.LOADED)){
+                if (dist > Main.chunkRenderDistance + 1 && this.canChunkBeUnloaded(chunk)){
+                    chunk.blocks = null;
                     chunk.close();
+                    chunk.status = ChunkStatus.EMPTY;
                     entryIterator.remove();
                 }
             }
@@ -132,6 +134,29 @@ public class WorldChunks {
         return chunks;
     }
 
+    public boolean canChunkBeUnloaded(Chunk c){
+        ChunkPos west = c.pos.west();
+        ChunkPos east = c.pos.east();
+        ChunkPos north = c.pos.north();
+        ChunkPos south = c.pos.south();
+        if (hasChunk(west)){
+            Chunk chunk = this.getChunk(west);
+            if (chunk.status != ChunkStatus.FULL && chunk.status != ChunkStatus.LOADED) return false;
+        }
+        if (hasChunk(east)){
+            Chunk chunk = this.getChunk(east);
+            if (chunk.status != ChunkStatus.FULL && chunk.status != ChunkStatus.LOADED) return false;
+        }
+        if (hasChunk(south)){
+            Chunk chunk = this.getChunk(south);
+            if (chunk.status != ChunkStatus.FULL && chunk.status != ChunkStatus.LOADED) return false;
+        }
+        if (hasChunk(north)){
+            Chunk chunk = this.getChunk(north);
+            if (chunk.status != ChunkStatus.FULL && chunk.status != ChunkStatus.LOADED) return false;
+        }
+        return c.status == ChunkStatus.FULL || c.status == ChunkStatus.LOADED;
+    }
 
     public void alertNeighboringChunks(WorldChunk chunk){
         WorldChunk north = this.getChunk(chunk.pos.north());  north.changed = true;
@@ -144,6 +169,11 @@ public class WorldChunks {
     public WorldChunk getChunk(ChunkPos pos){
         long lpos = Util.coordsToLong(pos.x,pos.z);
         return this.chunkHashMap.computeIfAbsent(lpos,l->new WorldChunk(world,pos));
+    }
+
+    public boolean hasChunk(ChunkPos pos){
+        long lpos = Util.coordsToLong(pos.x,pos.z);
+        return this.chunkHashMap.containsKey(lpos);
     }
 
 }
