@@ -1,34 +1,27 @@
 package org.example.world;
 
+import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import org.example.Camera;
 import org.example.Main;
-import org.example.VertexBuffer;
-import org.example.VertexFormat;
 import org.example.blocks.Block;
 import org.example.util.MathUtil;
-import org.example.util.noises.Noise;
-import org.example.util.noises.Simplex3D;
-import org.joml.Vector2i;
-import org.lwjgl.opengl.GL11;
+import org.example.world.chunk.Chunk;
+import org.example.world.chunk.ChunkPos;
+import org.example.world.chunk.RenderedChunk;
+import org.example.world.chunk.WorldChunk;
 
 import java.util.*;
 import java.util.function.Predicate;
 
 public class World implements WorldAccessor {
 
-
     public List<WorldChunk> chunksToRender = new ArrayList<>();
 
-
-    private VertexBuffer lines;
-
-    public Noise noise;
+    public Long2ObjectLinkedOpenHashMap<RenderedChunk> renderedChunks = new Long2ObjectLinkedOpenHashMap<>();
 
     public volatile WorldChunks chunks;
 
     public World(int seed){
-        noise = new Simplex3D(seed);
-        lines = new VertexBuffer(1024, VertexFormat.POSITION_COLOR);
         this.chunks = new WorldChunks(this);
     }
 
@@ -40,32 +33,49 @@ public class World implements WorldAccessor {
 
         this.chunks.tick();
 
-
-
-
-        Iterator<WorldChunk> chunkIterator = this.chunksToRender.iterator();
-        while (chunkIterator.hasNext()){
-            WorldChunk chunk = chunkIterator.next();
-            if (chunk.status == ChunkStatus.FULL && !this.isChunkInRenderDistance(chunk,currentPos,Main.chunkRenderDistance)){
-                chunk.close();
-                chunkIterator.remove();
-            }else if (this.isChunkInRenderDistance(chunk,currentPos,Main.chunkRenderDistance) && chunk.status == ChunkStatus.LOADED && this.checkNeighbors(chunk,c->c.status.value >= ChunkStatus.LOADED.value)){
-                chunk.rebuild(this,false);
+        for (var entry : this.chunks.chunkHashMap.long2ObjectEntrySet()){
+            long l = entry.getLongKey();
+            Chunk c = entry.getValue();
+            if (!this.renderedChunks.containsKey(l) && c.status.value >= ChunkStatus.LOADED.value && this.checkNeighbors(c,chunk->chunk.status.value >= ChunkStatus.LOADED.value)) {
+                RenderedChunk chunk = new RenderedChunk(c);
+                chunk.recompile(false);
+                this.renderedChunks.put(l, chunk);
             }
         }
 
+//        Iterator<WorldChunk> chunkIterator = this.chunksToRender.iterator();
+//        while (chunkIterator.hasNext()){
+//            WorldChunk chunk = chunkIterator.next();
+//            if (chunk.status == ChunkStatus.FULL && !this.isChunkInRenderDistance(chunk,currentPos,Main.chunkRenderDistance)){
+//                chunk.close();
+//                chunkIterator.remove();
+//            }else if (this.isChunkInRenderDistance(chunk,currentPos,Main.chunkRenderDistance) && chunk.status == ChunkStatus.LOADED && this.checkNeighbors(chunk,c->c.status.value >= ChunkStatus.LOADED.value)){
+//                chunk.rebuild(this,false);
+//            }
+//        }
+
+        var iter = this.renderedChunks.long2ObjectEntrySet().iterator();
+
+        while (iter.hasNext()){
+            var entry = iter.next();
+            RenderedChunk c = entry.getValue();
+            if (c.ready && !this.isChunkInRenderDistance(c.renderedChunk,currentPos,Main.chunkRenderDistance)){
+                c.close();
+                iter.remove();
+            }
+        }
     }
 
 
     public boolean checkNeighbors(Chunk chunk, Predicate<Chunk> check){
-        if (!check.test(this.getChunkAt(chunk.pos.north()))) return false;
-        if (!check.test(this.getChunkAt(chunk.pos.west()))) return false;
-        if (!check.test(this.getChunkAt(chunk.pos.east()))) return false;
-        if (!check.test(this.getChunkAt(chunk.pos.south()))) return false;
+        if (!this.chunks.hasChunk(chunk.pos.north()) || !check.test(this.getChunkAt(chunk.pos.north()))) return false;
+        if (!this.chunks.hasChunk(chunk.pos.west()) || !check.test(this.getChunkAt(chunk.pos.west()))) return false;
+        if (!this.chunks.hasChunk(chunk.pos.east()) || !check.test(this.getChunkAt(chunk.pos.east()))) return false;
+        if (!this.chunks.hasChunk(chunk.pos.south()) || !check.test(this.getChunkAt(chunk.pos.south()))) return false;
         return true;
     }
 
-    public boolean isChunkInRenderDistance(WorldChunk chunk, ChunkPos currentPos, int renderDistance){
+    public boolean isChunkInRenderDistance(Chunk chunk, ChunkPos currentPos, int renderDistance){
         ChunkPos chunkPos = chunk.pos;
         return MathUtil.isValueBetween(chunkPos.x,currentPos.x - renderDistance,currentPos.x + renderDistance) &&
                 MathUtil.isValueBetween(chunkPos.z,currentPos.z - renderDistance,currentPos.z + renderDistance);
@@ -73,45 +83,31 @@ public class World implements WorldAccessor {
 
     public void render(){
         Camera camera = Main.camera;
-        if (chunksToRender != null) {
-            for (WorldChunk chunk : chunksToRender) {
-                chunk.render(this);
-            }
-        }
+//        if (chunksToRender != null) {
+//            for (WorldChunk chunk : chunksToRender) {
+//                chunk.render(this);
+//            }
+//        }
 
-        //doesnt work rn lol
-        if (Main.drawChunkLines){
-            Main.POSITION_COLOR.run(Main.projectionMatrix,Main.camera.getModelviewMatrix());
-            GL11.glLineWidth(4);
-
-            ChunkPos pos = new ChunkPos(camera.pos);
-            Vector2i p = pos.normalPos();
-
-            int dist = Main.chunkRenderDistance;
-            for (int i = -dist;i <= dist + 1;i++){
-                for (int g = -dist;g <= dist + 1;g++){
-                    lines.position(p.x + i * 16,-20,p.y + g * 16).color(1f,0,0,1f);
-                    lines.position(p.x + i * 16, WorldChunk.HEIGHT * 2,p.y + g * 16).color(1f,0,0,1f);
-                }
-            }
-            lines.drawLines(true);
-            Main.POSITION_COLOR.clear();
+        for (var entry : this.renderedChunks.long2ObjectEntrySet()){
+            RenderedChunk c = entry.getValue();
+            c.render(this);
         }
 
     }
 
-    public WorldChunk getChunkAt(ChunkPos pos){
+    public Chunk getChunkAt(ChunkPos pos){
         return this.chunks.getChunk(pos);
     }
 
-    public WorldChunk getChunkAt(int x, int z){
+    public Chunk getChunkAt(int x, int z){
         return this.chunks.getChunk(new ChunkPos(x >> 4,z >> 4));
     }
 
     @Override
     public Block getBlock(int x, int y, int z) {
         if (!isYInBounds(y)) return Block.NULL_AIR;
-        WorldChunk chunk = this.getChunkAt(x,z);
+        Chunk chunk = this.getChunkAt(x,z);
         if (chunk.status.value > ChunkStatus.LOADED.value){
             int lxpos = x - (x >> 4) * 16;
             int lzpos = z - (z >> 4) * 16;

@@ -1,7 +1,7 @@
 package org.example;
 
 import org.example.util.MathUtil;
-import org.example.world.WorldChunk;
+import org.example.world.chunk.WorldChunk;
 import org.example.world.World;
 import org.joml.Math;
 import org.joml.Matrix4f;

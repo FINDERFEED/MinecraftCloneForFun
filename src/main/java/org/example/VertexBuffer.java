@@ -241,7 +241,7 @@ public class VertexBuffer implements AutoCloseable{
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         this.destroy();
     }
 }

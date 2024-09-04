@@ -1,7 +1,7 @@
 package org.example;
 
 import org.example.util.MathUtil;
-import org.example.world.ChunkPos;
+import org.example.world.chunk.ChunkPos;
 import org.joml.*;
 import org.joml.Math;
 

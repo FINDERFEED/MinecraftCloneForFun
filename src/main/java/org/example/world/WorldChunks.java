@@ -4,18 +4,23 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import org.example.Camera;
 import org.example.Main;
 import org.example.util.Util;
+import org.example.world.chunk.Chunk;
+import org.example.world.chunk.ChunkPos;
+import org.example.world.chunk.DummyChunk;
+import org.example.world.chunk.WorldChunk;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Predicate;
 
 public class WorldChunks {
 
 
-    public Long2ObjectLinkedOpenHashMap<WorldChunk> chunkHashMap = new Long2ObjectLinkedOpenHashMap<>();
+    public Long2ObjectLinkedOpenHashMap<Chunk> chunkHashMap = new Long2ObjectLinkedOpenHashMap<>();
 
-    private List<CompletableFuture<WorldChunk>> chunkGenerationTasks = new ArrayList<>();
+    private List<CompletableFuture<Chunk>> chunkGenerationTasks = new ArrayList<>();
 
     public World world;
 
@@ -38,7 +43,7 @@ public class WorldChunks {
 
                 var c = entryIterator.next();
 
-                WorldChunk chunk = c.getValue();
+                Chunk chunk = c.getValue();
                 var pos = chunk.pos;
                 ChunkPos b = currentPos.subtract(pos);
                 int dist = Math.max(Math.abs(b.x),Math.abs(b.z));
@@ -50,12 +55,12 @@ public class WorldChunks {
                 }
             }
 
-            var list = this.getChunksInSquareRadius(currentPos, null, Main.chunkRenderDistance + 1);
+            var list = this.getChunksInSquareRadius(currentPos, null, Main.chunkRenderDistance + 1,false);
             boolean addedImmediate = false;
-            for (WorldChunk c : list){
+            for (Chunk c : list){
                 if (c.status == ChunkStatus.EMPTY) {
                     c.status = ChunkStatus.LOADING;
-                    CompletableFuture<WorldChunk> task = CompletableFuture.supplyAsync(() -> {
+                    CompletableFuture<Chunk> task = CompletableFuture.supplyAsync(() -> {
                         c.generate();
                         return c;
                     },Main.utilExecutor).handle((chunk, exception) -> {
@@ -66,29 +71,29 @@ public class WorldChunks {
                     });
                     this.chunkGenerationTasks.add(task);
                 }else{
-                    if (!world.chunksToRender.contains(c)) {
-                        world.chunksToRender.add(c);
+//                    if (!world.chunksToRender.contains(c)) {
+//                        world.chunksToRender.add(c);
                         addedImmediate = true;
-                    }
+//                    }
                 }
             }
-            if (addedImmediate){
-                world.chunksToRender.sort(Comparator.comparingInt(chunk -> {
-                    ChunkPos pos = chunk.pos;
-                    return Math.abs(currentPos.x - pos.x) + Math.abs(currentPos.z - pos.z);
-                }));
-            }
+//            if (addedImmediate){
+//                world.chunksToRender.sort(Comparator.comparingInt(chunk -> {
+//                    ChunkPos pos = chunk.pos;
+//                    return Math.abs(currentPos.x - pos.x) + Math.abs(currentPos.z - pos.z);
+//                }));
+//            }
             initialized = false;
 
         }
-        Iterator<CompletableFuture<WorldChunk>> tasks = this.chunkGenerationTasks.iterator();
+        Iterator<CompletableFuture<Chunk>> tasks = this.chunkGenerationTasks.iterator();
         boolean wasAdded = false;
         while (tasks.hasNext()){
             var task = tasks.next();
             if (task.isDone()) {
                 try {
-                    WorldChunk c = task.get();
-                    world.chunksToRender.add(c);
+                    Chunk c = task.get();
+//                    world.chunksToRender.add(c);
                     wasAdded = true;
                 } catch (CompletionException | InterruptedException | ExecutionException e) {
                     throw new RuntimeException(e.getCause());
@@ -96,39 +101,59 @@ public class WorldChunks {
                 tasks.remove();
             }
         }
-        if (wasAdded){
-            world.chunksToRender.sort(Comparator.comparingInt(chunk -> {
-                ChunkPos pos = chunk.pos;
-                return Math.abs(currentPos.x - pos.x) + Math.abs(currentPos.z - pos.z);
-            }));
-        }
+//        if (wasAdded){
+//            world.chunksToRender.sort(Comparator.comparingInt(chunk -> {
+//                ChunkPos pos = chunk.pos;
+//                return Math.abs(currentPos.x - pos.x) + Math.abs(currentPos.z - pos.z);
+//            }));
+//        }
     }
 
 
 
-    public List<WorldChunk> getChunksInSquareRadius(ChunkPos pos, List<ChunkStatus> status, int distance){
-        List<WorldChunk> chunks = new ArrayList<>();
+    public List<Chunk> getChunksInSquareRadius(ChunkPos pos, Predicate<Chunk> chunkPredicate, int distance, boolean nullToDummies){
+        List<Chunk> chunks = new ArrayList<>();
 
-        WorldChunk c = this.getChunk(pos);
-        if (status == null || status.contains(c.status)) chunks.add(c);
-
+        if (!nullToDummies || this.hasChunk(pos)) {
+            Chunk c = this.getChunk(pos);
+            if (chunkPredicate == null || chunkPredicate.test(c)) chunks.add(c);
+        }
         for (int i = 1; i <= distance;i++){
             for (int x = -i; x <= i;x++){
                 ChunkPos p1 = pos.offset(x,i);
                 ChunkPos p2 = pos.offset(x,-i);
-                WorldChunk chunk = this.getChunk(p1);
-                WorldChunk chunk2 = this.getChunk(p2);
-                if (status == null || status.contains(chunk.status)) chunks.add(chunk);
-                if (status == null || status.contains(chunk2.status)) chunks.add(chunk2);
+                if (!nullToDummies || this.hasChunk(p1)) {
+                    Chunk chunk = this.getChunk(p1);
+                    if (chunkPredicate == null || chunkPredicate.test(chunk)) chunks.add(chunk);
+                }else{
+                    chunks.add(new DummyChunk(world,p1));
+                }
+
+                if (!nullToDummies || this.hasChunk(p2)) {
+                    Chunk chunk2 = this.getChunk(p2);
+                    if (chunkPredicate == null || chunkPredicate.test(chunk2)) chunks.add(chunk2);
+                }else{
+                    chunks.add(new DummyChunk(world,p1));
+                }
             }
 
             for (int z = -i + 1; z <= i - 1;z++){
                 ChunkPos p1 = pos.offset(-i,z);
                 ChunkPos p2 = pos.offset(i,z);
-                WorldChunk chunk = this.getChunk(p1);
-                WorldChunk chunk2 = this.getChunk(p2);
-                if (status == null || status.contains(chunk.status)) chunks.add(chunk);
-                if (status == null || status.contains(chunk2.status)) chunks.add(chunk2);
+
+                if (!nullToDummies || this.hasChunk(p1)) {
+                    Chunk chunk = this.getChunk(p1);
+                    if (chunkPredicate == null || chunkPredicate.test(chunk)) chunks.add(chunk);
+                }else{
+                    chunks.add(new DummyChunk(world,p1));
+                }
+
+                if (!nullToDummies || this.hasChunk(p2)) {
+                    Chunk chunk2 = this.getChunk(p2);
+                    if (chunkPredicate == null || chunkPredicate.test(chunk2)) chunks.add(chunk2);
+                }else{
+                    chunks.add(new DummyChunk(world,p1));
+                }
             }
         }
         return chunks;
@@ -159,14 +184,14 @@ public class WorldChunks {
     }
 
     public void alertNeighboringChunks(WorldChunk chunk){
-        WorldChunk north = this.getChunk(chunk.pos.north());  north.changed = true;
-        WorldChunk west = this.getChunk(chunk.pos.west()); west.changed = true;
-        WorldChunk east = this.getChunk(chunk.pos.east()); east.changed = true;
-        WorldChunk south = this.getChunk(chunk.pos.south());  south.changed = true;
+        Chunk north = this.getChunk(chunk.pos.north());  north.changed = true;
+        Chunk west = this.getChunk(chunk.pos.west()); west.changed = true;
+        Chunk east = this.getChunk(chunk.pos.east()); east.changed = true;
+        Chunk south = this.getChunk(chunk.pos.south());  south.changed = true;
     }
 
 
-    public WorldChunk getChunk(ChunkPos pos){
+    public Chunk getChunk(ChunkPos pos){
         long lpos = Util.coordsToLong(pos.x,pos.z);
         return this.chunkHashMap.computeIfAbsent(lpos,l->new WorldChunk(world,pos));
     }

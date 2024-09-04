@@ -1,4 +1,4 @@
-package org.example.world;
+package org.example.world.chunk;
 
 import org.joml.Vector2i;
 import org.joml.Vector3d;

@@ -2,6 +2,7 @@ package org.example.world;
 
 import org.example.blocks.Block;
 import org.example.util.Util;
+import org.example.world.chunk.*;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -10,12 +11,13 @@ import java.util.List;
 public class LocalChunkWorld implements WorldAccessor {
 
 
-    public HashMap<Long, WorldChunk> chunkHashMap = new LinkedHashMap<>();
+    public HashMap<Long, Chunk> chunkHashMap = new LinkedHashMap<>();
 
-    public LocalChunkWorld(World world,ChunkPos pos,int chunkRadius){
-        List<WorldChunk> chunks = world.chunks.getChunksInSquareRadius(pos,null,chunkRadius);
-        for (WorldChunk c : chunks){
+    public LocalChunkWorld(World world, ChunkPos pos, int chunkRadius){
+        List<Chunk> chunks = world.chunks.getChunksInSquareRadius(pos,null,chunkRadius,true);
+        for (Chunk c : chunks){
             long p = Util.coordsToLong(c.pos.x,c.pos.z);
+            c = new ChunkSnapshot(c);
             chunkHashMap.put(p,c);
         }
     }
@@ -32,7 +34,7 @@ public class LocalChunkWorld implements WorldAccessor {
         if (!chunkHashMap.containsKey(c)){
             throw new RuntimeException("Cannot get chunk as it doesn't exist in current context: [" + xc + "," + zc +"]");
         }
-        WorldChunk chunk = chunkHashMap.get(c);
+        Chunk chunk = chunkHashMap.get(c);
         int lxpos = x - xc * 16;
         int lzpos = z - zc * 16;
         return chunk.getBlock(lxpos,y,lzpos);
