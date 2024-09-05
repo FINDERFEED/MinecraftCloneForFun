@@ -10,6 +10,8 @@ import org.joml.*;
 import org.spongepowered.noise.Noise;
 import org.spongepowered.noise.NoiseQuality;
 
+import java.lang.Math;
+
 public class WorldChunk extends Chunk implements AutoCloseable {
 
     public WorldChunk(World world, ChunkPos pos){
@@ -39,18 +41,19 @@ public class WorldChunk extends Chunk implements AutoCloseable {
                 for (int y = 0; y < h;y++) {
                     Block block = this.getBlock(x,y,z);
                     if (!block.isAir()) {
-                        float m1 = 120.542f;
-                        float m1y = 120.542f;
-                        double val1 = Noise.gradientCoherentNoise3D(xn / m1, y / m1y, zn / m1, 54534, NoiseQuality.STANDARD);
-//                        double val1 = n.get(xn / m1, y / m1y, zn / m1);
+                        float m1 = 50.542f;
+                        float m1y = 30.542f;
+//                        double val1 = Noise.gradientCoherentNoise3D(xn / m1, y / m1y, zn / m1, 54534, NoiseQuality.STANDARD);
+                        double val1 = n.get(xn / m1, y / m1y, zn / m1);
 
-                        float p = (y / (float) HEIGHT);
-                        float bias = MathUtil.lerp(0.2f,0.7f,p);
+                        int height = this.getHeight(x,z);
+                        float p = (y / (float) height);
+                        float bias = MathUtil.lerp(0.0f,0.8f,p);
                         float bias2 = 1 / (y + 0.01f);
 
 
 
-                        val1 = val1 * 2 - 1;
+//                        val1 = val1 * 2 - 1;
                         val1 += bias + bias2;
                         if (val1 < 0){
                             this.setBlock(Block.AIR,x,y,z);
