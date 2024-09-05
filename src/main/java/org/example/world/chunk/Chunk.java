@@ -19,6 +19,8 @@ public abstract class Chunk implements AutoCloseable {
 
     public short[] blocks;
 
+    public short[] heightmap;
+
     public boolean changed = false;
 
     public Chunk(World world, ChunkPos pos,boolean init){
@@ -39,6 +41,7 @@ public abstract class Chunk implements AutoCloseable {
                     }
                 }
             }
+            this.heightmap = new short[CHUNK_SIZE * CHUNK_SIZE];
         }
     }
 
@@ -48,6 +51,14 @@ public abstract class Chunk implements AutoCloseable {
 
     public abstract void generate();
 
+
+    public int getHeight(int x,int z){
+        return this.heightmap[x + z * CHUNK_SIZE];
+    }
+
+    public void setHeight(int x,int z,int height){
+        this.heightmap[x + z * CHUNK_SIZE] = (short) height;
+    }
 
     public void setBlock(Block block,int x, int y, int z){
         this.blocks[y * CHUNK_SIZE + z * (CHUNK_SIZE * HEIGHT) + x] = (short) block.registeredId;
