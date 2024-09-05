@@ -1,5 +1,7 @@
 package org.example;
 
+import org.example.periphery.Keyboard;
+import org.example.periphery.Mouse;
 import org.example.util.MathUtil;
 import org.example.world.chunk.WorldChunk;
 import org.example.world.World;
@@ -31,6 +33,7 @@ public class Main {
 
     public static int chunkRenderDistance = 10;
     public static Mouse mouse;
+    public static Keyboard keyboard;
     public static Camera camera;
     public static Matrix4f projectionMatrix;
     public static int width = 1920;
@@ -59,6 +62,7 @@ public class Main {
         createCapabilities();
 
         mouse = new Mouse();
+        keyboard = new Keyboard();
         camera = new Camera(new Vector3d(0, WorldChunk.HEIGHT / 2,0));
 
         int texturesAmount = 4;
@@ -157,29 +161,19 @@ public class Main {
     }
 
     public static void keyCallback(long window, int key, int scancode, int action, int mods){
+
+        keyboard.keyCallback(window,key,scancode,action,mods);
+
         if (action != GLFW_PRESS && action != GLFW_REPEAT) return;
+
         float speed = 10f;
-        if (key == GLFW_KEY_W){
-            camera.moveForward(speed);
-        }else if (key == GLFW_KEY_S){
-            camera.moveForward(-speed);
-        }else if (key == GLFW_KEY_A){
-            camera.moveSidewards(-speed);
-        }else if (key == GLFW_KEY_D){
-            camera.moveSidewards(speed);
-        }else if (key == GLFW_KEY_SPACE){
-            camera.move(0,1,0);
-        }else if (key == GLFW_KEY_LEFT_SHIFT){
-            camera.move(0,-1,0);
-        }else if (key == GLFW_KEY_ESCAPE){
+        if (key == GLFW_KEY_ESCAPE){
             int mode = glfwGetInputMode(window,GLFW_CURSOR);
             if (mode == GLFW_CURSOR_NORMAL) {
                 glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
             }else{
                 glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
             }
-        }else if (key == GLFW_KEY_L){
-            drawChunkLines = !drawChunkLines;
         }else if (key == GLFW_KEY_N){
             chunkRenderDistance++;
             System.out.println(chunkRenderDistance);

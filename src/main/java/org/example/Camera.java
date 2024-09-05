@@ -1,9 +1,11 @@
 package org.example;
 
+import org.example.periphery.Keyboard;
 import org.example.util.MathUtil;
 import org.example.world.chunk.ChunkPos;
 import org.joml.*;
 import org.joml.Math;
+import org.lwjgl.glfw.GLFW;
 
 public class Camera {
 
@@ -27,6 +29,9 @@ public class Camera {
 
 
     public void update(){
+
+
+
         ChunkPos currentcPos = new ChunkPos(pos);
         ChunkPos oldcPos = new ChunkPos(this.oldPos);
         if (!currentcPos.equals(oldcPos)){
@@ -35,8 +40,30 @@ public class Camera {
             movedBetweenChunks = false;
         }
         this.oldPos = new Vector3d(pos);
+        this.handleMovement();
     }
 
+    private void handleMovement(){
+        Keyboard keyboard = Main.keyboard;
+        float speed = keyboard.hasCtrlDown() ? 10f : 1f;
+
+        if (keyboard.isKeyPressed(GLFW.GLFW_KEY_W)){
+            this.moveForward(speed);
+        } else if (keyboard.isKeyPressed(GLFW.GLFW_KEY_S)){
+            this.moveForward(-speed);
+        }
+        if (keyboard.isKeyPressed(GLFW.GLFW_KEY_A)){
+            this.moveSidewards(-speed);
+        } else if (keyboard.isKeyPressed(GLFW.GLFW_KEY_D)){
+            this.moveSidewards(speed);
+        }
+
+        if (keyboard.isKeyPressed(GLFW.GLFW_KEY_SPACE)){
+            this.move(0,speed,0);
+        }else if (keyboard.isKeyPressed(GLFW.GLFW_KEY_LEFT_SHIFT)){
+            this.move(0,-speed,0);
+        }
+    }
 
     public void calculateModelviewMatrix(float pticks){
         Matrix3f mt = new Matrix3f().rotate(Math.toRadians(yaw),0,1,0).rotate(Math.toRadians(pitch),1,0,0);
@@ -51,8 +78,8 @@ public class Camera {
         modelviewMatrix = new Matrix4fStack(16);
 
         modelviewMatrix.lookAt(
-                new Vector3f(0,(float) p.y,0),
-                new Vector3f(0,(float) p.y,0).add(look,new Vector3f()),
+                new Vector3f(0,(float) 0,0),
+                new Vector3f(0,(float) 0,0).add(look,new Vector3f()),
                 new Vector3f(0,1,0)
         );
     }

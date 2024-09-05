@@ -79,7 +79,7 @@ public class RenderedChunk implements AutoCloseable {
 
             matrix.pushMatrix();
 
-            matrix.translate((float) offset.x,0,(float) offset.z);
+            matrix.translate((float) offset.x,(float)-pos.y,(float) offset.z);
 
 
 
