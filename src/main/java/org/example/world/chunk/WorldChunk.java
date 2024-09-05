@@ -41,19 +41,16 @@ public class WorldChunk extends Chunk implements AutoCloseable {
                 for (int y = 0; y < h;y++) {
                     Block block = this.getBlock(x,y,z);
                     if (!block.isAir()) {
-                        float m1 = 50.542f;
-                        float m1y = 30.542f;
-//                        double val1 = Noise.gradientCoherentNoise3D(xn / m1, y / m1y, zn / m1, 54534, NoiseQuality.STANDARD);
+                        float m1 = 137.343f;
+                        float m1y = m1 / 2.5f;
                         double val1 = n.get(xn / m1, y / m1y, zn / m1);
 
                         int height = this.getHeight(x,z);
                         float p = (y / (float) height);
-                        float bias = MathUtil.lerp(0.0f,0.8f,p);
-                        float bias2 = 1 / (y + 0.01f);
+                        float bias = MathUtil.lerp(0.2f,0.8f,p);
+                        float bias2 = MathUtil.clamp(1 / (y + 0.01f) - 0.25f, 0 ,Integer.MAX_VALUE);
 
 
-
-//                        val1 = val1 * 2 - 1;
                         val1 += bias + bias2;
                         if (val1 < 0){
                             this.setBlock(Block.AIR,x,y,z);
