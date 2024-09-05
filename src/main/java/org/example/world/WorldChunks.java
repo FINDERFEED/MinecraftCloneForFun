@@ -56,7 +56,6 @@ public class WorldChunks {
             }
 
             var list = this.getChunksInSquareRadius(currentPos, null, Main.chunkRenderDistance + 1,false);
-            boolean addedImmediate = false;
             for (Chunk c : list){
                 if (c.status == ChunkStatus.EMPTY) {
                     c.status = ChunkStatus.LOADING;
@@ -70,31 +69,17 @@ public class WorldChunks {
                         return chunk;
                     });
                     this.chunkGenerationTasks.add(task);
-                }else{
-//                    if (!world.chunksToRender.contains(c)) {
-//                        world.chunksToRender.add(c);
-                        addedImmediate = true;
-//                    }
                 }
             }
-//            if (addedImmediate){
-//                world.chunksToRender.sort(Comparator.comparingInt(chunk -> {
-//                    ChunkPos pos = chunk.pos;
-//                    return Math.abs(currentPos.x - pos.x) + Math.abs(currentPos.z - pos.z);
-//                }));
-//            }
             initialized = false;
 
         }
         Iterator<CompletableFuture<Chunk>> tasks = this.chunkGenerationTasks.iterator();
-        boolean wasAdded = false;
         while (tasks.hasNext()){
             var task = tasks.next();
             if (task.isDone()) {
                 try {
                     Chunk c = task.get();
-//                    world.chunksToRender.add(c);
-                    wasAdded = true;
                 } catch (CompletionException | InterruptedException | ExecutionException e) {
                     throw new RuntimeException(e.getCause());
                 }

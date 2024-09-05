@@ -23,6 +23,14 @@ public class MathUtil {
         }
     }
 
+    public static float easeInOut(float p){
+        if (p <= 0.5){
+            return 2 * p * p;
+        }else{
+            return -2 * (1 - p) * (1 - p) + 1;
+        }
+    }
+
 
     public static boolean isValueBetween(int val,int down,int up){
         return !(val < down || val > up);

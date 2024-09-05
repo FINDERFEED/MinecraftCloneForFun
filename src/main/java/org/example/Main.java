@@ -36,8 +36,8 @@ public class Main {
     public static Keyboard keyboard;
     public static Camera camera;
     public static Matrix4f projectionMatrix;
-    public static int width = 1920;
-    public static int height = 1080;
+    public static int width = 1920/2;
+    public static int height = 1080/2;
     public static final float Z_NEAR = 0.05f;
     public static final float Z_FAR = 100000f;
     public static Texture atlas = null;
@@ -166,7 +166,6 @@ public class Main {
 
         if (action != GLFW_PRESS && action != GLFW_REPEAT) return;
 
-        float speed = 10f;
         if (key == GLFW_KEY_ESCAPE){
             int mode = glfwGetInputMode(window,GLFW_CURSOR);
             if (mode == GLFW_CURSOR_NORMAL) {
@@ -218,7 +217,7 @@ public class Main {
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // the window will be resizable
 
         // Create the window
-        window = glfwCreateWindow(300, 300, "Hello World!", NULL, NULL);
+        window = glfwCreateWindow(width, height, "Hello World!", NULL, NULL);
         if ( window == NULL )
             throw new RuntimeException("Failed to create the GLFW window");
 
