@@ -2,6 +2,7 @@ package org.example;
 
 import org.example.periphery.Keyboard;
 import org.example.util.MathUtil;
+import org.example.world.World;
 import org.example.world.chunk.ChunkPos;
 import org.joml.*;
 import org.joml.Math;
@@ -30,8 +31,6 @@ public class Camera {
 
     public void update(){
 
-
-
         ChunkPos currentcPos = new ChunkPos(pos);
         ChunkPos oldcPos = new ChunkPos(this.oldPos);
         if (!currentcPos.equals(oldcPos)){
@@ -45,7 +44,7 @@ public class Camera {
 
     private void handleMovement(){
         Keyboard keyboard = Main.keyboard;
-        float speed = keyboard.hasCtrlDown() ? 10f : 1f;
+        float speed = keyboard.hasCtrlDown() ? 5f : 1f;
 
         if (keyboard.isKeyPressed(GLFW.GLFW_KEY_W)){
             this.moveForward(speed);

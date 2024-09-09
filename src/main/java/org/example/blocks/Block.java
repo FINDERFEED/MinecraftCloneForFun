@@ -18,7 +18,7 @@ public class Block {
     public static final Block AIR = new Block("air",-1,-1,-1);
     public static final Block NULL_AIR = new Block("no_chunk_air",-1,-1,-1);
     public static final Block GRASS = new Block("grass",0,2,1);
-    public static final Block STONE = new Block("grass",3,3,3);
+    public static final Block STONE = new Block("stone",3,3,3);
 
     private int top;
     private int bottom;
@@ -61,18 +61,22 @@ public class Block {
         Vector3i normal;
         if (this.shouldRenderSide(world,Side.SOUTH,(int) gx, (int) gy,(int) gz)) {
             normal = Side.SOUTH.normal;
-            buffer.position(x, y, z).color(1f, 1f, 1f, 1f).uv(sU, sV).normal(normal.x, normal.y, normal.z);
-            buffer.position(x + 1, y, z).color(1f, 1f, 1f, 1f).uv(sU + step, sV).normal(normal.x, normal.y, normal.z);
-            buffer.position(x + 1, y + 1, z).color(1f, 1f, 1f, 1f).uv(sU + step, sV + step).normal(normal.x, normal.y, normal.z);
-            buffer.position(x, y + 1, z).color(1f, 1f, 1f, 1f).uv(sU, sV + step).normal(normal.x, normal.y, normal.z);
-        }
 
-        if (this.shouldRenderSide(world,Side.NORTH,(int) gx, (int) gy,(int) gz)) {
-            normal = Side.NORTH.normal;
             buffer.position(x, y, z + 1).color(1f, 1f, 1f, 1f).uv(sU + step, sV).normal(normal.x, normal.y, normal.z);
             buffer.position(x + 1, y, z + 1).color(1f, 1f, 1f, 1f).uv(sU, sV).normal(normal.x, normal.y, normal.z);
             buffer.position(x + 1, y + 1, z + 1).color(1f, 1f, 1f, 1f).uv(sU, sV + step).normal(normal.x, normal.y, normal.z);
             buffer.position(x, y + 1, z + 1).color(1f, 1f, 1f, 1f).uv(sU + step, sV + step).normal(normal.x, normal.y, normal.z);
+
+        }
+
+        if (this.shouldRenderSide(world,Side.NORTH,(int) gx, (int) gy,(int) gz)) {
+            normal = Side.NORTH.normal;
+
+            buffer.position(x, y + 1, z).color(1f, 1f, 1f, 1f).uv(sU, sV + step).normal(normal.x, normal.y, normal.z);
+            buffer.position(x + 1, y + 1, z).color(1f, 1f, 1f, 1f).uv(sU + step, sV + step).normal(normal.x, normal.y, normal.z);
+            buffer.position(x + 1, y, z).color(1f, 1f, 1f, 1f).uv(sU + step, sV).normal(normal.x, normal.y, normal.z);
+            buffer.position(x, y, z).color(1f, 1f, 1f, 1f).uv(sU, sV).normal(normal.x, normal.y, normal.z);
+
         }
 
         if (this.shouldRenderSide(world,Side.WEST,(int) gx, (int) gy,(int) gz)) {
@@ -85,10 +89,12 @@ public class Block {
 
         if (this.shouldRenderSide(world,Side.EAST,(int) gx, (int) gy,(int) gz)) {
             normal = Side.EAST.normal;
-            buffer.position(x + 1, y, z).color(1f, 1f, 1f, 1f).uv(sU, sV).normal(normal.x, normal.y, normal.z);
-            buffer.position(x + 1, y, z + 1).color(1f, 1f, 1f, 1f).uv(sU + step, sV).normal(normal.x, normal.y, normal.z);
-            buffer.position(x + 1, y + 1, z + 1).color(1f, 1f, 1f, 1f).uv(sU + step, sV + step).normal(normal.x, normal.y, normal.z);
+            
             buffer.position(x + 1, y + 1, z).color(1f, 1f, 1f, 1f).uv(sU, sV + step).normal(normal.x, normal.y, normal.z);
+            buffer.position(x + 1, y + 1, z + 1).color(1f, 1f, 1f, 1f).uv(sU + step, sV + step).normal(normal.x, normal.y, normal.z);
+            buffer.position(x + 1, y, z + 1).color(1f, 1f, 1f, 1f).uv(sU + step, sV).normal(normal.x, normal.y, normal.z);
+            buffer.position(x + 1, y, z).color(1f, 1f, 1f, 1f).uv(sU, sV).normal(normal.x, normal.y, normal.z);
+
         }
         float dU = uById(this.bottom);
         float dV = vById(this.bottom) - step;
@@ -105,10 +111,12 @@ public class Block {
 
         if (this.shouldRenderSide(world,Side.TOP,(int) gx, (int) gy,(int) gz)) {
             normal = Side.TOP.normal;
-            buffer.position(x, y + 1, z).color(1f, 1f, 1f, 1f).uv(tU, tV).normal(normal.x, normal.y, normal.z);
-            buffer.position(x + 1, y + 1, z).color(1f, 1f, 1f, 1f).uv(tU + step, tV).normal(normal.x, normal.y, normal.z);
-            buffer.position(x + 1, y + 1, z + 1).color(1f, 1f, 1f, 1f).uv(tU + step, tV + step).normal(normal.x, normal.y, normal.z);
+
             buffer.position(x, y + 1, z + 1).color(1f, 1f, 1f, 1f).uv(tU, tV + step).normal(normal.x, normal.y, normal.z);
+            buffer.position(x + 1, y + 1, z + 1).color(1f, 1f, 1f, 1f).uv(tU + step, tV + step).normal(normal.x, normal.y, normal.z);
+            buffer.position(x + 1, y + 1, z).color(1f, 1f, 1f, 1f).uv(tU + step, tV).normal(normal.x, normal.y, normal.z);
+            buffer.position(x, y + 1, z).color(1f, 1f, 1f, 1f).uv(tU, tV).normal(normal.x, normal.y, normal.z);
+
         }
     }
 
@@ -121,4 +129,8 @@ public class Block {
         return 1 - v * 16f / Main.atlas.getTexHeight();
     }
 
+    @Override
+    public String toString() {
+        return name;
+    }
 }

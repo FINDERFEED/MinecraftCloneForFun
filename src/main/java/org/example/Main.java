@@ -1,5 +1,6 @@
 package org.example;
 
+import org.example.blocks.Block;
 import org.example.periphery.Keyboard;
 import org.example.periphery.Mouse;
 import org.example.util.MathUtil;
@@ -7,6 +8,7 @@ import org.example.world.chunk.WorldChunk;
 import org.example.world.World;
 import org.joml.Math;
 import org.joml.Matrix4f;
+import org.joml.Matrix4fStack;
 import org.joml.Vector3d;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
@@ -42,8 +44,9 @@ public class Main {
     public static final float Z_FAR = 100000f;
     public static Texture atlas = null;
 
+    public static boolean debugRendering = false;
+
     public static Timer timer = new Timer();
-    public static boolean drawChunkLines = false;
 
     public static Shader POSITION_COLOR;
     public static Shader BLOCK;
@@ -79,9 +82,7 @@ public class Main {
         BLOCK = new Shader("block",VertexFormat.POSITION_COLOR_UV_NORMAL);
         POSITION_COLOR = new Shader("position_color",VertexFormat.POSITION_COLOR);
 
-
-
-
+        VertexBuffer lines = new VertexBuffer(1024,VertexFormat.POSITION_COLOR);
 
 
         while ( !glfwWindowShouldClose(window) ) {
@@ -100,21 +101,11 @@ public class Main {
             framesRendered++;
 
             camera.calculateModelviewMatrix(timer.partialTick);
-            updateProjectionMatrix();
-
-            GL11.glEnable(GL_DEPTH_TEST);
-            BLOCK.run();
-            BLOCK.mat4Uniform("projection",projectionMatrix);
-            BLOCK.mat4Uniform("modelview",camera.getModelviewMatrix());
-            atlas.bind(0);
-            BLOCK.samplerUniform(0);
-
-            world.render();
+            setProjectionPerspectiveMatrix();
+            renderWorld(world);
 
 
-
-            BLOCK.clear();
-
+            renderWorldSidesDebug(lines);
 
 
 
@@ -129,7 +120,54 @@ public class Main {
 
     }
 
+    private static void renderWorld(World world){
+        GL11.glEnable(GL_DEPTH_TEST);
+        GL11.glEnable(GL_CULL_FACE);
+        BLOCK.run();
+        BLOCK.mat4Uniform("projection",projectionMatrix);
+        BLOCK.mat4Uniform("modelview",camera.getModelviewMatrix());
+        atlas.bind(0);
+        BLOCK.samplerUniform(0);
+        world.render();
+        BLOCK.clear();
+        GL11.glDisable(GL_CULL_FACE);
+    }
 
+    private static void renderWorldSidesDebug(VertexBuffer lines){
+        if (debugRendering){
+            GL11.glDisable(GL_DEPTH_TEST);
+            float len = 60;
+            setProjectionOrthoMatrix();
+            POSITION_COLOR.run();
+            POSITION_COLOR.mat4Uniform("projection",projectionMatrix);
+            POSITION_COLOR.mat4Uniform("modelview",new Matrix4f().identity());
+            GL11.glLineWidth(4);
+            Matrix4fStack rot = new Matrix4fStack(3);
+            rot.pushMatrix();
+            rot.translate(
+                    width/2f,height/2f,-100
+            );
+            rot.rotateX(Math.toRadians(camera.pitch));
+
+            rot.rotateY(Math.toRadians(camera.yaw));
+
+            lines.position(rot,0,0,0).color(1f,0,0,1f);
+            lines.position(rot,len,0,0).color(1f,0,0,1f);
+
+            lines.position(rot,0,0,0).color(0f,0,1f,1f);
+            lines.position(rot,0,0,len).color(0f,0,1f,1f);
+
+            lines.position(rot,0,0,0).color(0f,1f,0,1f);
+            lines.position(rot,0,len,0).color(0f,1f,0,1f);
+
+
+
+            lines.drawLines(true);
+
+            rot.popMatrix();
+            POSITION_COLOR.clear();
+        }
+    }
 
     public static void tick(World world){
         world.tick();
@@ -141,9 +179,17 @@ public class Main {
         run();
     }
 
-    public static void updateProjectionMatrix(){
+    public static void setProjectionPerspectiveMatrix(){
         projectionMatrix = new Matrix4f().perspective(Math.toRadians(60),width / (float) height,Z_NEAR,Z_FAR,false);
     }
+
+    public static void setProjectionOrthoMatrix(){
+        projectionMatrix = new Matrix4f().ortho(
+                0,width,0,height,Z_NEAR,Z_FAR
+        );
+    }
+
+
 
     public static void onWindowResize(long window, int width, int height){
         Main.width = width;
@@ -179,6 +225,8 @@ public class Main {
         }else if (key == GLFW_KEY_M){
             chunkRenderDistance = Math.clamp(chunkRenderDistance - 1,1,Integer.MAX_VALUE);
             System.out.println(chunkRenderDistance);
+        }else if (key == GLFW_KEY_F3){
+            debugRendering = !debugRendering;
         }
     }
 

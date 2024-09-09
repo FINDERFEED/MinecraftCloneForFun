@@ -12,7 +12,7 @@ float lightCoefficient(){
     vec3 light = vec3(0,-1,0);
     float d = (-dot(light,blockNormal) + 1) / 2;
     d = sqrt(d);
-    float minLight = 0.2;
+    float minLight = 0.4;
 
     return clamp(d,minLight,1);
 }

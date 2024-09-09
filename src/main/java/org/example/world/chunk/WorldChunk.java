@@ -59,6 +59,7 @@ public class WorldChunk extends Chunk implements AutoCloseable {
                 }
             }
         }
+        this.recalculateHeightmap();
     }
 
     private void buildTerrain(){
@@ -120,6 +121,20 @@ public class WorldChunk extends Chunk implements AutoCloseable {
     }
 
 
+    public void recalculateHeightmap(){
+        for (int x = 0;x < CHUNK_SIZE;x++){
+            for (int z = 0;z < CHUNK_SIZE;z++){
+                for (int y = HEIGHT - 1;y >= 0;y--){
+                    Block block = this.getBlock(x,y,z);
+                    if (!block.isAir()){
+                        this.setHeight(x,z,y);
+                        break;
+                    }
+                }
+            }
+        }
+
+    }
 
 
     @Override

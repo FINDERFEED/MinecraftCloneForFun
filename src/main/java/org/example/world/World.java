@@ -108,7 +108,7 @@ public class World implements WorldAccessor {
     public Block getBlock(int x, int y, int z) {
         if (!isYInBounds(y)) return Block.NULL_AIR;
         Chunk chunk = this.getChunkAt(x,z);
-        if (chunk.status.value > ChunkStatus.LOADED.value){
+        if (chunk.status.value >= ChunkStatus.LOADED.value){
             int lxpos = x - (x >> 4) * 16;
             int lzpos = z - (z >> 4) * 16;
             return chunk.getBlock(lxpos,y,lzpos);

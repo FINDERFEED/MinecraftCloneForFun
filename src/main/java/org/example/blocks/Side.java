@@ -6,10 +6,10 @@ import org.joml.Vector3i;
 public enum Side {
     TOP(0,1,0),
     BOTTOM(0,-1,0),
-    NORTH(0,0,1),
+    NORTH(0,0,-1),
     EAST(1,0,0),
     WEST(-1,0,0),
-    SOUTH(0,0,-1);
+    SOUTH(0,0,1);
 
     Vector3i normal;
 
