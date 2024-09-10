@@ -1,5 +1,6 @@
-package org.example;
+package org.example.textures;
 
+import org.example.Texture2DSettings;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryUtil;
 
@@ -31,7 +32,16 @@ public class Texture {
     private int texHeight = -1;
     private int channels;
     private String name;
-    public Texture(String name,Texture2DSettings settings,boolean load){
+
+
+    public Texture(String name,ByteBuffer textureData,Texture2DSettings settings){
+        this.name = name;
+        this.setupTexture(textureData,settings);
+        this.texWidth = settings.getWidth();
+        this.texHeight = settings.getHeight();
+    }
+
+    public Texture(String name, Texture2DSettings settings, boolean load){
         STBImage.stbi_set_flip_vertically_on_load(true);
         this.name = name;
         ByteBuffer buffer = null;

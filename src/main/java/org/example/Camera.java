@@ -67,13 +67,6 @@ public class Camera {
     public void calculateModelviewMatrix(float pticks){
         Matrix3f mt = new Matrix3f().rotate(Math.toRadians(yaw),0,1,0).rotate(Math.toRadians(pitch),1,0,0);
         look = mt.transform(0,0,-1,new Vector3f());
-
-        Vector3d p = new Vector3d(
-                MathUtil.lerp(oldPos.x,pos.x,pticks),
-                MathUtil.lerp(oldPos.y,pos.y,pticks),
-                MathUtil.lerp(oldPos.z,pos.z,pticks)
-        );
-
         modelviewMatrix = new Matrix4fStack(16);
 
         modelviewMatrix.lookAt(

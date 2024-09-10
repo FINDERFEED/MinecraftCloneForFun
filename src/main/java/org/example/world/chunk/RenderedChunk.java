@@ -5,11 +5,12 @@ import org.example.Main;
 import org.example.VertexBuffer;
 import org.example.VertexFormat;
 import org.example.blocks.Block;
+import org.example.util.MathUtil;
 import org.example.world.LocalChunkWorld;
 import org.example.world.World;
 import org.example.world.WorldAccessor;
-import org.joml.Vector2i;
-import org.joml.Vector3d;
+import org.joml.*;
+import org.joml.Math;
 
 public class RenderedChunk implements AutoCloseable {
 
@@ -66,6 +67,27 @@ public class RenderedChunk implements AutoCloseable {
 
 
     public void render(World world){
+
+        ChunkPos cpos = this.renderedChunk.pos;
+
+        Vector2i globalPos = cpos.normalPos().add(8,8);
+        Matrix4f modelviewImitation = Main.camera.getModelviewMatrix();
+        Matrix4f projection = Main.projectionMatrix;
+        Vector4f p = new Vector4f(
+                globalPos.x - (float) Main.camera.pos.x,
+                (float)Main.camera.pos.y,
+                globalPos.y - (float) Main.camera.pos.z,
+                1f);
+        modelviewImitation.transform(p);
+        projection.transform(p);
+        p.x /= p.w;
+        p.y /= p.w;
+        p.z /= p.w;
+        if (!MathUtil.isValueBetween(p.x,-1,1) || !MathUtil.isValueBetween(p.z,0,1)){
+            return;
+        }
+
+
         if (buffer != null && this.ready) {
 
             Camera camera = Main.camera;

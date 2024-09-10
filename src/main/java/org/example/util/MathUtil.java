@@ -36,6 +36,10 @@ public class MathUtil {
         return !(val < down || val > up);
     }
 
+    public static boolean isValueBetween(float val,float down,float up){
+        return !(val < down || val > up);
+    }
+
     public static float lerp(float x1,float x2,float p){
         return (x2 - x1) * p + x1;
     }

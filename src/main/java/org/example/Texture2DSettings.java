@@ -69,5 +69,11 @@ public class Texture2DSettings {
         return this;
     }
 
+    public int getWidth() {
+        return width;
+    }
 
+    public int getHeight() {
+        return height;
+    }
 }

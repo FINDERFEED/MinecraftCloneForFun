@@ -1,8 +1,9 @@
 package org.example;
 
-import org.example.blocks.Block;
 import org.example.periphery.Keyboard;
 import org.example.periphery.Mouse;
+import org.example.textures.Texture;
+import org.example.textures.atlases.AtlasTexture;
 import org.example.util.MathUtil;
 import org.example.world.chunk.WorldChunk;
 import org.example.world.World;
@@ -43,6 +44,7 @@ public class Main {
     public static final float Z_NEAR = 0.05f;
     public static final float Z_FAR = 100000f;
     public static Texture atlas = null;
+    public static AtlasTexture atlasTexture = null;
 
     public static boolean debugRendering = false;
 
@@ -70,11 +72,13 @@ public class Main {
 
         int texturesAmount = 4;
         int square = (int) Math.sqrt(texturesAmount);
-        atlas = new Texture("atlas",
-                new Texture2DSettings()
-                        .width(square * 16)
-                        .height(square * 16)
-                ,true);
+//        atlas = new Texture("atlas",
+//                new Texture2DSettings()
+//                        .width(square * 16)
+//                        .height(square * 16)
+//                ,true);
+
+        atlasTexture = new AtlasTexture("textures/block",32);
 
 
         World world = new World(5434544);
@@ -126,7 +130,10 @@ public class Main {
         BLOCK.run();
         BLOCK.mat4Uniform("projection",projectionMatrix);
         BLOCK.mat4Uniform("modelview",camera.getModelviewMatrix());
-        atlas.bind(0);
+//        atlas.bind(0);
+        atlasTexture.atlas.bind(0);
+
+
         BLOCK.samplerUniform(0);
         world.render();
         BLOCK.clear();
@@ -155,7 +162,7 @@ public class Main {
             lines.position(rot,len,0,0).color(1f,0,0,1f);
 
             lines.position(rot,0,0,0).color(0f,0,1f,1f);
-            lines.position(rot,0,0,len).color(0f,0,1f,1f);
+            lines.position(rot,0,0,-len).color(0f,0,1f,1f);
 
             lines.position(rot,0,0,0).color(0f,1f,0,1f);
             lines.position(rot,0,len,0).color(0f,1f,0,1f);
