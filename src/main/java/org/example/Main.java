@@ -43,8 +43,8 @@ public class Main {
     public static int height = 1080/2;
     public static final float Z_NEAR = 0.05f;
     public static final float Z_FAR = 100000f;
-    public static Texture atlas = null;
     public static AtlasTexture atlasTexture = null;
+    public static Frustum frustum;
 
     public static boolean debugRendering = false;
 
@@ -88,6 +88,7 @@ public class Main {
 
         VertexBuffer lines = new VertexBuffer(1024,VertexFormat.POSITION_COLOR);
 
+        frustum = new Frustum(null,null);
 
         while ( !glfwWindowShouldClose(window) ) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -106,6 +107,8 @@ public class Main {
 
             camera.calculateModelviewMatrix(timer.partialTick);
             setProjectionPerspectiveMatrix();
+            frustum.setModelview(camera.getModelviewMatrix());
+            frustum.setProjection(projectionMatrix);
             renderWorld(world);
 
 

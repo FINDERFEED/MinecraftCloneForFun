@@ -11,6 +11,9 @@ public class ChunkSnapshot extends Chunk {
         if (chunk.blocks != null) {
             this.blocks = Arrays.copyOf(chunk.blocks, chunk.blocks.length);
         }
+        if (chunk.heightmap != null){
+            this.heightmap = Arrays.copyOf(chunk.heightmap,chunk.heightmap.length);
+        }
     }
 
     @Override
