@@ -44,7 +44,7 @@ public class Camera {
 
     private void handleMovement(){
         Keyboard keyboard = Main.keyboard;
-        float speed = keyboard.hasCtrlDown() ? 5f : 1f;
+        float speed = keyboard.hasCtrlDown() ? 5f : 0.1f;
 
         if (keyboard.isKeyPressed(GLFW.GLFW_KEY_W)){
             this.moveForward(speed);

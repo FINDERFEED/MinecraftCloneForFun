@@ -1,7 +1,9 @@
 package org.example;
 
 import org.example.util.AABox;
+import org.example.util.MathUtil;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 public class Frustum {
@@ -27,17 +29,24 @@ public class Frustum {
 
         var p1 = performTransform(box.minX,box.minY,box.minZ);
         var p2 = performTransform(box.maxX,box.minY,box.minZ);
-        if (isEdgeVisible(p1,p2)){
+        boolean res1 = isEdgeVisible(p1,p2);
+        if (res1){
             return true;
         }
         var p3 = performTransform(box.minX,box.maxY,box.minZ);
         var p4 = performTransform(box.maxX,box.maxY,box.minZ);
-        if (isEdgeVisible(p3,p4) || isEdgeVisible(p1,p3) || isEdgeVisible(p2,p4)){
+        boolean res2 = isEdgeVisible(p3,p4);
+        boolean res3 = isEdgeVisible(p1,p3);
+        boolean res4 = isEdgeVisible(p2,p4);
+        if (res2 || res3 || res4){
             return true;
         }
         var p5 = performTransform(box.minX,box.minY,box.maxZ);
         var p6 = performTransform(box.maxX,box.minY,box.maxZ);
-        if (isEdgeVisible(p2,p6) || isEdgeVisible(p1,p5) || isEdgeVisible(p5,p6)){
+        boolean res5 = isEdgeVisible(p2,p6);
+        boolean res6 = isEdgeVisible(p1,p5);
+        boolean res7 = isEdgeVisible(p5,p6);
+        if (res5 || res6 || res7){
             return true;
         }
         var p7 = performTransform(box.minX,box.maxY,box.maxZ);
@@ -53,22 +62,31 @@ public class Frustum {
     }
 
     private boolean isEdgeVisible(Vector4f v1, Vector4f v2){
-        return
-                !(
-                        (v1.x < -1 && v2.x < -1 || v1.x > 1 && v2.x > 1) ||
-                                (v1.y < -1 && v2.y < -1 || v1.y > 1 && v2.y > 1) ||
-                                (v1.z < 0 && v2.z < 0 || v1.z > 1 && v2.z > 1)
+        float w1 = Math.abs(v1.w);
+        float w2 = Math.abs(v2.w);
 
-                );
+        boolean i1 = !(v1.x < w1 && v2.x < w2 || v1.x > w1 && v2.x > w2);
+        boolean i2 = !(v1.y < w1 && v2.y < w2 || v1.y > w1 && v2.y > w2);
+        boolean i3 = !(v1.z < w1 && v2.z < w2 || v1.z > w1 && v2.z > w2);
+
+        return this.isPointVisible(v1) || this.isPointVisible(v2) ||
+                i1 &&
+                i2 &&
+                i3;
+    }
+
+    private boolean isPointVisible(Vector4f point){
+        float w = Math.abs(point.w);
+        return
+                (point.x <= w && point.x >= -w) &&
+                (point.y <= w && point.y >= -w) &&
+                (point.z <= w && point.z >= -w);
     }
 
     private Vector4f performTransform(float x, float y, float z){
         Vector4f v = new Vector4f(x,y,z,1f);
         modelview.transform(v);
         projection.transform(v);
-        v.x /= v.w;
-        v.y /= v.w;
-        v.z /= v.w;
         return v;
     }
 

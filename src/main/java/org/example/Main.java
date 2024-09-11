@@ -4,13 +4,13 @@ import org.example.periphery.Keyboard;
 import org.example.periphery.Mouse;
 import org.example.textures.Texture;
 import org.example.textures.atlases.AtlasTexture;
+import org.example.util.AABox;
 import org.example.util.MathUtil;
+import org.example.util.RenderUtil;
 import org.example.world.chunk.WorldChunk;
 import org.example.world.World;
+import org.joml.*;
 import org.joml.Math;
-import org.joml.Matrix4f;
-import org.joml.Matrix4fStack;
-import org.joml.Vector3d;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL11;
@@ -42,7 +42,7 @@ public class Main {
     public static int width = 1920/2;
     public static int height = 1080/2;
     public static final float Z_NEAR = 0.05f;
-    public static final float Z_FAR = 100000f;
+    public static final float Z_FAR = 10000f;
     public static AtlasTexture atlasTexture = null;
     public static Frustum frustum;
 
@@ -90,6 +90,8 @@ public class Main {
 
         frustum = new Frustum(null,null);
 
+        AABox box = new AABox(0,-10,0,1,10,1);
+        float y = 100;
         while ( !glfwWindowShouldClose(window) ) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -101,6 +103,15 @@ public class Main {
                     System.out.println("FPS: " + framesRendered);
                     framesRendered = 0;
                 }
+                if (frustum.projection != null && ticks % 10 == 0){
+                    boolean visible = frustum.isVisible(
+                            box.offset(
+                                -(float)camera.pos.x,y - (float)camera.pos.y,-(float)camera.pos.z
+                            )
+                    );
+                    System.out.println(visible);
+
+                }
             }
 
             framesRendered++;
@@ -111,8 +122,29 @@ public class Main {
             frustum.setProjection(projectionMatrix);
             renderWorld(world);
 
+            POSITION_COLOR.run();
+            POSITION_COLOR.mat4Uniform("projection",projectionMatrix);
+            POSITION_COLOR.mat4Uniform("modelview",camera.getModelviewMatrix());
+
+            Matrix4f transform = new Matrix4f();
+            var pos = camera.calculateCameraPos(timer.partialTick);
+            transform.translate(
+                    -(float)pos.x,y -(float)pos.y,-(float)pos.z
+            );
+
+            lines.position(transform,0,0,0).color(1f,0f,0f,1f);
+            lines.position(transform,0.1f,0,0).color(1f,0f,0f,1f);
+
+            RenderUtil.renderBox(transform,lines,box,1f,1f,1f,1f);
+
+            lines.drawLines(true);
+
+            POSITION_COLOR.clear();
+
 
             renderWorldSidesDebug(lines);
+
+
 
 
 

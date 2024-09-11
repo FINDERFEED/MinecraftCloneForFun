@@ -77,7 +77,7 @@ public class RenderedChunk implements AutoCloseable {
 
         AABox box = this.baseBox.offset(
                 -(float) pos.x + renderedChunk.pos.x * Chunk.CHUNK_SIZE,
-                0,
+                -(float) pos.y,
                 -(float) pos.z + renderedChunk.pos.z * Chunk.CHUNK_SIZE
         );
 
@@ -89,9 +89,9 @@ public class RenderedChunk implements AutoCloseable {
     public void render(World world){
         if (buffer != null && this.ready) {
 
-            if (!this.isChunkVisible()){
-                return;
-            }
+//            if (!this.isChunkVisible()){
+//                return;
+//            }
 
             Camera camera = Main.camera;
 
