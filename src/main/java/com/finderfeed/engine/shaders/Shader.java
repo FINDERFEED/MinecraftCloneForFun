@@ -1,5 +1,7 @@
 package com.finderfeed.engine.shaders;
+import com.finderfeed.Main;
 import com.finderfeed.VertexFormat;
+import com.finderfeed.engine.RenderEngine;
 import com.finderfeed.util.FileUtil;
 import org.joml.Matrix4f;
 import org.lwjgl.system.MemoryUtil;
@@ -89,9 +91,10 @@ public class Shader {
     }
 
     public void run(){
-        glUseProgram(shaderProgramId);
+        this.run(RenderEngine.projectionMatrix,RenderEngine.getModelviewMatrix());
         this.applyAllUniforms();
     }
+
     public void run(Matrix4f projection,Matrix4f modelview){
         glUseProgram(shaderProgramId);
         mat4Uniform("projection",projection);

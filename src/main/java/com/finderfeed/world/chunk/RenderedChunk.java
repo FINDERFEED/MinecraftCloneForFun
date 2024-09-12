@@ -2,6 +2,7 @@ package com.finderfeed.world.chunk;
 
 import com.finderfeed.*;
 import com.finderfeed.blocks.Block;
+import com.finderfeed.engine.RenderEngine;
 import com.finderfeed.engine.shaders.Shaders;
 import com.finderfeed.util.AABox;
 import com.finderfeed.world.LocalChunkWorld;
@@ -82,10 +83,10 @@ public class RenderedChunk implements AutoCloseable {
     }
 
 
-    private boolean isChunkVisible(){
+    private boolean isChunkVisible(Camera camera){
         Frustum frustum = Main.frustum;
 
-        Vector3d pos = Main.camera.calculateCameraPos(Main.timer.partialTick);
+        Vector3d pos = camera.calculateCameraPos(Main.timer.partialTick);
         AABox box = this.baseBox.offset(
                 -(float) pos.x + renderedChunk.pos.x * Chunk.CHUNK_SIZE,
                 -(float) pos.y,
@@ -97,33 +98,33 @@ public class RenderedChunk implements AutoCloseable {
         return visible;
     }
 
-    public void render(World world){
+    public void render(World world,Camera camera,float partialTick){
         if (buffer != null && this.ready) {
 
-            if (!this.isChunkVisible()){
+            if (!this.isChunkVisible(camera)){
                 return;
             }
 
-            Camera camera = Main.camera;
-
-            Vector3d pos = camera.calculateCameraPos(Main.timer.partialTick);
+            Vector3d pos = camera.calculateCameraPos(partialTick);
 
             Vector3d offset = new Vector3d(-pos.x + renderedChunk.pos.x * Chunk.CHUNK_SIZE,0, -pos.z + renderedChunk.pos.z * Chunk.CHUNK_SIZE);
 
 
-            var matrix = camera.getModelviewMatrix();
+            var matrix = RenderEngine.getModelviewStack();
 
             matrix.pushMatrix();
 
             matrix.translate((float) offset.x,(float)-pos.y,(float) offset.z);
 
+            RenderEngine.applyModelviewMatrix();
 
 
-            Shaders.BLOCK.mat4Uniform("modelview",matrix);
+            Shaders.BLOCK.mat4Uniform("modelview",RenderEngine.getModelviewMatrix());
 
             buffer.draw(false);
 
             matrix.popMatrix();
+            RenderEngine.applyModelviewMatrix();
         }
     }
 

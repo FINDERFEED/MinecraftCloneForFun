@@ -1,5 +1,10 @@
 package com.finderfeed.world;
 
+import com.finderfeed.VertexBuffer;
+import com.finderfeed.engine.immediate_buffer_supplier.ImmediateBufferSupplier;
+import com.finderfeed.engine.immediate_buffer_supplier.RenderOptions;
+import com.finderfeed.util.AABox;
+import com.finderfeed.util.RaytraceUtil;
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import com.finderfeed.Camera;
 import com.finderfeed.Main;
@@ -9,9 +14,16 @@ import com.finderfeed.world.chunk.Chunk;
 import com.finderfeed.world.chunk.ChunkPos;
 import com.finderfeed.world.chunk.RenderedChunk;
 import com.finderfeed.world.chunk.WorldChunk;
+import org.joml.Vector3d;
+import org.joml.Vector3f;
+import org.lwjgl.opengl.GL11;
 
 import java.util.*;
 import java.util.function.Predicate;
+
+import static com.finderfeed.engine.shaders.Shaders.BLOCK;
+import static org.lwjgl.opengl.GL11.GL_CULL_FACE;
+import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
 
 public class World implements WorldAccessor {
 
@@ -29,6 +41,9 @@ public class World implements WorldAccessor {
     public void tick(){
         Camera camera = Main.camera;
 
+        Block b = this.traceBlock(camera.pos,camera.pos.add(camera.look.mul(10,new Vector3f()),new Vector3d()));
+        System.out.println(b);
+
         ChunkPos currentPos = new ChunkPos(camera.pos);
 
         this.chunks.tick();
@@ -42,17 +57,6 @@ public class World implements WorldAccessor {
                 this.renderedChunks.put(l, chunk);
             }
         }
-
-//        Iterator<WorldChunk> chunkIterator = this.chunksToRender.iterator();
-//        while (chunkIterator.hasNext()){
-//            WorldChunk chunk = chunkIterator.next();
-//            if (chunk.status == ChunkStatus.FULL && !this.isChunkInRenderDistance(chunk,currentPos,Main.chunkRenderDistance)){
-//                chunk.close();
-//                chunkIterator.remove();
-//            }else if (this.isChunkInRenderDistance(chunk,currentPos,Main.chunkRenderDistance) && chunk.status == ChunkStatus.LOADED && this.checkNeighbors(chunk,c->c.status.value >= ChunkStatus.LOADED.value)){
-//                chunk.rebuild(this,false);
-//            }
-//        }
 
         var iter = this.renderedChunks.long2ObjectEntrySet().iterator();
 
@@ -81,12 +85,28 @@ public class World implements WorldAccessor {
                 MathUtil.isValueBetween(chunkPos.z,currentPos.z - renderDistance,currentPos.z + renderDistance);
     }
 
-    public void render(){
+    public void render(Camera camera,float partialTick){
+        this.renderChunks(camera,partialTick);
+        VertexBuffer test = ImmediateBufferSupplier.get(RenderOptions.texture("block/dirt"));
+        test.position(camera.coordToLocal(0,100,0,partialTick)).color(1f,1f,1f,1f).uv(0,0);
+        test.position(camera.coordToLocal(100,100,0,partialTick)).color(1f,1f,1f,1f).uv(1,0);
+        test.position(camera.coordToLocal(100,100,100,partialTick)).color(1f,1f,1f,1f).uv(1,1);
+        test.position(camera.coordToLocal(0,100,100,partialTick)).color(1f,1f,1f,1f).uv(0,1);
+        ImmediateBufferSupplier.drawCurrent();
+    }
+
+    private void renderChunks(Camera camera,float partialTick){
+        GL11.glEnable(GL_DEPTH_TEST);
+        GL11.glEnable(GL_CULL_FACE);
+        BLOCK.run();
+        Main.atlasTexture.atlas.bind(0);
+        BLOCK.samplerUniform(0);
         for (var entry : this.renderedChunks.long2ObjectEntrySet()){
             RenderedChunk c = entry.getValue();
-            c.render(this);
+            c.render(this,camera,partialTick);
         }
-
+        BLOCK.clear();
+        GL11.glDisable(GL_CULL_FACE);
     }
 
     public Chunk getChunkAt(ChunkPos pos){
@@ -95,6 +115,26 @@ public class World implements WorldAccessor {
 
     public Chunk getChunkAt(int x, int z){
         return this.chunks.getChunk(new ChunkPos(x >> 4,z >> 4));
+    }
+
+
+    public Block traceBlock(Vector3d begin, Vector3d end){
+        AABox baseBox = new AABox(0,0,0,1,1,1);
+        Vector3d b = end.sub(begin,new Vector3d());
+        for (int i = 0; i < b.length();i++){
+            Vector3d p = begin.add(b.normalize(new Vector3d()).mul(i,i,i,new Vector3d()),new Vector3d());
+            int x = (int)p.x;
+            int y = (int)p.y;
+            int z = (int)p.z;
+            Block block = this.getBlock(x,y,z);
+            if (!block.isAir()){
+                var point = RaytraceUtil.traceBox(baseBox.offset(x,y,z),begin,end);
+                if (point != null){
+                    return block;
+                }
+            }
+        }
+        return Block.AIR;
     }
 
     @Override

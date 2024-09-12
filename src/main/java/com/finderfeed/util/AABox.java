@@ -1,7 +1,10 @@
 package com.finderfeed.util;
 
 import org.joml.Math;
+import org.joml.Vector3d;
 import org.joml.Vector3f;
+
+import java.util.List;
 
 public class AABox {
 
@@ -35,6 +38,47 @@ public class AABox {
                 this.maxX + x,
                 this.maxY + y,
                 this.maxZ + z
+        );
+    }
+
+    public List<Face> getFaces(){
+        return List.of(
+                new Face(
+                        new Vector3d(minX,minY,minZ),
+                        new Vector3d(minX,maxY,minZ),
+                        new Vector3d(maxX,maxY,minZ),
+                        new Vector3d(maxX,minY,minZ)
+                ),
+                new Face(
+                        new Vector3d(minX,minY,minZ),
+                        new Vector3d(minX,maxY,minZ),
+                        new Vector3d(minX,maxY,maxZ),
+                        new Vector3d(minX,minY,maxZ)
+                ),
+                new Face(
+                        new Vector3d(minX,minY,maxZ),
+                        new Vector3d(minX,maxY,maxZ),
+                        new Vector3d(maxX,maxY,maxZ),
+                        new Vector3d(maxX,minY,maxZ)
+                ),
+                new Face(
+                        new Vector3d(maxX,minY,minZ),
+                        new Vector3d(maxX,maxY,minZ),
+                        new Vector3d(maxX,maxY,maxZ),
+                        new Vector3d(maxX,minY,maxZ)
+                ),
+                new Face(
+                        new Vector3d(minX,minY,minZ),
+                        new Vector3d(maxX,minY,minZ),
+                        new Vector3d(maxX,minY,maxZ),
+                        new Vector3d(minX,minY,maxZ)
+                ),
+                new Face(
+                        new Vector3d(minX,maxY,minZ),
+                        new Vector3d(maxX,maxY,minZ),
+                        new Vector3d(maxX,maxY,maxZ),
+                        new Vector3d(minX,maxY,maxZ)
+                )
         );
     }
 }

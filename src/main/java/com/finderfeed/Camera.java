@@ -2,6 +2,7 @@ package com.finderfeed;
 
 import com.finderfeed.periphery.Keyboard;
 import com.finderfeed.util.MathUtil;
+import com.finderfeed.world.World;
 import com.finderfeed.world.chunk.ChunkPos;
 import org.joml.*;
 import org.joml.Math;
@@ -9,7 +10,6 @@ import org.lwjgl.glfw.GLFW;
 
 public class Camera {
 
-    private Matrix4fStack modelviewMatrix;
     public float yaw = 0;
     public float pitch = 0;
     public Vector3d pos;
@@ -24,7 +24,7 @@ public class Camera {
     public Camera(Vector3d pos){
         this.pos = new Vector3d(pos);
         this.oldPos = new Vector3d(pos);
-        this.calculateModelviewMatrix(0);
+        this.calculateModelviewMatrix();
     }
 
 
@@ -63,16 +63,17 @@ public class Camera {
         }
     }
 
-    public void calculateModelviewMatrix(float pticks){
+    public Matrix4f calculateModelviewMatrix(){
         Matrix3f mt = new Matrix3f().rotate(Math.toRadians(yaw),0,1,0).rotate(Math.toRadians(pitch),1,0,0);
         look = mt.transform(0,0,-1,new Vector3f());
-        modelviewMatrix = new Matrix4fStack(16);
+        Matrix4f mat = new Matrix4f();
 
-        modelviewMatrix.lookAt(
+        mat.lookAt(
                 new Vector3f(0,(float) 0,0),
                 new Vector3f(0,(float) 0,0).add(look,new Vector3f()),
                 new Vector3f(0,1,0)
         );
+        return mat;
     }
 
     public Vector3d calculateCameraPos(float pticks){
@@ -82,10 +83,6 @@ public class Camera {
                 MathUtil.lerp(oldPos.z,pos.z,pticks)
         );
         return p;
-    }
-
-    public Matrix4fStack getModelviewMatrix() {
-        return modelviewMatrix;
     }
 
     public Vector3f getLook() {

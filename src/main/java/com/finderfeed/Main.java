@@ -1,5 +1,6 @@
 package com.finderfeed;
 
+import com.finderfeed.engine.RenderEngine;
 import com.finderfeed.engine.immediate_buffer_supplier.ImmediateBufferSupplier;
 import com.finderfeed.engine.immediate_buffer_supplier.RenderOptions;
 import com.finderfeed.engine.shaders.Matrix4fUniform;
@@ -32,6 +33,7 @@ import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 import static com.finderfeed.engine.shaders.Shaders.*;
 
+
 public class Main {
 
 
@@ -43,11 +45,11 @@ public class Main {
     public static Mouse mouse;
     public static Keyboard keyboard;
     public static Camera camera;
-    public static Matrix4f projectionMatrix;
     public static int width = 1920/2;
     public static int height = 1080/2;
     public static final float Z_NEAR = 0.05f;
     public static final float Z_FAR = 10000f;
+    public static final float FOV = 70;
     public static AtlasTexture atlasTexture = null;
     public static Frustum frustum;
     public static TextureManager textureManager;
@@ -106,21 +108,20 @@ public class Main {
 
             framesRendered++;
 
-            camera.calculateModelviewMatrix(timer.partialTick);
-            setProjectionPerspectiveMatrix();
-            frustum.setModelview(camera.getModelviewMatrix());
-            frustum.setProjection(projectionMatrix);
+            Matrix4f cameraMat = camera.calculateModelviewMatrix();
+            RenderEngine.setProjectionPerspectiveMatrix(FOV,width,height,Z_NEAR,Z_FAR);
 
+            var stack = RenderEngine.getModelviewStack();
+
+            stack.pushMatrix();
+            stack.set(cameraMat);
+            RenderEngine.applyModelviewMatrix();
+            frustum.setModelview(RenderEngine.getModelviewMatrix());
+            frustum.setProjection(RenderEngine.projectionMatrix);
             renderWorld(world);
+            stack.popMatrix();
+            RenderEngine.applyModelviewMatrix();
 
-            VertexBuffer test = ImmediateBufferSupplier.get(RenderOptions.texture("block/dirt"));
-            POSITION_COLOR_UV.setUniform(new Matrix4fUniform("projection",projectionMatrix));
-            POSITION_COLOR_UV.setUniform(new Matrix4fUniform("modelview",camera.getModelviewMatrix()));
-            test.position(camera.coordToLocal(0,100,0,timer.partialTick)).color(1f,1f,1f,1f).uv(0,0);
-            test.position(camera.coordToLocal(100,100,0,timer.partialTick)).color(1f,1f,1f,1f).uv(1,0);
-            test.position(camera.coordToLocal(100,100,100,timer.partialTick)).color(1f,1f,1f,1f).uv(1,1);
-            test.position(camera.coordToLocal(0,100,100,timer.partialTick)).color(1f,1f,1f,1f).uv(0,1);
-            ImmediateBufferSupplier.drawCurrent();
 
             renderWorldSidesDebug();
 
@@ -138,19 +139,9 @@ public class Main {
     }
 
     private static void renderWorld(World world){
-        GL11.glEnable(GL_DEPTH_TEST);
-        GL11.glEnable(GL_CULL_FACE);
-        BLOCK.run();
-        BLOCK.mat4Uniform("projection",projectionMatrix);
-        BLOCK.mat4Uniform("modelview",camera.getModelviewMatrix());
-        atlasTexture.atlas.bind(0);
-
-
-        BLOCK.samplerUniform(0);
-        world.render();
-        BLOCK.clear();
-        GL11.glDisable(GL_CULL_FACE);
+        world.render(camera,timer.partialTick);
     }
+
 
     private static void renderWorldSidesDebug(){
         if (debugRendering){
@@ -158,9 +149,8 @@ public class Main {
             VertexBuffer lines = ImmediateBufferSupplier.get(RenderOptions.DEFAULT_LINES);
 
             float len = 60;
-            setProjectionOrthoMatrix();
-            POSITION_COLOR.setUniform(new Matrix4fUniform("projection",projectionMatrix));
-            POSITION_COLOR.setUniform(new Matrix4fUniform("modelview",new Matrix4f().identity()));
+            RenderEngine.setProjectionOrthoMatrix(width,height,Z_NEAR,Z_FAR);
+
 
             Matrix4fStack rot = new Matrix4fStack(3);
             rot.pushMatrix();
@@ -194,16 +184,6 @@ public class Main {
 
     public static void main(String[] args) {
         run();
-    }
-
-    public static void setProjectionPerspectiveMatrix(){
-        projectionMatrix = new Matrix4f().perspective(Math.toRadians(60),width / (float) height,Z_NEAR,Z_FAR,false);
-    }
-
-    public static void setProjectionOrthoMatrix(){
-        projectionMatrix = new Matrix4f().ortho(
-                0,width,0,height,Z_NEAR,Z_FAR
-        );
     }
 
 
