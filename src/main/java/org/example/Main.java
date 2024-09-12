@@ -60,8 +60,6 @@ public class Main {
 
     private static void loop() {
 
-        renderExecutor = Executors.newFixedThreadPool(5);
-        utilExecutor = Executors.newFixedThreadPool(10);
 
 
         createCapabilities();
@@ -69,14 +67,6 @@ public class Main {
         mouse = new Mouse();
         keyboard = new Keyboard();
         camera = new Camera(new Vector3d(0, WorldChunk.HEIGHT / 2,0));
-
-        int texturesAmount = 4;
-        int square = (int) Math.sqrt(texturesAmount);
-//        atlas = new Texture("atlas",
-//                new Texture2DSettings()
-//                        .width(square * 16)
-//                        .height(square * 16)
-//                ,true);
 
         atlasTexture = new AtlasTexture("textures/block",32);
 
@@ -88,10 +78,15 @@ public class Main {
 
         VertexBuffer lines = new VertexBuffer(1024,VertexFormat.POSITION_COLOR);
 
-        frustum = new Frustum(null,null);
+        frustum = new Frustum();
 
         AABox box = new AABox(0,-10,0,1,10,1);
         float y = 100;
+
+        renderExecutor = Executors.newFixedThreadPool(5);
+        utilExecutor = Executors.newFixedThreadPool(10);
+
+
         while ( !glfwWindowShouldClose(window) ) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -103,15 +98,15 @@ public class Main {
                     System.out.println("FPS: " + framesRendered);
                     framesRendered = 0;
                 }
-                if (frustum.projection != null && ticks % 10 == 0){
-                    boolean visible = frustum.isVisible(
-                            box.offset(
-                                -(float)camera.pos.x,y - (float)camera.pos.y,-(float)camera.pos.z
-                            )
-                    );
-                    System.out.println(visible);
-
-                }
+//                if (frustum.projection != null && ticks % 10 == 0){
+//                    boolean visible = frustum.isVisible(
+//                            box.offset(
+//                                -(float)camera.pos.x,y - (float)camera.pos.y,-(float)camera.pos.z
+//                            )
+//                    );
+//                    System.out.println(visible);
+//
+//                }
             }
 
             framesRendered++;
@@ -122,24 +117,24 @@ public class Main {
             frustum.setProjection(projectionMatrix);
             renderWorld(world);
 
-            POSITION_COLOR.run();
-            POSITION_COLOR.mat4Uniform("projection",projectionMatrix);
-            POSITION_COLOR.mat4Uniform("modelview",camera.getModelviewMatrix());
-
-            Matrix4f transform = new Matrix4f();
-            var pos = camera.calculateCameraPos(timer.partialTick);
-            transform.translate(
-                    -(float)pos.x,y -(float)pos.y,-(float)pos.z
-            );
-
-            lines.position(transform,0,0,0).color(1f,0f,0f,1f);
-            lines.position(transform,0.1f,0,0).color(1f,0f,0f,1f);
-
-            RenderUtil.renderBox(transform,lines,box,1f,1f,1f,1f);
-
-            lines.drawLines(true);
-
-            POSITION_COLOR.clear();
+//            POSITION_COLOR.run();
+//            POSITION_COLOR.mat4Uniform("projection",projectionMatrix);
+//            POSITION_COLOR.mat4Uniform("modelview",camera.getModelviewMatrix());
+//
+//            Matrix4f transform = new Matrix4f();
+//            var pos = camera.calculateCameraPos(timer.partialTick);
+//            transform.translate(
+//                    -(float)pos.x,y -(float)pos.y,-(float)pos.z
+//            );
+//
+//            lines.position(transform,0,0,0).color(1f,0f,0f,1f);
+//            lines.position(transform,0.1f,0,0).color(1f,0f,0f,1f);
+//
+//            RenderUtil.renderBox(transform,lines,box,1f,1f,1f,1f);
+//
+//            lines.drawLines(true);
+//
+//            POSITION_COLOR.clear();
 
 
             renderWorldSidesDebug(lines);
@@ -165,7 +160,6 @@ public class Main {
         BLOCK.run();
         BLOCK.mat4Uniform("projection",projectionMatrix);
         BLOCK.mat4Uniform("modelview",camera.getModelviewMatrix());
-//        atlas.bind(0);
         atlasTexture.atlas.bind(0);
 
 

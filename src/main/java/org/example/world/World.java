@@ -82,13 +82,6 @@ public class World implements WorldAccessor {
     }
 
     public void render(){
-        Camera camera = Main.camera;
-//        if (chunksToRender != null) {
-//            for (WorldChunk chunk : chunksToRender) {
-//                chunk.render(this);
-//            }
-//        }
-
         for (var entry : this.renderedChunks.long2ObjectEntrySet()){
             RenderedChunk c = entry.getValue();
             c.render(this);
