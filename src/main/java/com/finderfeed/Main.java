@@ -1,5 +1,6 @@
 package com.finderfeed;
 
+import com.finderfeed.engine.GameRenderer;
 import com.finderfeed.engine.RenderEngine;
 import com.finderfeed.engine.immediate_buffer_supplier.ImmediateBufferSupplier;
 import com.finderfeed.engine.immediate_buffer_supplier.RenderOptions;
@@ -54,6 +55,8 @@ public class Main {
     public static Frustum frustum;
     public static TextureManager textureManager;
 
+    public static World world;
+
     public static boolean debugRendering = false;
 
     public static Timer timer = new Timer();
@@ -79,15 +82,13 @@ public class Main {
         textureManager = new TextureManager();
         textureManager.putTexture(atlasTexture.atlas.getName(),atlasTexture.atlas);
 
-        World world = new World(5434544);
+        world = new World(5434544);
 
         Shaders.init();
 
-        VertexBuffer lines = new VertexBuffer(1024,VertexFormat.POSITION_COLOR);
         frustum = new Frustum();
 
-        AABox box = new AABox(0,-10,0,1,10,1);
-        float y = 100;
+        GameRenderer gameRenderer = new GameRenderer(camera);
 
         renderExecutor = Executors.newFixedThreadPool(5);
         utilExecutor = Executors.newFixedThreadPool(10);
@@ -108,24 +109,8 @@ public class Main {
 
             framesRendered++;
 
-            Matrix4f cameraMat = camera.calculateModelviewMatrix();
-            RenderEngine.setProjectionPerspectiveMatrix(FOV,width,height,Z_NEAR,Z_FAR);
 
-            var stack = RenderEngine.getModelviewStack();
-
-            stack.pushMatrix();
-            stack.set(cameraMat);
-            RenderEngine.applyModelviewMatrix();
-            frustum.setModelview(RenderEngine.getModelviewMatrix());
-            frustum.setProjection(RenderEngine.projectionMatrix);
-            renderWorld(world);
-            stack.popMatrix();
-            RenderEngine.applyModelviewMatrix();
-
-
-            renderWorldSidesDebug();
-
-
+            gameRenderer.render();
 
             glfwSwapBuffers(window);
             glfwPollEvents();
@@ -143,38 +128,7 @@ public class Main {
     }
 
 
-    private static void renderWorldSidesDebug(){
-        if (debugRendering){
 
-            VertexBuffer lines = ImmediateBufferSupplier.get(RenderOptions.DEFAULT_LINES);
-
-            float len = 60;
-            RenderEngine.setProjectionOrthoMatrix(width,height,Z_NEAR,Z_FAR);
-
-
-            Matrix4fStack rot = new Matrix4fStack(3);
-            rot.pushMatrix();
-            rot.translate(
-                    width/2f,height/2f,-100
-            );
-            rot.rotateX(Math.toRadians(camera.pitch));
-
-            rot.rotateY(Math.toRadians(camera.yaw));
-
-            lines.position(rot,0,0,0).color(1f,0,0,1f);
-            lines.position(rot,len,0,0).color(1f,0,0,1f);
-
-            lines.position(rot,0,0,0).color(0f,0,1f,1f);
-            lines.position(rot,0,0,-len).color(0f,0,1f,1f);
-
-            lines.position(rot,0,0,0).color(0f,1f,0,1f);
-            lines.position(rot,0,len,0).color(0f,1f,0,1f);
-
-
-            rot.popMatrix();
-            ImmediateBufferSupplier.drawCurrent();
-        }
-    }
 
     public static void tick(World world){
         world.tick();

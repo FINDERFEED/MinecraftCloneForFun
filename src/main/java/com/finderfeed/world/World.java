@@ -3,19 +3,19 @@ package com.finderfeed.world;
 import com.finderfeed.VertexBuffer;
 import com.finderfeed.engine.immediate_buffer_supplier.ImmediateBufferSupplier;
 import com.finderfeed.engine.immediate_buffer_supplier.RenderOptions;
-import com.finderfeed.util.AABox;
-import com.finderfeed.util.RaytraceUtil;
+import com.finderfeed.util.*;
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import com.finderfeed.Camera;
 import com.finderfeed.Main;
 import com.finderfeed.blocks.Block;
-import com.finderfeed.util.MathUtil;
 import com.finderfeed.world.chunk.Chunk;
 import com.finderfeed.world.chunk.ChunkPos;
 import com.finderfeed.world.chunk.RenderedChunk;
 import com.finderfeed.world.chunk.WorldChunk;
+import org.joml.Matrix4f;
 import org.joml.Vector3d;
 import org.joml.Vector3f;
+import org.joml.Vector3i;
 import org.lwjgl.opengl.GL11;
 
 import java.util.*;
@@ -41,8 +41,8 @@ public class World implements WorldAccessor {
     public void tick(){
         Camera camera = Main.camera;
 
-        Block b = this.traceBlock(camera.pos,camera.pos.add(camera.look.mul(10,new Vector3f()),new Vector3d()));
-        System.out.println(b);
+//        Block b = this.traceBlock(camera.pos,camera.pos.add(camera.look.mul(10,new Vector3f()),new Vector3d()));
+//        System.out.println(b);
 
         ChunkPos currentPos = new ChunkPos(camera.pos);
 
@@ -87,12 +87,53 @@ public class World implements WorldAccessor {
 
     public void render(Camera camera,float partialTick){
         this.renderChunks(camera,partialTick);
-        VertexBuffer test = ImmediateBufferSupplier.get(RenderOptions.texture("block/dirt"));
-        test.position(camera.coordToLocal(0,100,0,partialTick)).color(1f,1f,1f,1f).uv(0,0);
-        test.position(camera.coordToLocal(100,100,0,partialTick)).color(1f,1f,1f,1f).uv(1,0);
-        test.position(camera.coordToLocal(100,100,100,partialTick)).color(1f,1f,1f,1f).uv(1,1);
-        test.position(camera.coordToLocal(0,100,100,partialTick)).color(1f,1f,1f,1f).uv(0,1);
+
+        Vector3d begin = camera.pos;
+        Vector3d end = new Vector3d(camera.pos).add(new Vector3d(camera.look.mul(10)));
+
+        var b = ImmediateBufferSupplier.get(RenderOptions.DEFAULT_LINES);
+
+        var path = this.getTracePath(camera,b,begin,end);
         ImmediateBufferSupplier.drawCurrent();
+        GL11.glLineWidth(2);
+
+        b = ImmediateBufferSupplier.get(RenderOptions.DEFAULT_LINES);
+        int tracesAmount = 0;
+        for (Vector3i v : path){
+
+            Vector3f p = camera.coordToLocal(v.x,v.y,v.z,partialTick);
+
+            AABox box = new AABox(p.x,p.y,p.z,p.x + 1,p.y + 1,p.z + 1);
+            RenderUtil.renderBox(new Matrix4f(),b,
+                    box,1f,1f,1f,1f
+            );
+            var point = RaytraceUtil.traceBox(new AABox(v.x,v.y,v.z,v.x + 1,v.y + 1,v.z + 1),
+                    begin,end);
+            if (true){
+                //break;
+            }
+            if (point != null){
+                tracesAmount++;
+            }
+        }
+//        System.out.println("Amount of boxes: " + path.size());
+//        System.out.println("Traces: " + tracesAmount);
+        ImmediateBufferSupplier.drawCurrent();
+
+//        var result = this.traceBlock(begin,end);
+//
+//        if (result != null){
+//            var p = result.pos();
+//            Vector3f v  = camera.coordToLocal((float)p.x,(float)p.y,(float)p.z,partialTick);
+//            var b = ImmediateBufferSupplier.get(RenderOptions.DEFAULT_LINES);
+//            b.position(v.x,v.y,v.z).color(1f,0f,0f,1f);
+//            b.position(v.x,v.y + 0.1f,v.z).color(1f,0f,0f,1f);
+//            GL11.glLineWidth(10);
+//            ImmediateBufferSupplier.drawCurrent();
+//        }
+//
+//        System.out.println(result);
+
     }
 
     private void renderChunks(Camera camera,float partialTick){
@@ -118,7 +159,7 @@ public class World implements WorldAccessor {
     }
 
 
-    public Block traceBlock(Vector3d begin, Vector3d end){
+    public BlockRayTraceResult traceBlock(Vector3d begin, Vector3d end){
         AABox baseBox = new AABox(0,0,0,1,1,1);
         Vector3d b = end.sub(begin,new Vector3d());
         for (int i = 0; i < b.length();i++){
@@ -130,11 +171,107 @@ public class World implements WorldAccessor {
             if (!block.isAir()){
                 var point = RaytraceUtil.traceBox(baseBox.offset(x,y,z),begin,end);
                 if (point != null){
-                    return block;
+                    return new BlockRayTraceResult(block,point);
                 }
             }
         }
-        return Block.AIR;
+        return null;
+    }
+
+    private Set<Vector3i> getTracePath(Camera camera,VertexBuffer line,Vector3d begin,Vector3d end){
+        Set<Vector3i> vs = new LinkedHashSet<>();
+        Vector3d between = end.sub(begin,new Vector3d());
+        Vector3d nb = between.normalize(new Vector3d());
+        Vector3d current = begin;
+        for (int i = 0; i <= between.length() + 1;i++){
+            Vector3d next = current.add(nb,new Vector3d());
+
+            Vector3f v1 = camera.coordToLocal((float) current.x,(float) (int)current.y,(float) current.z,0);
+            Vector3f v2 = camera.coordToLocal((float) next.x,(float) (int)next.y,(float) next.z,0);
+            line.position(v1.x,v1.y,v1.z).color(1f,0,0,1f);
+            line.position(v2.x,v2.y,v2.z).color(1f,0,0,1f);
+
+            line.position(v2.x,v2.y,v2.z).color(1f,1f,0,1f);
+            line.position(v2.x + 0.1f,v2.y,v2.z + 0.1f).color(1f,1f,0,1f);
+
+
+            Vector3i b = new Vector3i(
+                    (int)Math.floor(current.x),
+                    (int)Math.floor(current.y),
+                    (int)Math.floor(current.z)
+            );
+            Vector3i e = new Vector3i(
+                    (int)Math.floor(next.x),
+                    (int)Math.floor(next.y),
+                    (int)Math.floor(next.z)
+            );
+            Vector3i diff = e.sub(b,new Vector3i());
+            //add beginning
+            vs.add(b);
+            //if positions are equal to each other just continue
+            if (b.equals(e)) {
+                current = next;
+                continue;
+            }else if (Math.abs(diff.x) + Math.abs(diff.y) + Math.abs(diff.z) == 1){
+                // if we moved only in 1 direction just continue
+                current = next;
+                continue;
+            }
+
+            if (diff.y == 0){
+                //movement on x and z axis
+
+                double fx = Math.floor(current.x);
+                double fz = Math.floor(current.z);
+
+                double cx = diff.x > 0 ? fx : fx + 1;
+                double cz = diff.z > 0 ? fz : fz + 1;
+
+                double x1 = Math.abs(current.x - cx);
+                double z1 = Math.abs(current.z - cz);
+
+                double x2 = Math.abs(next.x - cx);
+                double z2 = Math.abs(next.z - cz);
+
+                double v = (1 - z1) * (x2 - x1) - (1 - x1) * (z2 - z1);
+                if (v > 0){
+                    vs.add(new Vector3i(
+                            b.x + diff.x,
+                            b.y,
+                            b.z
+                    ));
+                }else{
+                    vs.add(new Vector3i(
+                            b.x,
+                            b.y,
+                            b.z + diff.z
+                    ));
+                }
+
+                current = next;
+            }else{
+
+                if (diff.x == 0){
+
+
+                }else if (diff.z == 0){
+
+                }else{
+                    //pizdets
+
+
+                }
+                current = next;
+
+            }
+
+
+
+
+
+
+        }
+        return vs;
     }
 
     @Override

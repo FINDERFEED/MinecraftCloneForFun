@@ -24,8 +24,7 @@ public class RenderOptions {
     });
 
     public static RenderOptions DEFAULT_LINES = new RenderOptions(DrawMode.LINES,VertexFormat.POSITION_COLOR)
-            .add(new ShaderRenderOption(Shaders.POSITION_COLOR))
-            .add(new RenderOption(()->{GL11.glLineWidth(4);},()->{}));
+            .add(new ShaderRenderOption(Shaders.POSITION_COLOR));
 
     public static RenderOptions texture(String texture){
         TextureManager manager = Main.textureManager;
