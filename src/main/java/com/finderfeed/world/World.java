@@ -63,7 +63,7 @@ public class World implements WorldAccessor {
         while (iter.hasNext()){
             var entry = iter.next();
             RenderedChunk c = entry.getValue();
-            if (c.ready && !this.isChunkInRenderDistance(c.renderedChunk,currentPos,Main.chunkRenderDistance)){
+            if (c.readyToCompile && !this.isChunkInRenderDistance(c.renderedChunk,currentPos,Main.chunkRenderDistance)){
                 c.close();
                 iter.remove();
             }
@@ -89,47 +89,51 @@ public class World implements WorldAccessor {
         this.renderChunks(camera,partialTick);
 
         Vector3d begin = camera.pos;
-        Vector3d end = new Vector3d(camera.pos).add(new Vector3d(camera.look.mul(1)));
+        Vector3d end = new Vector3d(camera.pos).add(new Vector3d(camera.look.mul(100)));
 
 
-        var path = RaycastUtil.voxelRaycast(begin,end);
+//        var path = RaycastUtil.voxelRaycast(begin,end);
         GL11.glLineWidth(2);
 
-        VertexBuffer b = ImmediateBufferSupplier.get(RenderOptions.DEFAULT_LINES);
-        int tracesAmount = 0;
-        for (Vector3i v : path){
-
-            Vector3f p = camera.coordToLocal(v.x,v.y,v.z,partialTick);
-
-            AABox box = new AABox(p.x,p.y,p.z,p.x + 1,p.y + 1,p.z + 1);
-            RenderUtil.renderBox(new Matrix4f(),b,
-                    box,1f,1f,1f,1f
-            );
-            var point = RaycastUtil.traceBox(new AABox(v.x,v.y,v.z,v.x + 1,v.y + 1,v.z + 1),
-                    begin,end);
-            if (true){
-                //break;
-            }
-            if (point != null){
-                tracesAmount++;
-            }
-        }
-        System.out.println("Amount of boxes: " + path.size());
-        System.out.println("Traces: " + tracesAmount);
-        ImmediateBufferSupplier.drawCurrent();
-
-//        var result = this.traceBlock(begin,end);
+//        VertexBuffer b = ImmediateBufferSupplier.get(RenderOptions.DEFAULT_LINES);
+//        int tracesAmount = 0;
+//        for (Vector3i v : path){
 //
-//        if (result != null){
-//            var p = result.pos();
-//            Vector3f v  = camera.coordToLocal((float)p.x,(float)p.y,(float)p.z,partialTick);
-//            var b = ImmediateBufferSupplier.get(RenderOptions.DEFAULT_LINES);
-//            b.position(v.x,v.y,v.z).color(1f,0f,0f,1f);
-//            b.position(v.x,v.y + 0.1f,v.z).color(1f,0f,0f,1f);
-//            GL11.glLineWidth(10);
-//            ImmediateBufferSupplier.drawCurrent();
+//            Vector3f p = camera.coordToLocal(v.x,v.y,v.z,partialTick);
+//
+//            AABox box = new AABox(p.x,p.y,p.z,p.x + 1,p.y + 1,p.z + 1);
+//            RenderUtil.renderBox(new Matrix4f(),b,
+//                    box,1f,1f,1f,1f
+//            );
+//            var point = RaycastUtil.traceBox(new AABox(v.x,v.y,v.z,v.x + 1,v.y + 1,v.z + 1),
+//                    begin,end);
+//            if (true){
+//                //break;
+//            }
+//            if (point != null){
+//                tracesAmount++;
+//            }
 //        }
-//
+//        System.out.println("Amount of boxes: " + path.size());
+//        System.out.println("Traces: " + tracesAmount);
+//        ImmediateBufferSupplier.drawCurrent();
+
+        var result = this.traceBlock(begin,end);
+
+
+        if (result != null){
+            var p = result.blockPos;
+            Vector3f v  = camera.coordToLocal((float)p.x,(float)p.y,(float)p.z,partialTick);
+            VertexBuffer b = ImmediateBufferSupplier.get(RenderOptions.DEFAULT_LINES);
+
+            RenderUtil.renderBox(new Matrix4f(),b,new AABox(
+                    v.x,v.y,v.z,v.x + 1,v.y + 1,v.z + 1
+            ),1f,1f,1f,1f);
+
+            GL11.glLineWidth(3);
+            ImmediateBufferSupplier.drawCurrent();
+        }
+
 //        System.out.println(result);
 
     }
@@ -159,20 +163,19 @@ public class World implements WorldAccessor {
 
     public BlockRayTraceResult traceBlock(Vector3d begin, Vector3d end){
         AABox baseBox = new AABox(0,0,0,1,1,1);
-        Vector3d b = end.sub(begin,new Vector3d());
-        for (int i = 0; i < b.length();i++){
-            Vector3d p = begin.add(b.normalize(new Vector3d()).mul(i,i,i,new Vector3d()),new Vector3d());
-            int x = (int)p.x;
-            int y = (int)p.y;
-            int z = (int)p.z;
-            Block block = this.getBlock(x,y,z);
-            if (!block.isAir()){
-                var point = RaycastUtil.traceBox(baseBox.offset(x,y,z),begin,end);
-                if (point != null){
-                    return new BlockRayTraceResult(block,point);
+        var path = RaycastUtil.voxelRaycast(begin,end);
+        for (Vector3i v : path){
+            Block block = this.getBlock(v.x,v.y,v.z);
+            if (!block.isAir()) {
+                Vector3d point = RaycastUtil.traceBox(baseBox.offset(
+                        v.x, v.y, v.z
+                ), begin, end);
+                if (point != null) {
+                    return new BlockRayTraceResult(block, point);
                 }
             }
         }
+
         return null;
     }
 
@@ -188,6 +191,22 @@ public class World implements WorldAccessor {
             return chunk.getBlock(lxpos,y,lzpos);
         }
         return Block.NULL_AIR;
+    }
+
+    public void setBlock(Block block,int x,int y,int z){
+        if (!isYInBounds(y)) return;
+        Chunk chunk = this.getChunkAt(x,z);
+        if (chunk.status.value >= ChunkStatus.LOADED.value){
+            int lxpos = x - (x >> 4) * 16;
+            int lzpos = z - (z >> 4) * 16;
+            chunk.setBlock(block,lxpos,y,lzpos);
+        }
+        RenderedChunk renderedChunk = this.renderedChunks.get(new ChunkPos(
+                x >> Chunk.CHUNK_SIZE_SQRT,z >> Chunk.CHUNK_SIZE_SQRT
+        ).asLong());
+        if (renderedChunk != null){
+            renderedChunk.recompile(true);
+        }
     }
 
     @Override

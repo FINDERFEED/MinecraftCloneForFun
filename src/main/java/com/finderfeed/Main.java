@@ -1,5 +1,6 @@
 package com.finderfeed;
 
+import com.finderfeed.blocks.Block;
 import com.finderfeed.engine.GameRenderer;
 import com.finderfeed.engine.RenderEngine;
 import com.finderfeed.engine.immediate_buffer_supplier.ImmediateBufferSupplier;
@@ -12,6 +13,7 @@ import com.finderfeed.periphery.Keyboard;
 import com.finderfeed.periphery.Mouse;
 import com.finderfeed.engine.textures.atlases.AtlasTexture;
 import com.finderfeed.util.AABox;
+import com.finderfeed.util.BlockRayTraceResult;
 import com.finderfeed.util.MathUtil;
 import com.finderfeed.world.World;
 import com.finderfeed.world.chunk.WorldChunk;
@@ -157,6 +159,18 @@ public class Main {
         }
     }
 
+    public static void mouseCallback(long window, int button, int action, int mods){
+        if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS){
+            Vector3d begin = camera.pos;
+            Vector3d end = new Vector3d(camera.pos).add(new Vector3d(camera.look).mul(100));
+            BlockRayTraceResult result = world.traceBlock(begin,end);
+            if (result != null && glfwGetInputMode(window,GLFW_CURSOR) != GLFW_CURSOR_NORMAL){
+                var blockpos = result.blockPos;
+                world.setBlock(Block.STONE,blockpos.x,blockpos.y,blockpos.z);
+            }
+        }
+    }
+
     public static void keyCallback(long window, int key, int scancode, int action, int mods){
 
         keyboard.keyCallback(window,key,scancode,action,mods);
@@ -181,9 +195,7 @@ public class Main {
         }
     }
 
-    public static void mouseCallback(long window, int button, int action, int mods){
 
-    }
 
 
     public static long window;

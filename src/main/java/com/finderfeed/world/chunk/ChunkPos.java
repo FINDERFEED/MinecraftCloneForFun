@@ -1,5 +1,6 @@
 package com.finderfeed.world.chunk;
 
+import com.finderfeed.util.Util;
 import org.joml.Vector2i;
 import org.joml.Vector3d;
 import org.joml.Vector3f;
@@ -57,6 +58,10 @@ public class ChunkPos {
                 x << WorldChunk.CHUNK_SIZE_SQRT,
                 z << WorldChunk.CHUNK_SIZE_SQRT
         );
+    }
+
+    public long asLong(){
+        return Util.coordsToLong(this.x,this.z);
     }
 
     @Override

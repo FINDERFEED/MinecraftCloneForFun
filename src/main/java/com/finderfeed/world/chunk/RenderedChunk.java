@@ -17,7 +17,7 @@ public class RenderedChunk implements AutoCloseable {
 
     public VertexBuffer buffer;
 
-    public boolean ready = false;
+    public boolean readyToCompile = true;
 
     public AABox baseBox;
 
@@ -26,20 +26,22 @@ public class RenderedChunk implements AutoCloseable {
     }
 
     public void recompile(boolean onMainThread){
-        this.ready = false;
-        if (buffer == null){
-            VertexFormat format = VertexFormat.POSITION_COLOR_UV_NORMAL;
-            int size = 65534;
-            buffer = new VertexBuffer(size,format);
-        }
-        buffer.reset();
-        if (!onMainThread) {
-            LocalChunkWorld localChunkWorld = new LocalChunkWorld(renderedChunk.world, this.renderedChunk.pos, 1);
-            Main.renderExecutor.submit(() -> {
-                this.compileBlocks(localChunkWorld, buffer);
-            });
-        }else{
-            this.compileBlocks(this.renderedChunk.world,buffer);
+        if (readyToCompile) {
+            this.readyToCompile = false;
+            if (buffer == null) {
+                VertexFormat format = VertexFormat.POSITION_COLOR_UV_NORMAL;
+                int size = 65534;
+                buffer = new VertexBuffer(size, format);
+            }
+            buffer.reset();
+            if (!onMainThread) {
+                LocalChunkWorld localChunkWorld = new LocalChunkWorld(renderedChunk.world, this.renderedChunk.pos, 1);
+                Main.renderExecutor.submit(() -> {
+                    this.compileBlocks(localChunkWorld, buffer);
+                });
+            } else {
+                this.compileBlocks(this.renderedChunk.world, buffer);
+            }
         }
 
     }
@@ -47,7 +49,7 @@ public class RenderedChunk implements AutoCloseable {
 
     private void compileBlocks(WorldAccessor world, VertexBuffer buffer){
         try {
-            this.ready = false;
+            this.readyToCompile = false;
             Vector2i globalPos = this.renderedChunk.pos.normalPos();
 
             for (int y = 0; y < Chunk.HEIGHT; y++) {
@@ -75,7 +77,7 @@ public class RenderedChunk implements AutoCloseable {
                     0,0,0,
                     Chunk.CHUNK_SIZE,maxHeight,Chunk.CHUNK_SIZE
             );
-            this.ready = true;
+            this.readyToCompile = true;
         }catch (Exception e){
             e.printStackTrace();
             throw new RuntimeException("Failed to render chunk at: " + this.renderedChunk.pos,e);
@@ -99,7 +101,7 @@ public class RenderedChunk implements AutoCloseable {
     }
 
     public void render(World world,Camera camera,float partialTick){
-        if (buffer != null && this.ready) {
+        if (buffer != null && this.readyToCompile) {
 
             if (!this.isChunkVisible(camera)){
                 return;
