@@ -89,7 +89,7 @@ public class World implements WorldAccessor {
         this.renderChunks(camera,partialTick);
 
         Vector3d begin = camera.pos;
-        Vector3d end = new Vector3d(camera.pos).add(new Vector3d(camera.look.mul(10)));
+        Vector3d end = new Vector3d(camera.pos).add(new Vector3d(camera.look.mul(1)));
 
         var b = ImmediateBufferSupplier.get(RenderOptions.DEFAULT_LINES);
 
@@ -179,11 +179,11 @@ public class World implements WorldAccessor {
     }
 
     private Set<Vector3i> getTracePath(Camera camera,VertexBuffer line,Vector3d begin,Vector3d end){
-        Set<Vector3i> vs = new LinkedHashSet<>();
+        Set<Vector3i> tracePath = new LinkedHashSet<>();
         Vector3d between = end.sub(begin,new Vector3d());
         Vector3d nb = between.normalize(new Vector3d());
         Vector3d current = begin;
-        for (int i = 0; i <= between.length() + 1;i++){
+        for (int i = 0; i <= between.length();i++){
             Vector3d next = current.add(nb,new Vector3d());
 
             Vector3f v1 = camera.coordToLocal((float) current.x,(float) (int)current.y,(float) current.z,0);
@@ -207,7 +207,7 @@ public class World implements WorldAccessor {
             );
             Vector3i diff = e.sub(b,new Vector3i());
             //add beginning
-            vs.add(b);
+            tracePath.add(b);
             //if positions are equal to each other just continue
             if (b.equals(e)) {
                 current = next;
@@ -235,13 +235,13 @@ public class World implements WorldAccessor {
 
                 double v = (1 - z1) * (x2 - x1) - (1 - x1) * (z2 - z1);
                 if (v > 0){
-                    vs.add(new Vector3i(
+                    tracePath.add(new Vector3i(
                             b.x + diff.x,
                             b.y,
                             b.z
                     ));
                 }else{
-                    vs.add(new Vector3i(
+                    tracePath.add(new Vector3i(
                             b.x,
                             b.y,
                             b.z + diff.z
@@ -250,28 +250,177 @@ public class World implements WorldAccessor {
 
                 current = next;
             }else{
-
                 if (diff.x == 0){
+                    double fz = Math.floor(current.z);
+                    double fy = Math.floor(current.y);
 
+                    double cz = diff.z > 0 ? fz : fz + 1;
+                    double cy = diff.y > 0 ? fy : fy + 1;
 
+                    double z1 = Math.abs(current.z - cz);
+                    double y1 = Math.abs(current.y - cy);
+
+                    double z2 = Math.abs(next.z - cz);
+                    double y2 = Math.abs(next.y - cy);
+
+                    double v = (1 - y1) * (z2 - z1) - (1 - z1) * (y2 - y1);
+                    if (v > 0){
+                        tracePath.add(new Vector3i(
+                                b.x,
+                                b.y,
+                                b.z + diff.z
+                        ));
+                    }else{
+                        tracePath.add(new Vector3i(
+                                b.x,
+                                b.y + diff.y,
+                                b.z
+                        ));
+                    }
                 }else if (diff.z == 0){
+                    double fx = Math.floor(current.x);
+                    double fy = Math.floor(current.y);
+
+                    double cx = diff.x > 0 ? fx : fx + 1;
+                    double cy = diff.y > 0 ? fy : fy + 1;
+
+                    double x1 = Math.abs(current.x - cx);
+                    double y1 = Math.abs(current.y - cy);
+
+                    double x2 = Math.abs(next.x - cx);
+                    double y2 = Math.abs(next.y - cy);
+
+                    double v = (1 - y1) * (x2 - x1) - (1 - x1) * (y2 - y1);
+                    if (v < 0){
+                        tracePath.add(new Vector3i(
+                                b.x,
+                                b.y + diff.y,
+                                b.z
+                        ));
+                    }else{
+                        tracePath.add(new Vector3i(
+                                b.x + diff.x,
+                                b.y,
+                                b.z
+                        ));
+                    }
 
                 }else{
                     //pizdets
 
+                    double fx = Math.floor(current.x);
+                    double fy = Math.floor(current.y);
+                    double fz = Math.floor(current.z);
+
+                    double cx = diff.x > 0 ? fx : fx + 1;
+                    double cy = diff.y > 0 ? fy : fy + 1;
+                    double cz = diff.z > 0 ? fz : fz + 1;
+
+                    double x1 = Math.abs(current.x - cx);
+                    double y1 = Math.abs(current.y - cy);
+                    double z1 = Math.abs(current.z - cz);
+
+                    double x2 = Math.abs(next.x - cx);
+                    double y2 = Math.abs(next.y - cy);
+                    double z2 = Math.abs(next.z - cz);
+
+                    double vyx = (1 - y1) * (x2 - x1) - (1 - x1) * (y2 - y1);
+                    double vyz = (1 - y1) * (z2 - z1) - (1 - z1) * (y2 - y1);
+
+
+                    double vxz = (1 - z1) * (x2 - x1) - (1 - x1) * (z2 - z1);
+
+                    if (vxz > 0){
+                        //x
+
+                        if (vyx < 0) {
+
+                            tracePath.add(new Vector3i(
+                                    b.x,
+                                    b.y + diff.y,
+                                    b.z
+                            ));
+
+                            tracePath.add(new Vector3i(
+                                    b.x + diff.x,
+                                    b.y + diff.y,
+                                    b.z
+                            ));
+
+                        }else{
+                            tracePath.add(new Vector3i(
+                                    b.x + diff.x,
+                                    b.y,
+                                    b.z
+                            ));
+                            if (vyz > 0){
+                                tracePath.add(new Vector3i(
+                                        b.x + diff.x,
+                                        b.y,
+                                        b.z + diff.z
+                                ));
+                            }else{
+                                tracePath.add(new Vector3i(
+                                        b.x + diff.x,
+                                        b.y + diff.y,
+                                        b.z
+                                ));
+                            }
+
+                        }
+
+
+                    }else{
+                        //z
+
+                        if (vyz < 0) {
+
+                            tracePath.add(new Vector3i(
+                                    b.x,
+                                    b.y + diff.y,
+                                    b.z
+                            ));
+
+                            tracePath.add(new Vector3i(
+                                    b.x,
+                                    b.y + diff.y,
+                                    b.z + diff.z
+                            ));
+
+                        }else{
+                            tracePath.add(new Vector3i(
+                                    b.x,
+                                    b.y,
+                                    b.z + diff.z
+                            ));
+                            if (vyx > 0){
+                                tracePath.add(new Vector3i(
+                                        b.x + diff.x,
+                                        b.y,
+                                        b.z + diff.z
+                                ));
+                            }else{
+                                tracePath.add(new Vector3i(
+                                        b.x,
+                                        b.y + diff.y,
+                                        b.z + diff.z
+                                ));
+                            }
+
+                        }
+                    }
 
                 }
                 current = next;
 
             }
-
-
-
-
-
-
         }
-        return vs;
+        tracePath.add(new Vector3i(
+                (int)Math.floor(end.x),
+                (int)Math.floor(end.y),
+                (int)Math.floor(end.z)
+        ));
+        return tracePath;
     }
 
     @Override
