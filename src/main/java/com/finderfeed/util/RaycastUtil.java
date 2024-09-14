@@ -1,3 +1,10 @@
+/*
+ *
+ * Copyright (C) 2024 FINDERFEED
+ *
+ *  All rights reserved.
+ *
+ */
 package com.finderfeed.util;
 
 
