@@ -33,13 +33,6 @@ public class AtlasTexture {
         BufferedImage atlasTexture = new BufferedImage(wh,wh,BufferedImage.TYPE_INT_ARGB);
         List<Image> images = getImagesFromDirectoryAndInner(directory);
         this.generate(atlasTexture,images);
-        try {
-            File f = new File("C:\\Users\\User\\Desktop\\MISC\\files\\image.png");
-            f.createNewFile();
-            ImageIO.write(atlasTexture, "png", f);
-        }catch (Exception e){
-            throw new RuntimeException(e);
-        }
         ByteBuffer buffer = this.bufferedImageToBuffer(atlasTexture);
         Texture texture = new Texture(
                 name,

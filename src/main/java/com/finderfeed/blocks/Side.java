@@ -17,4 +17,8 @@ public enum Side {
         this.normal = new Vector3i(x,y,z);
     }
 
+
+    public Vector3i getNormal() {
+        return new Vector3i(normal);
+    }
 }

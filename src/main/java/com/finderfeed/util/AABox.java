@@ -1,5 +1,6 @@
 package com.finderfeed.util;
 
+import com.finderfeed.blocks.Side;
 import org.joml.Math;
 import org.joml.Vector3d;
 import org.joml.Vector3f;
@@ -44,36 +45,42 @@ public class AABox {
     public List<Face> getFaces(){
         return List.of(
                 new Face(
+                        Side.NORTH,
                         new Vector3d(minX,minY,minZ),
                         new Vector3d(minX,maxY,minZ),
                         new Vector3d(maxX,maxY,minZ),
                         new Vector3d(maxX,minY,minZ)
                 ),
                 new Face(
+                        Side.WEST,
                         new Vector3d(minX,minY,minZ),
                         new Vector3d(minX,maxY,minZ),
                         new Vector3d(minX,maxY,maxZ),
                         new Vector3d(minX,minY,maxZ)
                 ),
                 new Face(
+                        Side.SOUTH,
                         new Vector3d(minX,minY,maxZ),
                         new Vector3d(minX,maxY,maxZ),
                         new Vector3d(maxX,maxY,maxZ),
                         new Vector3d(maxX,minY,maxZ)
                 ),
                 new Face(
+                        Side.EAST,
                         new Vector3d(maxX,minY,minZ),
                         new Vector3d(maxX,maxY,minZ),
                         new Vector3d(maxX,maxY,maxZ),
                         new Vector3d(maxX,minY,maxZ)
                 ),
                 new Face(
+                        Side.BOTTOM,
                         new Vector3d(minX,minY,minZ),
                         new Vector3d(maxX,minY,minZ),
                         new Vector3d(maxX,minY,maxZ),
                         new Vector3d(minX,minY,maxZ)
                 ),
                 new Face(
+                        Side.TOP,
                         new Vector3d(minX,maxY,minZ),
                         new Vector3d(maxX,maxY,minZ),
                         new Vector3d(maxX,maxY,maxZ),

@@ -166,7 +166,9 @@ public class Main {
             BlockRayTraceResult result = world.traceBlock(begin,end);
             if (result != null && glfwGetInputMode(window,GLFW_CURSOR) != GLFW_CURSOR_NORMAL){
                 var blockpos = result.blockPos;
-                world.setBlock(Block.STONE,blockpos.x,blockpos.y,blockpos.z);
+                var side = result.side;
+                var n = side.getNormal();
+                world.setBlock(Block.STONE,blockpos.x + n.x,blockpos.y + n.y,blockpos.z + n.z);
             }
         }
     }

@@ -8,6 +8,9 @@
 package com.finderfeed.util;
 
 
+import com.finderfeed.blocks.Side;
+import it.unimi.dsi.fastutil.Pair;
+import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 import org.joml.Vector3d;
 import org.joml.Vector3i;
 
@@ -255,8 +258,9 @@ public class RaycastUtil {
 
 
 
-    public static Vector3d traceBox(AABox box, Vector3d begin,Vector3d end){
+    public static Pair<Side,Vector3d> traceBox(AABox box, Vector3d begin, Vector3d end){
         Vector3d closest = null;
+        Side side = null;
         double distance = Double.MAX_VALUE;
         for (Face face : box.getFaces()){
             Vector3d p = traceSquare(face.p1(),face.p2(),face.p3(),face.p4(),begin,end);
@@ -265,10 +269,15 @@ public class RaycastUtil {
                 if (d < distance){
                     distance = d;
                     closest = p;
+                    side = face.normal();
                 }
             }
         }
-        return closest;
+        if (closest != null){
+            return new ObjectObjectImmutablePair<>(side,closest);
+        }else{
+            return null;
+        }
     }
 
     public static Vector3d traceSquare(Vector3d p1,Vector3d p2,Vector3d p3,Vector3d p4,Vector3d begin,Vector3d end) {

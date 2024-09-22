@@ -167,11 +167,11 @@ public class World implements WorldAccessor {
         for (Vector3i v : path){
             Block block = this.getBlock(v.x,v.y,v.z);
             if (!block.isAir()) {
-                Vector3d point = RaycastUtil.traceBox(baseBox.offset(
+                 var pair = RaycastUtil.traceBox(baseBox.offset(
                         v.x, v.y, v.z
                 ), begin, end);
-                if (point != null) {
-                    return new BlockRayTraceResult(block, point);
+                if (pair != null) {
+                    return new BlockRayTraceResult(pair.first(),new Vector3i(v),block, pair.right());
                 }
             }
         }
