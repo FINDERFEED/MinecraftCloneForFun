@@ -89,6 +89,7 @@ public class RenderedChunk implements AutoCloseable {
         Frustum frustum = Main.frustum;
 
         Vector3d pos = camera.calculateCameraPos(Main.timer.partialTick);
+        pos.add(camera.look.mul(-2,new Vector3f()));
         AABox box = this.baseBox.offset(
                 -(float) pos.x + renderedChunk.pos.x * Chunk.CHUNK_SIZE,
                 -(float) pos.y,

@@ -32,7 +32,6 @@ dependencies {
     implementation "org.lwjgl:lwjgl-openal"
     implementation "org.lwjgl:lwjgl-opengl"
     implementation "org.lwjgl:lwjgl-stb"
-    implementation "org.spongepowered:noise:2.0.0-SNAPSHOT"
     runtimeOnly "org.lwjgl:lwjgl::$lwjglNatives"
     runtimeOnly "org.lwjgl:lwjgl-assimp::$lwjglNatives"
     runtimeOnly "org.lwjgl:lwjgl-glfw::$lwjglNatives"
@@ -41,4 +40,6 @@ dependencies {
     runtimeOnly "org.lwjgl:lwjgl-stb::$lwjglNatives"
 
     implementation group: 'it.unimi.dsi', name: 'fastutil-core', version: '8.5.14'
+    implementation "org.spongepowered:noise:2.0.0-SNAPSHOT"
+
 }

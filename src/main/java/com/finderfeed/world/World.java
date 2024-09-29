@@ -3,6 +3,7 @@ package com.finderfeed.world;
 import com.finderfeed.VertexBuffer;
 import com.finderfeed.engine.immediate_buffer_supplier.ImmediateBufferSupplier;
 import com.finderfeed.engine.immediate_buffer_supplier.RenderOptions;
+import com.finderfeed.entity.Entity;
 import com.finderfeed.util.*;
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import com.finderfeed.Camera;
@@ -12,6 +13,8 @@ import com.finderfeed.world.chunk.Chunk;
 import com.finderfeed.world.chunk.ChunkPos;
 import com.finderfeed.world.chunk.RenderedChunk;
 import com.finderfeed.world.chunk.WorldChunk;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.joml.Matrix4f;
 import org.joml.Vector3d;
 import org.joml.Vector3f;
@@ -27,6 +30,10 @@ import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
 
 public class World implements WorldAccessor {
 
+    public Object2ObjectMap<UUID,Entity> entityByUuid = new Object2ObjectOpenHashMap<>();
+
+    public List<Entity> entities = new ArrayList<>();
+
     public List<WorldChunk> chunksToRender = new ArrayList<>();
 
     public Long2ObjectLinkedOpenHashMap<RenderedChunk> renderedChunks = new Long2ObjectLinkedOpenHashMap<>();
@@ -39,14 +46,24 @@ public class World implements WorldAccessor {
 
 
     public void tick(){
-        Camera camera = Main.camera;
-
-//        Block b = this.traceBlock(camera.pos,camera.pos.add(camera.look.mul(10,new Vector3f()),new Vector3d()));
-//        System.out.println(b);
-
-        ChunkPos currentPos = new ChunkPos(camera.pos);
 
         this.chunks.tick();
+        this.manageChunkLoad();
+        this.tickEntities();
+
+    }
+
+    private void tickEntities(){
+        for (Entity entity : entities){
+            ChunkPos pos = new ChunkPos(entity.position);
+            if (this.chunks.hasChunk(pos)){
+                entity.update();
+            }
+        }
+    }
+
+    private void manageChunkLoad(){
+        ChunkPos currentPos = new ChunkPos(Main.camera.pos);
 
         for (var entry : this.chunks.chunkHashMap.long2ObjectEntrySet()){
             long l = entry.getLongKey();
@@ -70,6 +87,13 @@ public class World implements WorldAccessor {
         }
     }
 
+    public void addEntity(Entity entity){
+        if (!entityByUuid.containsKey(entity.uuid)){
+            this.entities.add(entity);
+            this.entityByUuid.put(entity.uuid,entity);
+        }
+    }
+
 
     public boolean checkNeighbors(Chunk chunk, Predicate<Chunk> check){
         if (!this.chunks.hasChunk(chunk.pos.north()) || !check.test(this.getChunkAt(chunk.pos.north()))) return false;
@@ -87,55 +111,26 @@ public class World implements WorldAccessor {
 
     public void render(Camera camera,float partialTick){
         this.renderChunks(camera,partialTick);
+        this.renderTracedBlock(camera,partialTick);
+    }
 
+    private void renderTracedBlock(Camera camera,float partialTick){
         Vector3d begin = camera.pos;
         Vector3d end = new Vector3d(camera.pos).add(new Vector3d(camera.look.mul(100)));
-
-
-//        var path = RaycastUtil.voxelRaycast(begin,end);
-        GL11.glLineWidth(2);
-
-//        VertexBuffer b = ImmediateBufferSupplier.get(RenderOptions.DEFAULT_LINES);
-//        int tracesAmount = 0;
-//        for (Vector3i v : path){
-//
-//            Vector3f p = camera.coordToLocal(v.x,v.y,v.z,partialTick);
-//
-//            AABox box = new AABox(p.x,p.y,p.z,p.x + 1,p.y + 1,p.z + 1);
-//            RenderUtil.renderBox(new Matrix4f(),b,
-//                    box,1f,1f,1f,1f
-//            );
-//            var point = RaycastUtil.traceBox(new AABox(v.x,v.y,v.z,v.x + 1,v.y + 1,v.z + 1),
-//                    begin,end);
-//            if (true){
-//                //break;
-//            }
-//            if (point != null){
-//                tracesAmount++;
-//            }
-//        }
-//        System.out.println("Amount of boxes: " + path.size());
-//        System.out.println("Traces: " + tracesAmount);
-//        ImmediateBufferSupplier.drawCurrent();
-
         var result = this.traceBlock(begin,end);
-
-
         if (result != null){
             var p = result.blockPos;
             Vector3f v  = camera.coordToLocal((float)p.x,(float)p.y,(float)p.z,partialTick);
             VertexBuffer b = ImmediateBufferSupplier.get(RenderOptions.DEFAULT_LINES);
 
+            float offs = 0.005f;
             RenderUtil.renderBox(new Matrix4f(),b,new AABox(
-                    v.x,v.y,v.z,v.x + 1,v.y + 1,v.z + 1
+                    v.x - offs,v.y - offs,v.z - offs,v.x + 1 + offs,v.y + 1 + offs,v.z + 1 + offs
             ),1f,1f,1f,1f);
 
             GL11.glLineWidth(3);
             ImmediateBufferSupplier.drawCurrent();
         }
-
-//        System.out.println(result);
-
     }
 
     private void renderChunks(Camera camera,float partialTick){
@@ -200,14 +195,50 @@ public class World implements WorldAccessor {
             int lxpos = x - (x >> 4) * 16;
             int lzpos = z - (z >> 4) * 16;
             chunk.setBlock(block,lxpos,y,lzpos);
+            chunk.recalculateHeightAt(lxpos,lzpos);
         }
-        RenderedChunk renderedChunk = this.renderedChunks.get(new ChunkPos(
+        this.recompileChunksOnBlockBreaking(x,z);
+    }
+
+    private void recompileChunksOnBlockBreaking(int x,int z){
+        ChunkPos original = new ChunkPos(x >> Chunk.CHUNK_SIZE_SQRT,z >> Chunk.CHUNK_SIZE_SQRT);
+        this.recompileChunk(original);
+        ChunkPos c1 = new ChunkPos((x + 1) >> Chunk.CHUNK_SIZE_SQRT,z >> Chunk.CHUNK_SIZE_SQRT);
+        ChunkPos c2 = new ChunkPos(x >> Chunk.CHUNK_SIZE_SQRT,(z + 1) >> Chunk.CHUNK_SIZE_SQRT);
+        if (!c1.equals(original)) {
+            this.recompileChunk(c1);
+        }else{
+            c1 = new ChunkPos((x - 1) >> Chunk.CHUNK_SIZE_SQRT,z >> Chunk.CHUNK_SIZE_SQRT);
+            if (!c1.equals(original)) {
+                this.recompileChunk(c1);
+            }
+        }
+        if (!c2.equals(original)) {
+            this.recompileChunk(c2);
+        }else{
+            c2 = new ChunkPos(x >> Chunk.CHUNK_SIZE_SQRT,(z - 1) >> Chunk.CHUNK_SIZE_SQRT);
+            if (!c2.equals(original)) {
+                this.recompileChunk(c2);
+            }
+        }
+    }
+
+    private void recompileChunk(int x,int z){
+        ChunkPos pos = new ChunkPos(
                 x >> Chunk.CHUNK_SIZE_SQRT,z >> Chunk.CHUNK_SIZE_SQRT
-        ).asLong());
+        );
+        this.recompileChunk(pos);
+    }
+
+    private void recompileChunk(ChunkPos pos){
+        RenderedChunk renderedChunk = this.renderedChunks.get(pos.asLong());
         if (renderedChunk != null){
             renderedChunk.recompile(true);
         }
     }
+
+
+
 
     @Override
     public int getHeight(int x, int z) {

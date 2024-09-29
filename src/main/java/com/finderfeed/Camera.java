@@ -1,5 +1,6 @@
 package com.finderfeed;
 
+import com.finderfeed.entity.Entity;
 import com.finderfeed.periphery.Keyboard;
 import com.finderfeed.util.MathUtil;
 import com.finderfeed.world.World;
@@ -42,24 +43,53 @@ public class Camera {
     }
 
     private void handleMovement(){
-        Keyboard keyboard = Main.keyboard;
-        float speed = keyboard.hasCtrlDown() ? 5f : 0.5f;
+        Entity entity = Main.controllingEntity;
+        if (entity == null) {
+            Keyboard keyboard = Main.keyboard;
+            float speed = keyboard.hasCtrlDown() ? 5f : 0.5f;
 
-        if (keyboard.isKeyPressed(GLFW.GLFW_KEY_W)){
-            this.moveForward(speed);
-        } else if (keyboard.isKeyPressed(GLFW.GLFW_KEY_S)){
-            this.moveForward(-speed);
-        }
-        if (keyboard.isKeyPressed(GLFW.GLFW_KEY_A)){
-            this.moveSidewards(-speed);
-        } else if (keyboard.isKeyPressed(GLFW.GLFW_KEY_D)){
-            this.moveSidewards(speed);
-        }
+            if (keyboard.isKeyPressed(GLFW.GLFW_KEY_W)) {
+                this.moveForward(speed);
+            } else if (keyboard.isKeyPressed(GLFW.GLFW_KEY_S)) {
+                this.moveForward(-speed);
+            }
+            if (keyboard.isKeyPressed(GLFW.GLFW_KEY_A)) {
+                this.moveSidewards(-speed);
+            } else if (keyboard.isKeyPressed(GLFW.GLFW_KEY_D)) {
+                this.moveSidewards(speed);
+            }
 
-        if (keyboard.isKeyPressed(GLFW.GLFW_KEY_SPACE)){
-            this.move(0,speed,0);
-        }else if (keyboard.isKeyPressed(GLFW.GLFW_KEY_LEFT_SHIFT)){
-            this.move(0,-speed,0);
+            if (keyboard.isKeyPressed(GLFW.GLFW_KEY_SPACE)) {
+                this.move(0, speed, 0);
+            } else if (keyboard.isKeyPressed(GLFW.GLFW_KEY_LEFT_SHIFT)) {
+                this.move(0, -speed, 0);
+            }
+        }else{
+            this.pos = new Vector3d(entity.position).add(0,entity.getEyeHeight(),0);
+
+            Keyboard keyboard = Main.keyboard;
+
+            float speed = keyboard.hasCtrlDown() ? 1f : 0.5f;
+
+
+            if (keyboard.isKeyPressed(GLFW.GLFW_KEY_W)) {
+
+
+
+            } else if (keyboard.isKeyPressed(GLFW.GLFW_KEY_S)) {
+
+            }
+            if (keyboard.isKeyPressed(GLFW.GLFW_KEY_A)) {
+
+            } else if (keyboard.isKeyPressed(GLFW.GLFW_KEY_D)) {
+
+            }
+
+            if (keyboard.isKeyPressed(GLFW.GLFW_KEY_SPACE)) {
+                if (entity.onGround){
+                    entity.addMovement(0,0.5,0);
+                }
+            }
         }
     }
 

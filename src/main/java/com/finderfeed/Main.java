@@ -9,6 +9,7 @@ import com.finderfeed.engine.shaders.Matrix4fUniform;
 import com.finderfeed.engine.shaders.Shaders;
 import com.finderfeed.engine.textures.TextureManager;
 import com.finderfeed.engine.shaders.Shader;
+import com.finderfeed.entity.Entity;
 import com.finderfeed.periphery.Keyboard;
 import com.finderfeed.periphery.Mouse;
 import com.finderfeed.engine.textures.atlases.AtlasTexture;
@@ -63,6 +64,8 @@ public class Main {
 
     public static Timer timer = new Timer();
 
+    public static Entity mainEntity = null;
+    public static Entity controllingEntity = null;
 
     public static int ticks = 1;
     public static int framesRendered = 0;
@@ -95,6 +98,12 @@ public class Main {
         renderExecutor = Executors.newFixedThreadPool(5);
         utilExecutor = Executors.newFixedThreadPool(10);
 
+        Entity entity = new Entity(world);
+        entity.position = new Vector3d(0.5,200,0.5);
+        world.addEntity(entity);
+        controllingEntity = entity;
+        mainEntity = entity;
+
 
         while ( !glfwWindowShouldClose(window) ) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -113,6 +122,7 @@ public class Main {
 
 
             gameRenderer.render();
+
 
             glfwSwapBuffers(window);
             glfwPollEvents();
@@ -154,21 +164,26 @@ public class Main {
     public static void mouseCursorCallback(long window, double xpos, double ypos){
         mouse.update((float) xpos, (float) ypos);
         if (glfwGetInputMode(window,GLFW_CURSOR) != GLFW_CURSOR_NORMAL) {
-            camera.yaw -= mouse.dx / 4;
-            camera.pitch = MathUtil.clamp(camera.pitch - mouse.dy / 4,-89.9f,89.9f);
+            float sensivity = 10;
+            camera.yaw -= mouse.dx / sensivity;
+            camera.pitch = MathUtil.clamp(camera.pitch - mouse.dy / sensivity,-89.9f,89.9f);
         }
     }
 
     public static void mouseCallback(long window, int button, int action, int mods){
-        if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS){
+        if (action == GLFW_PRESS){
             Vector3d begin = camera.pos;
             Vector3d end = new Vector3d(camera.pos).add(new Vector3d(camera.look).mul(100));
             BlockRayTraceResult result = world.traceBlock(begin,end);
             if (result != null && glfwGetInputMode(window,GLFW_CURSOR) != GLFW_CURSOR_NORMAL){
                 var blockpos = result.blockPos;
                 var side = result.side;
-                var n = side.getNormal();
-                world.setBlock(Block.STONE,blockpos.x + n.x,blockpos.y + n.y,blockpos.z + n.z);
+                if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+                    var n = side.getNormal();
+                    world.setBlock(Block.STONE, blockpos.x + n.x, blockpos.y + n.y, blockpos.z + n.z);
+                }else if (button == GLFW_MOUSE_BUTTON_LEFT){
+                    world.setBlock(Block.AIR, blockpos.x, blockpos.y, blockpos.z);
+                }
             }
         }
     }
@@ -194,6 +209,12 @@ public class Main {
             System.out.println(chunkRenderDistance);
         }else if (key == GLFW_KEY_F3){
             debugRendering = !debugRendering;
+        }else if (key == GLFW_KEY_F4){
+            if (controllingEntity == null){
+                controllingEntity = mainEntity;
+            }else{
+                controllingEntity = null;
+            }
         }
     }
 

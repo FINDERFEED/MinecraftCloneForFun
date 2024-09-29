@@ -56,6 +56,29 @@ public abstract class Chunk implements AutoCloseable {
         return this.heightmap[x + z * CHUNK_SIZE];
     }
 
+    public int getMaxHeightInChunk(){
+        int maxHeight = 0;
+        for (int i = 0; i < CHUNK_SIZE;i++){
+            for (int g = 0; g < CHUNK_SIZE;g++){
+                int height = this.getHeight(i,g);
+                if (height > maxHeight){
+                    maxHeight = height;
+                }
+            }
+        }
+        return maxHeight;
+    }
+
+    public void recalculateHeightAt(int x,int z){
+        for (int y = HEIGHT - 1;y >= 0;y--){
+            Block block = this.getBlock(x,y,z);
+            if (!block.isAir()){
+                this.setHeight(x,z,y);
+                break;
+            }
+        }
+    }
+
     public void setHeight(int x,int z,int height){
         this.heightmap[x + z * CHUNK_SIZE] = (short) height;
     }
