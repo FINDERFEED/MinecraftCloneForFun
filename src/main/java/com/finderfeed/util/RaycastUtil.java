@@ -309,8 +309,8 @@ public class RaycastUtil {
         double y =
                 ((-D - A * x1 - C * z1) * (y2 - y1) + A * y1 * (x2 - x1) + C * y1 * (z2 - z1)) /
                         (A * (x2 - x1) + B * (y2 - y1) + C * (z2 - z1));
-        double x = (y - y1) / (y2 - y1) * (x2 - x1) + x1;
-        double z = (y - y1) / (y2 - y1) * (z2 - z1) + z1;
+        double x = (y - y1) / (y2 - y1 + 0.0001f) * (x2 - x1) + x1;
+        double z = (y - y1) / (y2 - y1 + 0.0001f) * (z2 - z1) + z1;
         return new Vector3d(x,y,z);
     }
 
