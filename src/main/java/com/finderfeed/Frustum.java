@@ -38,7 +38,7 @@ public class Frustum {
     }
 
     public boolean isVisible(AABox box){
-         return intersection.testAab(box.minX,box.minY,box.minZ,box.maxX,box.maxY,box.maxZ);
+         return intersection.testAab((float)box.minX,(float)box.minY,(float)box.minZ,(float)box.maxX,(float)box.maxY,(float)box.maxZ);
     }
 
     public boolean isVisible(float x,float y,float z){

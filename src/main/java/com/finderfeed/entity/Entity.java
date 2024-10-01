@@ -1,6 +1,7 @@
 package com.finderfeed.entity;
 
 import com.finderfeed.blocks.Block;
+import com.finderfeed.util.AABox;
 import com.finderfeed.util.BlockRayTraceResult;
 import com.finderfeed.util.MathUtil;
 import com.finderfeed.world.World;
@@ -9,6 +10,8 @@ import org.joml.Vector3d;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class Entity {
@@ -23,6 +26,8 @@ public class Entity {
 
     public Vector3d movement = new Vector3d(0,0,0);
 
+    public Vector3i blockPos = new Vector3i(0,0,0);
+
     public boolean onGround = false;
 
     public boolean inBlocks = false;
@@ -34,6 +39,12 @@ public class Entity {
 
 
     public void update(){
+
+        this.blockPos = new Vector3i(
+                (int)Math.floor(this.position.x),
+                (int)Math.floor(this.position.y),
+                (int)Math.floor(this.position.z)
+        );
 
         this.checkInBlocks();
         this.movement.y = MathUtil.clamp(movement.y,-3,3);
@@ -62,29 +73,13 @@ public class Entity {
     }
 
     private void horizontalCollision(Vector3d movement){
+        var colliders = this.collectColliders(movement);
+        AABox box = this.getBox(this.position);
+        Vector3d pos = this.collide(box,colliders,movement);
 
-        Vector3d pos = new Vector3d(this.position).add(0,0.1,0);
-        Vector3d endX = pos.add(movement.x,0,0,new Vector3d());
-        Vector3d endZ = pos.add(0,0,movement.z,new Vector3d());
-
-        BlockRayTraceResult resultX = world.traceBlock(pos,endX);
-        BlockRayTraceResult resultZ = world.traceBlock(pos,endZ);
-        float rad = this.cubeCollisionRadius();
-        if (resultX != null){
-            Vector3d point = resultX.pos;
-            this.position.x = point.x + (movement.x > 0 ? -rad : rad);
-            movement.x = 0;
-        }else{
-            this.position.x += movement.x;
-        }
-        if (resultZ != null){
-            Vector3d point = resultZ.pos;
-            this.position.z = point.z + (movement.z > 0 ? -rad : rad);
-            movement.z = 0;
-        }else{
-            this.position.z += movement.z;
-        }
-
+        double xDiff = pos.x - this.position.x;
+        double zDiff = pos.z - this.position.z;
+        this.position.add(xDiff,0,zDiff);
     }
 
     private void verticalCollision(Vector3d movement) {
@@ -125,20 +120,6 @@ public class Entity {
 
 
     private void checkInBlocks(){
-//        boolean inBlocks = true;
-//        for (int i = 0; i < this.getHeight();i++){
-//
-//            Vector3i pos = new Vector3i(
-//                    (int)Math.floor(this.position.x),
-//                    (int)Math.floor(this.position.y + i),
-//                    (int)Math.floor(this.position.z)
-//            );
-//
-//            Block block = world.getBlock(pos);
-//            if (block.isAir()){
-//                inBlocks = false;
-//            }
-//        }
         Vector3i pos = new Vector3i(
                     (int)Math.floor(this.position.x),
                     (int)Math.floor(this.position.y + this.getHeight()),
@@ -159,6 +140,7 @@ public class Entity {
     public void addMovement(double x,double y,double z){
         this.movement.add(x,y,z);
     }
+
     public void addMovement(Vector3d v){
         this.addMovement(v.x,v.y,v.z);
     }
@@ -184,7 +166,140 @@ public class Entity {
     }
 
     public float cubeCollisionRadius(){
-        return 0.25f;
+        return 0.5f;
+    }
+
+
+    private List<AABox> collectColliders(Vector3d moveVector){
+        Vector3i v = this.getBlockPos();
+        List<AABox> boxes = new ArrayList<>();
+        int testRad = 5;
+        for (int x = -testRad;x <= testRad;x++){
+            for (int y = 0;y <= testRad;y++){
+                for (int z = -testRad;z <= testRad;z++){
+                    Vector3i p = new Vector3i(
+                            v.x + x,
+                            v.y + y,
+                            v.z + z
+                    );
+                    Block block = world.getBlock(p);
+                    if (!block.isAir()){
+                        boxes.add(new AABox(
+                                p.x,p.y,p.z,
+                                p.x + 1,p.y + 1,p.z + 1
+                        ));
+                    }
+                }
+            }
+        }
+        return boxes;
+    }
+
+    public Vector3d collide(AABox box,List<AABox> colliders, Vector3d moveVector){
+        Vector3d center = box.center();
+        Vector3d finalMove = center.add(moveVector);
+        var xCollide = collideX(box,colliders,moveVector);
+        if (xCollide != null){
+            finalMove.x = xCollide;
+        }
+        return finalMove;
+    }
+
+
+
+    private Double collideX(AABox box,List<AABox> colliders, Vector3d moveVector){
+        double xdc = (box.maxX - box.minX) / 2;
+        double xc = box.minX + xdc;
+
+        double xd = moveVector.x;
+        double yd = moveVector.y;
+        double zd = moveVector.z;
+
+        double zs = box.minZ;
+        double ze = box.minZ + zd;
+
+        double ys = box.minY;
+        double ye = ys + yd;
+
+        if (xd == 0) return null;
+
+        double x = xd > 0 ? box.maxX : box.minX;
+        double nx = x + xd;
+
+        double dist = Double.MAX_VALUE;
+        Double returnValue = null;
+
+        for (AABox b : colliders){
+            double bx;
+            if (xd > 0){
+                bx = b.minX;
+                if (  !(nx > bx && xc < bx) ) {
+                    continue;
+                }
+                double diff = (bx - x);
+                double p = diff / xd;
+                double ly = MathUtil.lerp(ys,ye,p);
+                double lyy = ly + (box.maxY - box.minY);
+                if (ly < b.minY && lyy < b.minY || ly > b.maxY && lyy > b.maxY){
+                    continue;
+                }
+
+                double lz = MathUtil.lerp(zs,ze,p);
+                double lzz = lz + (box.maxZ - box.minZ);
+                if (lz < b.minZ && lzz < b.minZ || lz > b.maxZ && lzz > b.maxZ){
+                    continue;
+                }
+
+
+                double coord = bx - xdc;
+                double d = Math.abs(xc - coord);
+                if (d < dist){
+                    dist = d;
+                    returnValue = coord;
+                }
+            }else{
+                bx = b.maxX;
+                if ( !(nx < bx && xc > bx) ) {
+                    continue;
+                }
+                double diff = (x - bx);
+                double p = diff / xd;
+                double ly = MathUtil.lerp(ys,ye,p);
+                double lyy = ly + (box.maxY - box.minY);
+                if (ly < b.minY && lyy < b.minY || ly > b.maxY && lyy > b.maxY){
+                    continue;
+                }
+
+                double lz = MathUtil.lerp(zs,ze,p);
+                double lzz = lz + (box.maxZ - box.minZ);
+                if (lz < b.minZ && lzz < b.minZ || lz > b.maxZ && lzz > b.maxZ){
+                    continue;
+                }
+
+                double coord = bx + xdc;
+                double d = Math.abs(xc - coord);
+                if (d < dist){
+                    dist = d;
+                    returnValue = coord;
+                }
+            }
+        }
+        return returnValue;
+    }
+
+    public AABox getBox(Vector3d pos){
+        return new AABox(
+                pos.x - this.cubeCollisionRadius(),
+                    pos.y,
+                pos.z - this.cubeCollisionRadius(),
+                pos.x + this.cubeCollisionRadius(),
+                pos.y + this.getHeight(),
+                pos.z + this.cubeCollisionRadius()
+        );
+    }
+
+    public Vector3i getBlockPos(){
+        return new Vector3i(blockPos);
     }
 
 }

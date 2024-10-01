@@ -9,13 +9,22 @@ import java.util.List;
 
 public class AABox {
 
-    public float minX;
-    public float minY;
-    public float minZ;
+    public double minX;
+    public double minY;
+    public double minZ;
 
-    public float maxX;
-    public float maxY;
-    public float maxZ;
+    public double maxX;
+    public double maxY;
+    public double maxZ;
+
+    public AABox(double bx,double by,double bz,double ex,double ey,double ez){
+        this.minX = Math.min(bx,ex);
+        this.minY = Math.min(by,ey);
+        this.minZ = Math.min(bz,ez);
+        this.maxX = Math.max(bx,ex);
+        this.maxY = Math.max(by,ey);
+        this.maxZ = Math.max(bz,ez);
+    }
 
     public AABox(float bx,float by,float bz,float ex,float ey,float ez){
         this.minX = Math.min(bx,ex);
@@ -29,7 +38,17 @@ public class AABox {
     public AABox(Vector3f begin,Vector3f end){
         this(begin.x,begin.y,begin.z,end.x,end.y,end.z);
     }
+    public AABox(Vector3d begin,Vector3d end){
+        this(begin.x,begin.y,begin.z,end.x,end.y,end.z);
+    }
 
+    public Vector3d center(){
+        return new Vector3d(
+                minX + (maxX - minX) / 2,
+                minY + (maxY - minY) / 2,
+                minZ + (maxZ - minZ) / 2
+        );
+    }
 
     public AABox offset(float x,float y,float z){
         return new AABox(

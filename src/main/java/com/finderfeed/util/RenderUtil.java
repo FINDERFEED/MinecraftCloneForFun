@@ -8,43 +8,51 @@ public class RenderUtil {
 
     public static void renderBox(Matrix4f transform,VertexBuffer line,AABox box,float r,float g,float b,float a){
 
-        line.position(transform,box.minX,box.minY,box.minZ).color(r,g,b,a);
-        line.position(transform,box.maxX,box.minY,box.minZ).color(r,g,b,a);
+        float boxMinX = (float) box.minX;
+        float boxMinY = (float) box.minY;
+        float boxMinZ = (float) box.minZ;
 
-        line.position(transform,box.minX,box.maxY,box.minZ).color(r,g,b,a);
-        line.position(transform,box.maxX,box.maxY,box.minZ).color(r,g,b,a);
+        float boxMaxX = (float) box.maxX;
+        float boxMaxY = (float) box.maxY;
+        float boxMaxZ = (float) box.maxZ;
 
-        line.position(transform,box.minX,box.minY,box.maxZ).color(r,g,b,a);
-        line.position(transform,box.maxX,box.minY,box.maxZ).color(r,g,b,a);
+        line.position(transform,boxMinX,boxMinY,boxMinZ).color(r,g,b,a);
+        line.position(transform,boxMaxX,boxMinY,boxMinZ).color(r,g,b,a);
 
-        line.position(transform,box.minX,box.maxY,box.maxZ).color(r,g,b,a);
-        line.position(transform,box.maxX,box.maxY,box.maxZ).color(r,g,b,a);
+        line.position(transform,boxMinX,boxMaxY,boxMinZ).color(r,g,b,a);
+        line.position(transform,boxMaxX,boxMaxY,boxMinZ).color(r,g,b,a);
 
+        line.position(transform,boxMinX,boxMinY,boxMaxZ).color(r,g,b,a);
+        line.position(transform,boxMaxX,boxMinY,boxMaxZ).color(r,g,b,a);
 
-        line.position(transform,box.minX,box.minY,box.minZ).color(r,g,b,a);
-        line.position(transform,box.minX,box.minY,box.maxZ).color(r,g,b,a);
-
-        line.position(transform,box.minX,box.maxY,box.minZ).color(r,g,b,a);
-        line.position(transform,box.minX,box.maxY,box.maxZ).color(r,g,b,a);
-
-        line.position(transform,box.maxX,box.minY,box.minZ).color(r,g,b,a);
-        line.position(transform,box.maxX,box.minY,box.maxZ).color(r,g,b,a);
-
-        line.position(transform,box.maxX,box.maxY,box.minZ).color(r,g,b,a);
-        line.position(transform,box.maxX,box.maxY,box.maxZ).color(r,g,b,a);
+        line.position(transform,boxMinX,boxMaxY,boxMaxZ).color(r,g,b,a);
+        line.position(transform,boxMaxX,boxMaxY,boxMaxZ).color(r,g,b,a);
 
 
-        line.position(transform,box.minX,box.minY,box.minZ).color(r,g,b,a);
-        line.position(transform,box.minX,box.maxY,box.minZ).color(r,g,b,a);
+        line.position(transform,boxMinX,boxMinY,boxMinZ).color(r,g,b,a);
+        line.position(transform,boxMinX,boxMinY,boxMaxZ).color(r,g,b,a);
 
-        line.position(transform,box.minX,box.minY,box.maxZ).color(r,g,b,a);
-        line.position(transform,box.minX,box.maxY,box.maxZ).color(r,g,b,a);
+        line.position(transform,boxMinX,boxMaxY,boxMinZ).color(r,g,b,a);
+        line.position(transform,boxMinX,boxMaxY,boxMaxZ).color(r,g,b,a);
 
-        line.position(transform,box.maxX,box.minY,box.minZ).color(r,g,b,a);
-        line.position(transform,box.maxX,box.maxY,box.minZ).color(r,g,b,a);
+        line.position(transform,boxMaxX,boxMinY,boxMinZ).color(r,g,b,a);
+        line.position(transform,boxMaxX,boxMinY,boxMaxZ).color(r,g,b,a);
 
-        line.position(transform,box.maxX,box.minY,box.maxZ).color(r,g,b,a);
-        line.position(transform,box.maxX,box.maxY,box.maxZ).color(r,g,b,a);
+        line.position(transform,boxMaxX,boxMaxY,boxMinZ).color(r,g,b,a);
+        line.position(transform,boxMaxX,boxMaxY,boxMaxZ).color(r,g,b,a);
+
+
+        line.position(transform,boxMinX,boxMinY,boxMinZ).color(r,g,b,a);
+        line.position(transform,boxMinX,boxMaxY,boxMinZ).color(r,g,b,a);
+
+        line.position(transform,boxMinX,boxMinY,boxMaxZ).color(r,g,b,a);
+        line.position(transform,boxMinX,boxMaxY,boxMaxZ).color(r,g,b,a);
+
+        line.position(transform,boxMaxX,boxMinY,boxMinZ).color(r,g,b,a);
+        line.position(transform,boxMaxX,boxMaxY,boxMinZ).color(r,g,b,a);
+
+        line.position(transform,boxMaxX,boxMinY,boxMaxZ).color(r,g,b,a);
+        line.position(transform,boxMaxX,boxMaxY,boxMaxZ).color(r,g,b,a);
 
     }
 
