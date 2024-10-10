@@ -53,6 +53,26 @@ public class World implements WorldAccessor {
 
     }
 
+
+    public void render(Camera camera,float partialTick){
+        this.renderChunks(camera,partialTick);
+
+        Vector3d pos = camera.calculateCameraPos(partialTick);
+        var buf = ImmediateBufferSupplier.get(RenderOptions.DEFAULT_LINES);
+        for (Entity entity : entities){
+
+            AABox bbox = entity.getBox(entity.position).offset(-pos.x,-pos.y,-pos.z);
+            if (Main.frustum.isVisible(bbox)){
+
+                RenderUtil.renderBox(new Matrix4f(),buf,bbox,1f,1f,1f,1f);
+
+            }
+        }
+        ImmediateBufferSupplier.drawCurrent();
+
+        this.renderTracedBlock(camera,partialTick);
+    }
+
     private void tickEntities(){
         for (Entity entity : entities){
             ChunkPos pos = new ChunkPos(entity.position);
@@ -109,10 +129,6 @@ public class World implements WorldAccessor {
                 MathUtil.isValueBetween(chunkPos.z,currentPos.z - renderDistance,currentPos.z + renderDistance);
     }
 
-    public void render(Camera camera,float partialTick){
-        this.renderChunks(camera,partialTick);
-        this.renderTracedBlock(camera,partialTick);
-    }
 
     private void renderTracedBlock(Camera camera,float partialTick){
         Vector3d begin = camera.pos;

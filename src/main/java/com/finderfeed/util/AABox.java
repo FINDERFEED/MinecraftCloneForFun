@@ -60,6 +60,16 @@ public class AABox {
                 this.maxZ + z
         );
     }
+    public AABox offset(double x,double y,double z){
+        return new AABox(
+                this.minX + x,
+                this.minY + y,
+                this.minZ + z,
+                this.maxX + x,
+                this.maxY + y,
+                this.maxZ + z
+        );
+    }
 
     public List<Face> getFaces(){
         return List.of(
