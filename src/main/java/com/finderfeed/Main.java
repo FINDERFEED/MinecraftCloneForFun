@@ -99,7 +99,7 @@ public class Main {
         utilExecutor = Executors.newFixedThreadPool(10);
 
         Entity entity = new Entity(world);
-        entity.position = new Vector3d(0.5,200,0.5);
+        entity.position = new Vector3d(0.5,110,0.5);
         world.addEntity(entity);
         controllingEntity = entity;
         mainEntity = entity;

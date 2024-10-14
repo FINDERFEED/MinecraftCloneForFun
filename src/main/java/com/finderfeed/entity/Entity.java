@@ -58,6 +58,7 @@ public class Entity {
 
         this.movement.mul(this.getFriction(),1,this.getFriction()).add(0,-this.getGravity(),0);
 
+
         if (Math.sqrt(movement.x * movement.x + movement.z * movement.z) < 0.01){
             this.movement.x = 0;
             this.movement.z = 0;
@@ -68,7 +69,7 @@ public class Entity {
 
     public void move(Vector3d movement){
 
-        this.verticalCollision(movement);
+//        this.verticalCollision(movement);
         this.horizontalCollision(movement);
 
     }
@@ -79,9 +80,9 @@ public class Entity {
 
         Vector3d pos = this.collide(box,colliders,movement);
 
-        double xDiff = pos.x - this.position.x;
-        double zDiff = pos.z - this.position.z;
-        this.position.add(xDiff,0,zDiff);
+
+
+        this.position = pos;
     }
 
 
@@ -92,12 +93,23 @@ public class Entity {
         int testRad = 5;
 
         double ex;
+        double ey;
         double ez;
         var center = entityBox.center();
 
+        int x1 = (int) Math.floor(center.x);
+        int x2 = (int) Math.floor(moveVector.x);
+        int z1 = (int) Math.floor(center.z);
+        int z2 = (int) Math.floor(moveVector.z);
+        int y1 = (int) Math.floor(center.y);
+        int y2 = (int) Math.floor(moveVector.y);
+//
+//        for (int x = Math.min(0,x2) - 1;x <= Math.max(0,x2) + 1;x++){
+//            for (int y = Math.min(0,y2) - 1;y <= Math.max(0,y2) + 1;y++){
+//                for (int z = Math.min(0,z2) - 1;z <= Math.min(0,z2) + 1;z++){
 
         for (int x = -testRad;x <= testRad;x++){
-            for (int y = 0;y <= testRad;y++){
+            for (int y = -testRad;y <= testRad;y++){
                 for (int z = -testRad;z <= testRad;z++){
                     Vector3i p = new Vector3i(
                             v.x + x,
@@ -114,9 +126,24 @@ public class Entity {
 
 
                         double bx;
+                        double by;
                         double bz;
                         double ex1;
+                        double ey1;
                         double ez1;
+
+                        if (moveVector.y >= 0){
+                            by = box.minY;
+                            ey = entityBox.maxY;
+                            ey1 = ey + moveVector.y;
+
+                        }else{
+                            by = box.maxY;
+                            ey = entityBox.minY;
+                            ey1 = ey + moveVector.y;
+
+                        }
+
                         if (moveVector.x >= 0 && moveVector.z >= 0){
                             bx = box.minX;
                             bz = box.minZ;
@@ -145,6 +172,7 @@ public class Entity {
                             ez = entityBox.minZ;
                             ex1 = ex - moveVector.x;
                             ez1 = ez - moveVector.z;
+
                         }
 
                         double value = (bx - ex) * (ez1 - ez) - (bz - ez) * (ex1 - ex);
@@ -154,11 +182,29 @@ public class Entity {
                         MoveCollider collider = new MoveCollider(-1,0,box);
 
                         if (value < 0){
-                            collider.type = MoveCollider.Z_COLLIDING;
-                            collider.wall = bz;
+
+                            double value1 = (by - ey) * (ez1 - ez) - (bz - ez) * (ey1 - ey);
+
+                            if (value1 < 0) {
+                                collider.type = MoveCollider.Y_COLLIDING;
+                                collider.wall = by;
+
+                            }else{
+                                collider.type = MoveCollider.Z_COLLIDING;
+                                collider.wall = bz;
+                            }
                         }else{
-                            collider.wall = bx;
-                            collider.type = MoveCollider.X_COLLIDING;
+
+                            double value1 = (by - ey) * (ex1 - ex) - (bx - ex) * (ey1 - ey);
+
+                            if (value1 < 0) {
+                                collider.type = MoveCollider.Y_COLLIDING;
+                                collider.wall = by;
+
+                            }else{
+                                collider.type = MoveCollider.X_COLLIDING;
+                                collider.wall = bx;
+                            }
                         }
 
                         boxes.add(collider);
@@ -189,25 +235,11 @@ public class Entity {
 
 
         Vector3d finalMove = center.add(moveVector);
+        finalMove.y = box.minY + moveVector.y;
 
         double xd = moveVector.x;
         double yd = moveVector.y;
         double zd = moveVector.z;
-
-        double boxX;
-        double boxY;
-        double boxZ;
-
-        if (xd > 0){
-            boxX = box.maxX;
-        }else{
-            boxX = box.minX;
-        }
-        if (zd > 0){
-            boxZ = box.maxZ;
-        }else{
-            boxZ = box.minZ;
-        }
 
         double xRad = box.getXRadius();
         double yRad = box.getYRadius();
@@ -227,12 +259,11 @@ public class Entity {
                         double p = delta / Math.abs(xd);
                         double zm = p * moveVector.z;
                         if (!(box.minZ + zm <= collider.minZ && box.maxZ + zm <= collider.minZ || box.minZ + zm >= collider.maxZ && box.maxZ + zm >= collider.maxZ)) {
-                            double ym = moveVector.y;
-                            if (!(box.minY + ym < collider.minY && box.maxY + ym < collider.minY || box.minY + ym > collider.maxY && box.maxY + ym > collider.maxY)) {
+                            double ym = p * moveVector.y;
+                            if (!(box.minY + ym <= collider.minY && box.maxY + ym <= collider.minY || box.minY + ym >= collider.maxY && box.maxY + ym >= collider.maxY)) {
                                 xCollision = collider.minX - xRad;
-                                if (delta < 0.0001) {
-                                    moveVector.x = 0;
-                                }
+                                moveVector.x = 0;
+
                             }
                         }
                     }
@@ -242,12 +273,12 @@ public class Entity {
                         double p = delta / Math.abs(xd);
                         double zm = p * moveVector.z;
                         if (!(box.minZ + zm <= collider.minZ && box.maxZ + zm <= collider.minZ || box.minZ + zm >= collider.maxZ && box.maxZ + zm >= collider.maxZ)) {
-                            double ym = moveVector.y;
+                            double ym = p * moveVector.y;
                             if (!(box.minY + ym <= collider.minY && box.maxY + ym <= collider.minY || box.minY + ym >= collider.maxY && box.maxY + ym >= collider.maxY)) {
                                 xCollision = collider.maxX + xRad;
-                                if (delta < 0.0001) {
-                                    moveVector.x = 0;
-                                }
+
+                                moveVector.x = 0;
+
                             }
                         }
                     }
@@ -261,11 +292,9 @@ public class Entity {
                         double p = delta / Math.abs(zd);
                         double xm = p * moveVector.x;
                         if (!(box.minX + xm <= collider.minX && box.maxX + xm <= collider.minX || box.minX + xm >= collider.maxX && box.maxX + xm >= collider.maxX)) {
-                            double ym = moveVector.y;
+                            double ym = p * moveVector.y;
                             if (!(box.minY + ym <= collider.minY && box.maxY + ym <= collider.minY || box.minY + ym >= collider.maxY && box.maxY + ym >= collider.maxY)) {
-                                if (delta < 0.0001) {
-                                    moveVector.z = 0;
-                                }
+                                moveVector.z = 0;
                                 zCollision = collider.minZ - zRad;
                             }
                         }
@@ -276,12 +305,41 @@ public class Entity {
                         double p = delta / Math.abs(zd);
                         double xm = p * moveVector.x;
                         if (!(box.minX + xm <= collider.minX && box.maxX + xm <= collider.minX || box.minX + xm >= collider.maxX && box.maxX + xm >= collider.maxX)) {
-                            double ym = moveVector.y;
+                            double ym = p * moveVector.y;
                             if (!(box.minY + ym <= collider.minY && box.maxY + ym <= collider.minY || box.minY + ym >= collider.maxY && box.maxY + ym >= collider.maxY)) {
-                                if (delta < 0.0001) {
-                                    moveVector.z = 0;
-                                }
+                                moveVector.z = 0;
                                 zCollision = collider.maxZ + zRad;
+                            }
+                        }
+                    }
+                }
+            }else{
+                if (yd > 0) {
+                    if (!(box.maxY + yd < collider.minY && box.minY + yd < collider.minY) && box.maxY <= collider.minY) { //it did "collide" on Y
+                        double delta = collider.minY - box.maxY;
+
+                        double p = delta / Math.abs(yd);
+                        double xm = p * moveVector.x;
+                        if (!(box.minX + xm <= collider.minX && box.maxX + xm <= collider.minX || box.minX + xm >= collider.maxX && box.maxX + xm >= collider.maxX)) {
+                            double zm = moveVector.z;
+                            if (!(box.minZ + zm <= collider.minZ && box.maxZ + zm <= collider.minZ || box.minZ + zm >= collider.maxZ && box.maxZ + zm >= collider.maxZ)) {
+                                moveVector.y = 0;
+
+                                yCollision = collider.minY - this.getHeight();
+                            }
+                        }
+                    }
+                } else {
+                    if (!(box.minY + yd > collider.maxY && box.maxY + yd > collider.maxY) && box.minY >= collider.maxY) { //it did "collide" on Y
+                        double delta = box.minY - collider.maxY;
+                        double p = delta / Math.abs(yd);
+                        double xm = p * moveVector.x;
+                        if (!(box.minX + xm <= collider.minX && box.maxX + xm <= collider.minX || box.minX + xm >= collider.maxX && box.maxX + xm >= collider.maxX)) {
+                            double zm = p * moveVector.z;
+                            if (!(box.minZ + zm <= collider.minZ && box.maxZ + zm <= collider.minZ || box.minZ + zm >= collider.maxZ && box.maxZ + zm >= collider.maxZ)) {
+                                moveVector.y = 0;
+                                onGround = true;
+                                yCollision = collider.maxY;
                             }
                         }
                     }
@@ -297,42 +355,6 @@ public class Entity {
         return new Vector3d(xCollision,yCollision,zCollision);
     }
 
-
-    private void verticalCollision(Vector3d movement) {
-
-        double y = movement.y;
-
-
-        Vector3d begin = new Vector3d(this.position);
-        Vector3d end = new Vector3d(this.position).add(0,y,0);
-        if (y > 0){
-            begin.y += this.getHeight();
-            end.y += this.getHeight();
-        }
-
-        BlockRayTraceResult result = world.traceBlock(begin,end);
-        if (result != null){
-            Vector3d point = result.pos;
-            if (y < 0){
-                this.onGround = true;
-                this.position = point;
-            }else{
-                this.onGround = false;
-                if (!inBlocks) {
-                    this.position = new Vector3d(point.x, point.y - this.getHeight(), point.z);
-                }else{
-                    this.position.add(0,y,0);
-                    return;
-                }
-            }
-            movement.y = 0;
-        }else{
-            if (y > 0){
-                this.onGround = false;
-            }
-            this.position.add(0,y,0);
-        }
-    }
 
 
 
