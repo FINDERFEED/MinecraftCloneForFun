@@ -74,14 +74,229 @@ public class Entity {
     }
 
     private void horizontalCollision(Vector3d movement){
-        var colliders = this.collectColliders(movement);
         AABox box = this.getBox(this.position);
+        var colliders = this.collectColliders(box,movement);
+
         Vector3d pos = this.collide(box,colliders,movement);
 
         double xDiff = pos.x - this.position.x;
         double zDiff = pos.z - this.position.z;
         this.position.add(xDiff,0,zDiff);
     }
+
+
+
+    private List<MoveCollider> collectColliders(AABox entityBox,Vector3d moveVector){
+        Vector3i v = this.getBlockPos();
+        List<MoveCollider> boxes = new ArrayList<>();
+        int testRad = 5;
+
+        double ex;
+        double ez;
+        var center = entityBox.center();
+
+
+        for (int x = -testRad;x <= testRad;x++){
+            for (int y = 0;y <= testRad;y++){
+                for (int z = -testRad;z <= testRad;z++){
+                    Vector3i p = new Vector3i(
+                            v.x + x,
+                            v.y + y,
+                            v.z + z
+                    );
+                    Block block = world.getBlock(p);
+                    if (!block.isAir()){
+                        AABox box = new AABox(
+                                p.x,p.y,p.z,
+                                p.x + 1,p.y + 1,p.z + 1
+                        );
+
+
+
+                        double bx;
+                        double bz;
+                        double ex1;
+                        double ez1;
+                        if (moveVector.x >= 0 && moveVector.z >= 0){
+                            bx = box.minX;
+                            bz = box.minZ;
+                            ex = entityBox.maxX;
+                            ez = entityBox.maxZ;
+                            ex1 = ex + moveVector.x;
+                            ez1 = ez + moveVector.z;
+                        }else if (moveVector.x < 0 && moveVector.z >= 0){
+                            bx = box.maxX;
+                            bz = box.minZ;
+                            ex = entityBox.minX;
+                            ez = entityBox.maxZ;
+                            ex1 = ex - moveVector.x;
+                            ez1 = ez - moveVector.z;
+                        } else if (moveVector.x < 0 && moveVector.z < 0){
+                            bx = box.maxX;
+                            bz = box.maxZ;
+                            ex = entityBox.minX;
+                            ez = entityBox.minZ;
+                            ex1 = ex + moveVector.x;
+                            ez1 = ez + moveVector.z;
+                        }else{
+                            bx = box.minX;
+                            bz = box.maxZ;
+                            ex = entityBox.maxX;
+                            ez = entityBox.minZ;
+                            ex1 = ex - moveVector.x;
+                            ez1 = ez - moveVector.z;
+                        }
+
+                        double value = (bx - ex) * (ez1 - ez) - (bz - ez) * (ex1 - ex);
+
+
+
+                        MoveCollider collider = new MoveCollider(-1,0,box);
+
+                        if (value < 0){
+                            collider.type = MoveCollider.Z_COLLIDING;
+                            collider.wall = bz;
+                        }else{
+                            collider.wall = bx;
+                            collider.type = MoveCollider.X_COLLIDING;
+                        }
+
+                        boxes.add(collider);
+
+                    }
+                }
+            }
+        }
+
+
+        boxes.sort(Comparator.comparingDouble(c->{
+            if (c.type == MoveCollider.X_COLLIDING){
+                return Math.abs(c.wall - center.x);
+            }else if (c.type == MoveCollider.Z_COLLIDING){
+                return Math.abs(c.wall - center.z);
+            }else{
+                return Math.abs(c.wall - center.y);
+            }
+        }));
+
+
+        return boxes;
+    }
+
+    public Vector3d collide(AABox box,List<MoveCollider> colliders, Vector3d moveVector){
+
+        Vector3d center = box.center();
+
+
+        Vector3d finalMove = center.add(moveVector);
+
+        double xd = moveVector.x;
+        double yd = moveVector.y;
+        double zd = moveVector.z;
+
+        double boxX;
+        double boxY;
+        double boxZ;
+
+        if (xd > 0){
+            boxX = box.maxX;
+        }else{
+            boxX = box.minX;
+        }
+        if (zd > 0){
+            boxZ = box.maxZ;
+        }else{
+            boxZ = box.minZ;
+        }
+
+        double xRad = box.getXRadius();
+        double yRad = box.getYRadius();
+        double zRad = box.getZRadius();
+
+        double xCollision = finalMove.x;
+        double yCollision = finalMove.y;
+        double zCollision = finalMove.z;
+
+        for (MoveCollider c : colliders){
+            AABox collider = c.box;
+            if (c.type == MoveCollider.X_COLLIDING) {
+                if (xd > 0) {
+                    if (!(box.maxX + xd < collider.minX && box.minX + xd < collider.minX) && box.maxX <= collider.minX) { //it did "collide" on X
+                        double delta = collider.minX - box.maxX;
+
+                        double p = delta / Math.abs(xd);
+                        double zm = p * moveVector.z;
+                        if (!(box.minZ + zm <= collider.minZ && box.maxZ + zm <= collider.minZ || box.minZ + zm >= collider.maxZ && box.maxZ + zm >= collider.maxZ)) {
+                            double ym = moveVector.y;
+                            if (!(box.minY + ym < collider.minY && box.maxY + ym < collider.minY || box.minY + ym > collider.maxY && box.maxY + ym > collider.maxY)) {
+                                xCollision = collider.minX - xRad;
+                                if (delta < 0.0001) {
+                                    moveVector.x = 0;
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    if (!(box.minX + xd > collider.maxX && box.maxX + xd > collider.maxX) && box.minX >= collider.maxX) { //it did "collide" on X
+                        double delta = box.minX - collider.maxX;
+                        double p = delta / Math.abs(xd);
+                        double zm = p * moveVector.z;
+                        if (!(box.minZ + zm <= collider.minZ && box.maxZ + zm <= collider.minZ || box.minZ + zm >= collider.maxZ && box.maxZ + zm >= collider.maxZ)) {
+                            double ym = moveVector.y;
+                            if (!(box.minY + ym <= collider.minY && box.maxY + ym <= collider.minY || box.minY + ym >= collider.maxY && box.maxY + ym >= collider.maxY)) {
+                                xCollision = collider.maxX + xRad;
+                                if (delta < 0.0001) {
+                                    moveVector.x = 0;
+                                }
+                            }
+                        }
+                    }
+                }
+            }else if (c.type == MoveCollider.Z_COLLIDING) {
+
+                if (zd > 0) {
+                    if (!(box.maxZ + zd < collider.minZ && box.minZ + zd < collider.minZ) && box.maxZ <= collider.minZ) { //it did "collide" on Z
+                        double delta = collider.minZ - box.maxZ;
+
+                        double p = delta / Math.abs(zd);
+                        double xm = p * moveVector.x;
+                        if (!(box.minX + xm <= collider.minX && box.maxX + xm <= collider.minX || box.minX + xm >= collider.maxX && box.maxX + xm >= collider.maxX)) {
+                            double ym = moveVector.y;
+                            if (!(box.minY + ym <= collider.minY && box.maxY + ym <= collider.minY || box.minY + ym >= collider.maxY && box.maxY + ym >= collider.maxY)) {
+                                if (delta < 0.0001) {
+                                    moveVector.z = 0;
+                                }
+                                zCollision = collider.minZ - zRad;
+                            }
+                        }
+                    }
+                } else {
+                    if (!(box.minZ + zd > collider.maxZ && box.maxZ + zd > collider.maxZ) && box.minZ >= collider.maxZ) { //it did "collide" on Z
+                        double delta = box.minZ - collider.maxZ;
+                        double p = delta / Math.abs(zd);
+                        double xm = p * moveVector.x;
+                        if (!(box.minX + xm <= collider.minX && box.maxX + xm <= collider.minX || box.minX + xm >= collider.maxX && box.maxX + xm >= collider.maxX)) {
+                            double ym = moveVector.y;
+                            if (!(box.minY + ym <= collider.minY && box.maxY + ym <= collider.minY || box.minY + ym >= collider.maxY && box.maxY + ym >= collider.maxY)) {
+                                if (delta < 0.0001) {
+                                    moveVector.z = 0;
+                                }
+                                zCollision = collider.maxZ + zRad;
+                            }
+                        }
+                    }
+                }
+            }
+
+
+
+
+
+        }
+
+        return new Vector3d(xCollision,yCollision,zCollision);
+    }
+
 
     private void verticalCollision(Vector3d movement) {
 
@@ -118,6 +333,8 @@ public class Entity {
             this.position.add(0,y,0);
         }
     }
+
+
 
 
     private void checkInBlocks(){
@@ -172,144 +389,7 @@ public class Entity {
 
 
 
-    private List<AABox> collectColliders(Vector3d moveVector){
-        Vector3i v = this.getBlockPos();
-        List<AABox> boxes = new ArrayList<>();
-        int testRad = 5;
-        for (int x = -testRad;x <= testRad;x++){
-            for (int y = 0;y <= testRad;y++){
-                for (int z = -testRad;z <= testRad;z++){
-                    Vector3i p = new Vector3i(
-                            v.x + x,
-                            v.y + y,
-                            v.z + z
-                    );
-                    Block block = world.getBlock(p);
-                    if (!block.isAir()){
-                        boxes.add(new AABox(
-                                p.x,p.y,p.z,
-                                p.x + 1,p.y + 1,p.z + 1
-                        ));
-                    }
-                }
-            }
-        }
-        return boxes;
-    }
 
-    public Vector3d collide(AABox box,List<AABox> colliders, Vector3d moveVector){
-
-        Vector3d center = box.center();
-        colliders.sort(Comparator.comparingDouble((c1)->{
-
-            var c = c1.center();
-
-            return Math.abs(center.x - c.x) + Math.abs(center.z - c.z);
-        }));
-
-        Vector3d finalMove = center.add(moveVector);
-
-        double xd = moveVector.x;
-        double yd = moveVector.y;
-        double zd = moveVector.z;
-
-        double boxX;
-        double boxY;
-        double boxZ;
-
-        if (xd > 0){
-            boxX = box.maxX;
-        }else{
-            boxX = box.minX;
-        }
-        if (zd > 0){
-            boxZ = box.maxZ;
-        }else{
-            boxZ = box.minZ;
-        }
-
-        double xRad = box.getXRadius();
-        double yRad = box.getYRadius();
-        double zRad = box.getZRadius();
-
-        double xCollision = finalMove.x;
-        double yCollision = finalMove.y;
-        double zCollision = finalMove.z;
-
-        for (AABox collider : colliders){
-
-            if (xd > 0){
-                if (!(box.maxX + xd < collider.minX && box.minX + xd < collider.minX) && box.maxX <= collider.minX){ //it did "collide" on X
-                    double delta = collider.minX - box.maxX;
-                    if (delta < 0.0001){
-                        moveVector.x = 0;
-                    }
-                    double p = delta / Math.abs(xd);
-                    double zm = p * moveVector.z;
-                    if (!(box.minZ + zm < collider.minZ && box.maxZ + zm < collider.minZ || box.minZ + zm > collider.maxZ && box.maxZ + zm > collider.maxZ)){
-                        double ym = moveVector.y;
-                        if (!(box.minY + ym < collider.minY && box.maxY + ym < collider.minY || box.minY + ym > collider.maxY && box.maxY + ym > collider.maxY)){
-                            xCollision = collider.minX - xRad;
-                        }
-                    }
-                }
-            }else{
-                if (!(box.minX + xd > collider.maxX && box.maxX + xd > collider.maxX) && box.minX >= collider.maxX){ //it did "collide" on X
-                    double delta = box.minX - collider.maxX;
-                    if (delta < 0.0001){
-                        moveVector.x = 0;
-                    }
-                    double p = delta / Math.abs(xd);
-                    double zm = p * moveVector.z;
-                    if (!(box.minZ + zm < collider.minZ && box.maxZ + zm < collider.minZ || box.minZ + zm > collider.maxZ && box.maxZ + zm > collider.maxZ)){
-                        double ym = moveVector.y;
-                        if (!(box.minY + ym < collider.minY && box.maxY + ym < collider.minY || box.minY + ym > collider.maxY && box.maxY + ym > collider.maxY)){
-                            xCollision = collider.maxX + xRad;
-                        }
-                    }
-                }
-            }
-
-            if (zd > 0){
-                if (!(box.maxZ + zd < collider.minZ && box.minZ + zd < collider.minZ) && box.maxZ <= collider.minZ){ //it did "collide" on Z
-                    double delta = collider.minZ - box.maxZ;
-                    if (delta < 0.0001){
-                        moveVector.z = 0;
-                    }
-                    double p = delta / Math.abs(zd);
-                    double xm = p * moveVector.x;
-                    if (!(box.minX + xm <= collider.minX && box.maxX + xm <= collider.minX || box.minX + xm >= collider.maxX && box.maxX + xm >= collider.maxX)){
-                        double ym = moveVector.y;
-                        if (!(box.minY + ym < collider.minY && box.maxY + ym < collider.minY || box.minY + ym > collider.maxY && box.maxY + ym > collider.maxY)){
-                            zCollision = collider.minZ - zRad;
-                        }
-                    }
-                }
-            }else{
-                if (!(box.minZ + zd > collider.maxZ && box.maxZ + zd > collider.maxZ) && box.minZ >= collider.maxZ){ //it did "collide" on Z
-                    double delta = box.minZ - collider.maxZ;
-                    if (delta < 0.0001){
-                        moveVector.z = 0;
-                    }
-                    double p = delta / Math.abs(zd);
-                    double xm = p * moveVector.x;
-                    if (!(box.minX + xm <= collider.minX && box.maxX + xm <= collider.minX || box.minX + xm >= collider.maxX && box.maxX + xm >= collider.maxX)){
-                        double ym = moveVector.y;
-                        if (!(box.minY + ym < collider.minY && box.maxY + ym < collider.minY || box.minY + ym > collider.maxY && box.maxY + ym > collider.maxY)){
-                            zCollision = collider.maxZ + zRad;
-                        }
-                    }
-                }
-            }
-
-
-
-
-
-        }
-
-        return new Vector3d(xCollision,yCollision,zCollision);
-    }
 
 
     public AABox getBox(Vector3d pos){

@@ -69,7 +69,7 @@ public class Camera {
 
             Keyboard keyboard = Main.keyboard;
 
-            float speed = keyboard.hasCtrlDown() ? 0.25f : 0.1f;
+            float speed = keyboard.hasCtrlDown() ? 0.15f : 0.1f;
 
             Vector3f v = this.getHorizontalLook().mul(speed,0,speed);
             Vector3f v2 = this.getHorizontalLook().rotateY(-(float) Math.PI / 2f).mul(speed,0,speed);
@@ -92,7 +92,7 @@ public class Camera {
 
             if (keyboard.isKeyPressed(GLFW.GLFW_KEY_SPACE)) {
                 if (entity.onGround){
-                    entity.addMovement(0,0.5,0);
+                    entity.addMovement(0,0.55,0);
                 }
             }
         }
