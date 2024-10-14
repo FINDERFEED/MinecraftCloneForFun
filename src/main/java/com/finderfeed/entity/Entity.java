@@ -92,9 +92,9 @@ public class Entity {
         List<MoveCollider> boxes = new ArrayList<>();
         int testRad = 5;
 
-        double ex;
-        double ey;
-        double ez;
+        double ex = 0;
+        double ey = 0;
+        double ez = 0;
         var center = entityBox.center();
 
         int x1 = (int) Math.floor(center.x);
@@ -215,13 +215,16 @@ public class Entity {
         }
 
 
+        double finalEy = ey;
+        double finalEx = ex;
+        double finalEz = ez;
         boxes.sort(Comparator.comparingDouble(c->{
             if (c.type == MoveCollider.X_COLLIDING){
-                return Math.abs(c.wall - center.x);
+                return Math.abs(c.wall - finalEx);
             }else if (c.type == MoveCollider.Z_COLLIDING){
-                return Math.abs(c.wall - center.z);
+                return Math.abs(c.wall - finalEz);
             }else{
-                return Math.abs(c.wall - center.y);
+                return Math.abs(c.wall - finalEy);
             }
         }));
 
