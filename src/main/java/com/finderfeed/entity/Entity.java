@@ -11,6 +11,7 @@ import org.joml.Vector3f;
 import org.joml.Vector3i;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -166,7 +167,7 @@ public class Entity {
     }
 
     public float cubeCollisionRadius(){
-        return 0.5f;
+        return 0.25f;
     }
 
 
@@ -199,210 +200,117 @@ public class Entity {
     public Vector3d collide(AABox box,List<AABox> colliders, Vector3d moveVector){
 
         Vector3d center = box.center();
+        colliders.sort(Comparator.comparingDouble((c1)->{
+
+            var c = c1.center();
+
+            return Math.abs(center.x - c.x) + Math.abs(center.z - c.z);
+        }));
+
         Vector3d finalMove = center.add(moveVector);
+
+        double xd = moveVector.x;
+        double yd = moveVector.y;
+        double zd = moveVector.z;
+
+        double boxX;
+        double boxY;
+        double boxZ;
+
+        if (xd > 0){
+            boxX = box.maxX;
+        }else{
+            boxX = box.minX;
+        }
+        if (zd > 0){
+            boxZ = box.maxZ;
+        }else{
+            boxZ = box.minZ;
+        }
+
+        double xRad = box.getXRadius();
+        double yRad = box.getYRadius();
+        double zRad = box.getZRadius();
+
+        double xCollision = finalMove.x;
+        double yCollision = finalMove.y;
+        double zCollision = finalMove.z;
 
         for (AABox collider : colliders){
 
-            double xcb = collider.minX;
-            double xb = box.maxX;
-            double d = MathUtil.clamp(xcb - xb,0,moveVector.x);
-
-
-
-            double zm = (d / moveVector.x) * moveVector.z;
-
-            double boxZMin = box.minZ + zm;
-            double boxZMax = box.maxZ + zm;
-
-            if (boxZMin < collider.minZ && boxZMax < collider.minZ || boxZMin > collider.maxZ && boxZMax > collider.maxZ){
-
-            }else{
-                finalMove.x = center.x + d;
-            }
-
-
-
-        }
-
-        return finalMove;
-    }
-
-
-
-
-    private Double collideX(AABox box,List<AABox> colliders, Vector3d moveVector){
-        double xdc = (box.maxX - box.minX) / 2;
-        double xc = box.minX + xdc;
-
-        double xd = moveVector.x;
-        double yd = moveVector.y;
-        double zd = moveVector.z;
-
-        double zs = box.minZ;
-        double ze = box.minZ + zd;
-
-        double ys = box.minY;
-        double ye = ys + yd;
-
-        if (xd == 0) return null;
-
-        double x = xd > 0 ? box.maxX : box.minX;
-        double nx = x + xd;
-
-        double dist = Double.MAX_VALUE;
-        Double returnValue = null;
-
-        for (AABox b : colliders){
-            double bx;
             if (xd > 0){
-                bx = b.minX;
-                double coord = bx - xdc;
-                double d = Math.abs(xc - coord);
-                if (returnValue != null){
-                    if (d >= dist){
-                        continue;
+                if (!(box.maxX + xd < collider.minX && box.minX + xd < collider.minX) && box.maxX <= collider.minX){ //it did "collide" on X
+                    double delta = collider.minX - box.maxX;
+                    if (delta < 0.0001){
+                        moveVector.x = 0;
                     }
-                }
-
-                if (  !(nx > bx && xc < bx) ) {
-                    continue;
-                }
-                double diff = (bx - x);
-                double p = diff / xd;
-                double ly = MathUtil.lerp(ys,ye,p);
-                double lyy = ly + (box.maxY - box.minY);
-                if (ly < b.minY && lyy < b.minY || ly > b.maxY && lyy > b.maxY){
-                    continue;
-                }
-
-                double lz = MathUtil.lerp(zs,ze,p);
-                double lzz = lz + (box.maxZ - box.minZ);
-                if (lz < b.minZ && lzz < b.minZ || lz > b.maxZ && lzz > b.maxZ){
-                    continue;
-                }
-
-                if (d < dist){
-                    dist = d;
-                    returnValue = coord;
+                    double p = delta / Math.abs(xd);
+                    double zm = p * moveVector.z;
+                    if (!(box.minZ + zm < collider.minZ && box.maxZ + zm < collider.minZ || box.minZ + zm > collider.maxZ && box.maxZ + zm > collider.maxZ)){
+                        double ym = moveVector.y;
+                        if (!(box.minY + ym < collider.minY && box.maxY + ym < collider.minY || box.minY + ym > collider.maxY && box.maxY + ym > collider.maxY)){
+                            xCollision = collider.minX - xRad;
+                        }
+                    }
                 }
             }else{
-                bx = b.maxX;
-
-                double coord = bx + xdc;
-                double d = Math.abs(xc - coord);
-                if (returnValue != null){
-                    if (d >= dist){
-                        continue;
+                if (!(box.minX + xd > collider.maxX && box.maxX + xd > collider.maxX) && box.minX >= collider.maxX){ //it did "collide" on X
+                    double delta = box.minX - collider.maxX;
+                    if (delta < 0.0001){
+                        moveVector.x = 0;
+                    }
+                    double p = delta / Math.abs(xd);
+                    double zm = p * moveVector.z;
+                    if (!(box.minZ + zm < collider.minZ && box.maxZ + zm < collider.minZ || box.minZ + zm > collider.maxZ && box.maxZ + zm > collider.maxZ)){
+                        double ym = moveVector.y;
+                        if (!(box.minY + ym < collider.minY && box.maxY + ym < collider.minY || box.minY + ym > collider.maxY && box.maxY + ym > collider.maxY)){
+                            xCollision = collider.maxX + xRad;
+                        }
                     }
                 }
-
-
-                if ( !(nx < bx && xc > bx) ) {
-                    continue;
-                }
-                double diff = (x - bx);
-                double p = diff / -xd;
-                double ly = MathUtil.lerp(ys,ye,p);
-                double lyy = ly + (box.maxY - box.minY);
-                if (ly < b.minY && lyy < b.minY || ly > b.maxY && lyy > b.maxY){
-                    continue;
-                }
-
-                double lz = MathUtil.lerp(zs,ze,p);
-                double lzz = lz + (box.maxZ - box.minZ);
-                if (lz < b.minZ && lzz < b.minZ || lz > b.maxZ && lzz > b.maxZ){
-                    continue;
-                }
-
-                if (d < dist){
-                    dist = d;
-                    returnValue = coord;
-                }
             }
-        }
-        return returnValue;
-    }
 
-    private Double collideZ(AABox box,List<AABox> colliders, Vector3d moveVector){
-        if (moveVector.z == 0) return null;
-        double zdiff = box.maxZ - box.minZ;
-        double zc = box.minZ + zdiff / 2;
-
-
-        double xd = moveVector.x;
-        double yd = moveVector.y;
-        double zd = moveVector.z;
-
-
-        double ys = box.minY;
-        double ye = box.minY + yd;
-        double xs = box.minX;
-        double xe = box.minX + xd;
-
-        double ydiff = box.maxY - box.minY;
-        double xdiff = box.maxX - box.minX;
-
-        double zb = zd > 0 ? box.maxZ : box.minZ;
-        double nz = zb + zd;
-
-        double dist = Double.MAX_VALUE;
-        Double returnValue = null;
-
-        for (AABox b : colliders){
-            double bBorder;
             if (zd > 0){
-                bBorder = b.minZ;
-                double d = bBorder - zc;
-                if (returnValue != null){
-                    if (d >= dist){
-                        continue;
+                if (!(box.maxZ + zd < collider.minZ && box.minZ + zd < collider.minZ) && box.maxZ <= collider.minZ){ //it did "collide" on Z
+                    double delta = collider.minZ - box.maxZ;
+                    if (delta < 0.0001){
+                        moveVector.z = 0;
                     }
-                }
-                if (!(zc < bBorder && nz > bBorder)) continue;
-                double diff = bBorder - zb;
-                double p = diff / zd;
-
-                double ly = MathUtil.lerp(ys,ye,p);
-                double lye = ly + ydiff;
-                if (ly < b.minY && lye < b.minY || ly > b.maxY && lye > b.maxY) continue;
-
-                double lx = MathUtil.lerp(xs,xe,p);
-                double lxe = lx + xdiff;
-                if (lx < b.minX && lxe < b.minX || lx > b.maxX && lxe > b.maxX) continue;
-
-                if (d < dist){
-                    returnValue = bBorder - zdiff / 2;
-                    dist = d;
+                    double p = delta / Math.abs(zd);
+                    double xm = p * moveVector.x;
+                    if (!(box.minX + xm <= collider.minX && box.maxX + xm <= collider.minX || box.minX + xm >= collider.maxX && box.maxX + xm >= collider.maxX)){
+                        double ym = moveVector.y;
+                        if (!(box.minY + ym < collider.minY && box.maxY + ym < collider.minY || box.minY + ym > collider.maxY && box.maxY + ym > collider.maxY)){
+                            zCollision = collider.minZ - zRad;
+                        }
+                    }
                 }
             }else{
-                bBorder = b.maxZ;
-                double d = zc - bBorder;
-                if (returnValue != null){
-                    if (d >= dist){
-                        continue;
+                if (!(box.minZ + zd > collider.maxZ && box.maxZ + zd > collider.maxZ) && box.minZ >= collider.maxZ){ //it did "collide" on Z
+                    double delta = box.minZ - collider.maxZ;
+                    if (delta < 0.0001){
+                        moveVector.z = 0;
+                    }
+                    double p = delta / Math.abs(zd);
+                    double xm = p * moveVector.x;
+                    if (!(box.minX + xm <= collider.minX && box.maxX + xm <= collider.minX || box.minX + xm >= collider.maxX && box.maxX + xm >= collider.maxX)){
+                        double ym = moveVector.y;
+                        if (!(box.minY + ym < collider.minY && box.maxY + ym < collider.minY || box.minY + ym > collider.maxY && box.maxY + ym > collider.maxY)){
+                            zCollision = collider.maxZ + zRad;
+                        }
                     }
                 }
-                if (!(zc < bBorder && nz > bBorder)) continue;
-                double diff = zb - bBorder;
-                double p = diff / -zd;
-
-                double ly = MathUtil.lerp(ys,ye,p);
-                double lye = ly + ydiff;
-                if (ly < b.minY && lye < b.minY || ly > b.maxY && lye > b.maxY) continue;
-
-                double lx = MathUtil.lerp(xs,xe,p);
-                double lxe = lx + xdiff;
-                if (lx < b.minX && lxe < b.minX || lx > b.maxX && lxe > b.maxX) continue;
-
-                if (d < dist){
-                    returnValue = bBorder + zdiff / 2;
-                    dist = d;
-                }
-
             }
+
+
+
+
+
         }
-        return returnValue;
+
+        return new Vector3d(xCollision,yCollision,zCollision);
     }
+
 
     public AABox getBox(Vector3d pos){
         return new AABox(

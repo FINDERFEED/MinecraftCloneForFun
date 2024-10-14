@@ -71,6 +71,18 @@ public class AABox {
         );
     }
 
+    public double getXRadius(){
+        return (maxX - minX) / 2;
+    }
+
+    public double getYRadius(){
+        return (maxY - minY) / 2;
+    }
+
+    public double getZRadius(){
+        return (maxZ - minZ) / 2;
+    }
+
     public List<Face> getFaces(){
         return List.of(
                 new Face(
