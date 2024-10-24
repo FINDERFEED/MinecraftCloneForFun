@@ -1,6 +1,7 @@
 package com.finderfeed.world.chunk;
 
 import com.finderfeed.blocks.Block;
+import com.finderfeed.util.EasingFunction;
 import com.finderfeed.util.MathUtil;
 import com.finderfeed.util.noises.Perlin3D;
 import com.finderfeed.world.ChunkStatus;
@@ -9,6 +10,7 @@ import com.finderfeed.world.World;
 import org.joml.*;
 import org.spongepowered.noise.Noise;
 import org.spongepowered.noise.NoiseQuality;
+import org.spongepowered.noise.module.source.Perlin;
 
 public class WorldChunk extends Chunk implements AutoCloseable {
 
@@ -21,7 +23,7 @@ public class WorldChunk extends Chunk implements AutoCloseable {
         this.status = ChunkStatus.LOADING;
 
         this.buildTerrain();
-        this.carveCaves();
+//        this.carveCaves();
 
 
         this.status = ChunkStatus.LOADED;
@@ -90,32 +92,46 @@ public class WorldChunk extends Chunk implements AutoCloseable {
 
     }
 
+    private static final EasingFunction function = new EasingFunction()
+            .addPoint(0,50)
+            .addPoint(0.05f,100)
+            .addPoint(0.25f,90)
+            .addPoint(0.7f,120)
+            .addPoint(0.8f,220)
+            .addPoint(1,250);
+
+    private static final Perlin p = new Perlin();
+    private static double maxp;
+    static {
+        p.setFrequency(1);
+        p.setLacunarity(0.5f);
+        p.setPersistence(0.5f);
+        p.setOctaveCount(4);
+        p.setSeed(4534324);
+        maxp = p.maxValue();
+    }
+
     private Block decideBlock(int x, int y, int z,int globalX,int globalZ){
 
-        if (true){
-            if (y < 100){
-                return Block.GRASS;
-            }else{
-                return Block.AIR;
-            }
-        }
+        int gx = globalX;
+        int gz = globalZ;
 
-        float m1 = 143.34f;
-        float m1y = 143.34f;
-        float m2 = 243.34f;
-        float m2y = 123.34f;
-        float m3 = 43.34f;
-        float m3y = 43.34f;
+        double val = Noise.gradientCoherentNoise3D(gx / 145.324,y / 145.324,gz / 145.324,2545324,NoiseQuality.STANDARD);
 
-        double val1 = Noise.gradientCoherentNoise3D(globalX / m1,y / m1y,globalZ / m1,342534534,NoiseQuality.STANDARD);
-        double val2 = Noise.gradientCoherentNoise3D(globalX / m2,y / m2y,globalZ / m2,232534534,NoiseQuality.STANDARD);
-        double val3 = Noise.gradientCoherentNoise3D(globalX / m3,y / m3y, globalZ / m3,652534534,NoiseQuality.STANDARD);
-        double val = MathUtil.lerp(val1,val2,val3) * 2 - 1;
+        val = val * 2 - 1;
 
-        float p = MathUtil.easeInOut(y / (float) HEIGHT);
-        float bias = MathUtil.lerp(-0.5f,0.45f,p);
 
-        val += bias;
+
+
+//        float d = (float) Noise.gradientCoherentNoise3D(gx / 345.324,987.098,gz / 345.324,20908324,NoiseQuality.STANDARD);
+        float d1 = (float) (p.get(gx / 134.324f,875.8768,gz / 134.324f) / maxp);
+
+        float height = function.lerp(d1);
+
+        float p = y / height * 2 - 1;
+
+        val += p;
+
 
         if (val > 0){
             this.setBlock(Block.AIR,x,y,z);

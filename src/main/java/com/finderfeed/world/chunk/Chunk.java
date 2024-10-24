@@ -9,7 +9,7 @@ public abstract class Chunk implements AutoCloseable {
 
     public static final int CHUNK_SIZE_SQRT = 4;
     public static final int CHUNK_SIZE = CHUNK_SIZE_SQRT * CHUNK_SIZE_SQRT;
-    public static final int HEIGHT = 128;
+    public static final int HEIGHT = 256;
 
     public volatile World world;
 

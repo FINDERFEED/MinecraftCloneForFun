@@ -15,6 +15,7 @@ import com.finderfeed.periphery.Mouse;
 import com.finderfeed.engine.textures.atlases.AtlasTexture;
 import com.finderfeed.util.AABox;
 import com.finderfeed.util.BlockRayTraceResult;
+import com.finderfeed.util.EasingFunction;
 import com.finderfeed.util.MathUtil;
 import com.finderfeed.world.World;
 import com.finderfeed.world.chunk.WorldChunk;
@@ -98,11 +99,11 @@ public class Main {
         renderExecutor = Executors.newFixedThreadPool(5);
         utilExecutor = Executors.newFixedThreadPool(10);
 
-        Entity entity = new Entity(world);
-        entity.position = new Vector3d(0.5,110,0.5);
-        world.addEntity(entity);
-        controllingEntity = entity;
-        mainEntity = entity;
+//        Entity entity = new Entity(world);
+//        entity.position = new Vector3d(0.5,110,0.5);
+//        world.addEntity(entity);
+//        controllingEntity = entity;
+//        mainEntity = entity;
 
 
         while ( !glfwWindowShouldClose(window) ) {
@@ -113,6 +114,9 @@ public class Main {
                 ticks++;
                 tick(world);
                 if (ticks % Timer.TICKS_PER_SECOND == 0){
+                    System.out.println("Camera X: " + camera.pos.x);
+                    System.out.println("Camera Y: " + camera.pos.y);
+                    System.out.println("Camera Z: " + camera.pos.z);
                     System.out.println("FPS: " + framesRendered);
                     framesRendered = 0;
                 }

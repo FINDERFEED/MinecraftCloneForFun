@@ -31,6 +31,8 @@ public class Camera {
 
     public void update(){
 
+
+
         ChunkPos currentcPos = new ChunkPos(pos);
         ChunkPos oldcPos = new ChunkPos(this.oldPos);
         if (!currentcPos.equals(oldcPos)){
