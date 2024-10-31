@@ -40,6 +40,7 @@ public class Entity {
 
     public void update(){
 
+
         this.blockPos = new Vector3i(
                 (int)Math.floor(this.position.x),
                 (int)Math.floor(this.position.y),
@@ -54,8 +55,9 @@ public class Entity {
         this.move(movement);
 
 
+        float gravity = this.getGravity();
 
-        this.movement.mul(this.getFriction(),1,this.getFriction()).add(0,-this.getGravity(),0);
+        this.movement.mul(this.getFriction(),1,this.getFriction()).sub(0,gravity,0);
 
 
         if (Math.sqrt(movement.x * movement.x + movement.z * movement.z) < 0.01){
@@ -68,7 +70,6 @@ public class Entity {
 
     public void move(Vector3d movement){
 
-//        this.verticalCollision(movement);
         this.collision(movement);
 
     }
@@ -79,6 +80,7 @@ public class Entity {
         var colliders = this.collectColliders(this.position,movement);
 
         var collidePos = this.collide(box,colliders,movement);
+
 
         this.position = collidePos;
     }
@@ -111,13 +113,16 @@ public class Entity {
 
     public Vector3d collide(AABox box,List<AABox> colliders, Vector3d speed){
 
-        Vector3d center = box.center();
+
 
 
         var xd = (box.maxX - box.minX) / 2;
         var yd = (box.maxY - box.minY) / 2;
         var zd = (box.maxZ - box.minZ) / 2;
         var mind = Math.min(zd,Math.min(xd,yd));
+
+
+        Vector3d center = box.center();
 
         Vector3d rayStart = center.add(speed.mul(-1,new Vector3d()).normalize().mul(mind),new Vector3d());
         Vector3d rayEnd = center.add(speed,new Vector3d());
@@ -129,10 +134,9 @@ public class Entity {
         for (AABox collider : colliders){
 
             var c = collider.inflate(
-                    xd,0,zd
+                    xd,yd,zd
             );
 
-            c.minY -= yd * 2;
 
             var raycastResult = RaycastUtil.traceBox(c,rayStart,rayEnd);
 
@@ -146,22 +150,22 @@ public class Entity {
                 Vector3d p = raycastResult.second();
                 double l = center.sub(p,new Vector3d()).length();
                 if (l < dist){
-                    dist = point.length();
+                    dist = l;
                     point = p;
                     finalSide = s;
                 }
             }
         }
 
-
         if (finalSide == Side.TOP){
             onGround = true;
-            movement.y = 0;
+            speed.y = 0;
         }else{
             onGround = false;
         }
 
-        return point;
+
+        return point.sub(0,yd,0);
     }
 
 

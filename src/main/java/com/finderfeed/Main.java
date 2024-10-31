@@ -114,10 +114,10 @@ public class Main {
                 ticks++;
                 tick(world);
                 if (ticks % Timer.TICKS_PER_SECOND == 0){
-                    System.out.println("Camera X: " + camera.pos.x);
-                    System.out.println("Camera Y: " + camera.pos.y);
-                    System.out.println("Camera Z: " + camera.pos.z);
-                    System.out.println("FPS: " + framesRendered);
+//                    System.out.println("Camera X: " + camera.pos.x);
+//                    System.out.println("Camera Y: " + camera.pos.y);
+//                    System.out.println("Camera Z: " + camera.pos.z);
+//                    System.out.println("FPS: " + framesRendered);
                     framesRendered = 0;
                 }
             }
@@ -195,6 +195,9 @@ public class Main {
     public static void keyCallback(long window, int key, int scancode, int action, int mods){
 
         keyboard.keyCallback(window,key,scancode,action,mods);
+        if (action == GLFW_PRESS && key == GLFW_KEY_L){
+            controllingEntity.addMovement(0.1,0,0.1);
+        }
 
         if (action != GLFW_PRESS && action != GLFW_REPEAT) return;
 
