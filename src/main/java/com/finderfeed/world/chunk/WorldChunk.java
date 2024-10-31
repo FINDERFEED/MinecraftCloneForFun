@@ -113,6 +113,12 @@ public class WorldChunk extends Chunk implements AutoCloseable {
 
     private Block decideBlock(int x, int y, int z,int globalX,int globalZ){
 
+        if (y > 100){
+            return Block.AIR;
+        }else if (y <= 100){
+            return Block.STONE;
+        }
+
         int gx = globalX;
         int gz = globalZ;
 
@@ -124,11 +130,16 @@ public class WorldChunk extends Chunk implements AutoCloseable {
 
 
 //        float d = (float) Noise.gradientCoherentNoise3D(gx / 345.324,987.098,gz / 345.324,20908324,NoiseQuality.STANDARD);
-        float d1 = (float) (p.get(gx / 134.324f,875.8768,gz / 134.324f) / maxp);
+        float d1 = (float) (p.get(gx / 234.324f,875.8768,gz / 234.324f) / maxp);
 
         float height = function.lerp(d1);
 
-        float p = y / height * 2 - 1;
+        EasingFunction heighteasing = new EasingFunction()
+                .addPoint(0,-1)
+                .addPoint(height,0)
+                .addPoint(HEIGHT,1);
+
+        float p = heighteasing.lerp(y);
 
         val += p;
 

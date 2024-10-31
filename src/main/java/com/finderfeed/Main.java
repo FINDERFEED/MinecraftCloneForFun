@@ -99,11 +99,11 @@ public class Main {
         renderExecutor = Executors.newFixedThreadPool(5);
         utilExecutor = Executors.newFixedThreadPool(10);
 
-//        Entity entity = new Entity(world);
-//        entity.position = new Vector3d(0.5,110,0.5);
-//        world.addEntity(entity);
-//        controllingEntity = entity;
-//        mainEntity = entity;
+        Entity entity = new Entity(world);
+        entity.position = new Vector3d(0.5,110,0.5);
+        world.addEntity(entity);
+        controllingEntity = entity;
+        mainEntity = entity;
 
 
         while ( !glfwWindowShouldClose(window) ) {

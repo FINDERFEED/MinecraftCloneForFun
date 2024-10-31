@@ -71,6 +71,22 @@ public class AABox {
         );
     }
 
+    public AABox inflate(double value){
+        return this.inflate(value,value,value);
+    }
+
+    public AABox inflate(double x,double y,double z){
+        return new AABox(
+                this.minX - x,
+                this.minY - y,
+                this.minZ - z,
+                this.maxX + x,
+                this.maxY + y,
+                this.maxZ + z
+        );
+    }
+
+
     public double getXRadius(){
         return (maxX - minX) / 2;
     }
