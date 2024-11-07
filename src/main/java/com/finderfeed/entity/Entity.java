@@ -79,7 +79,7 @@ public class Entity {
 
         var colliders = this.collectColliders(this.position,movement);
 
-        var collidePos = this.collide(box,colliders,movement);
+        var collidePos = this.collide(box,colliders,movement,new ArrayList<>());
 
 
         this.position = collidePos;
@@ -88,7 +88,7 @@ public class Entity {
     public List<AABox> collectColliders(Vector3d pos,Vector3d speed){
 
         List<AABox> boxes = new ArrayList<>();
-        int rad = 5;
+        int rad = 2;
         Vector3i bp = new Vector3i(
                 (int)Math.floor(pos.x),
                 (int)Math.floor(pos.y),
@@ -111,61 +111,84 @@ public class Entity {
     }
 
 
-    public Vector3d collide(AABox box,List<AABox> colliders, Vector3d speed){
+    public Vector3d collide(AABox box,List<AABox> colliders, Vector3d speed,List<Side> ignoreSides){
 
-
-
-
+        var yh = box.maxY - box.minY;
         var xd = (box.maxX - box.minX) / 2;
         var yd = (box.maxY - box.minY) / 2;
         var zd = (box.maxZ - box.minZ) / 2;
-        var mind = Math.min(zd,Math.min(xd,yd));
+        var mind = 0.5;
 
 
         Vector3d center = box.center();
+        center.y = box.minY;
 
-        Vector3d rayStart = center.add(speed.mul(-1,new Vector3d()).normalize().mul(mind),new Vector3d());
+        if (speed.x == 0 && speed.y == 0 && speed.z == 0){
+            return center;
+        }
+
+        Vector3d mindv = speed.mul(-1,new Vector3d()).normalize().mul(mind);
+        Vector3d rayStart = center.add(mindv,new Vector3d());
         Vector3d rayEnd = center.add(speed,new Vector3d());
 
         Side finalSide = null;
         Vector3d point = new Vector3d(rayEnd);
-        double dist = speed.length();
-
+        double dist = rayStart.distance(rayEnd);
         for (AABox collider : colliders){
 
             var c = collider.inflate(
-                    xd,yd,zd
-            );
+                    xd,0,zd
+            ); c.minY -= yh;
+
+            var pair = RaycastUtil.traceBox(c,rayStart,rayEnd);
 
 
-            var raycastResult = RaycastUtil.traceBox(c,rayStart,rayEnd);
 
-            if (raycastResult == null) continue;
-
-
-            Side s = raycastResult.first();
-            var n = s.getNormal();
-            double d = speed.dot(n.x,n.y,n.z);
-            if (d < 0){
-                Vector3d p = raycastResult.second();
-                double l = center.sub(p,new Vector3d()).length();
-                if (l < dist){
-                    dist = l;
-                    point = p;
-                    finalSide = s;
+            if (pair != null){
+                Side side = pair.first();
+                Vector3d result = pair.second();
+                if (ignoreSides.contains(side)){
+                    continue;
+                }
+                var nrm = side.getNormal();
+                double d = result.distance(rayStart);
+                if (d < dist && speed.dot(nrm.x,nrm.y,nrm.z) <= 0){
+                    point = result;
+                    finalSide = side;
+                    dist = d;
                 }
             }
         }
 
-        if (finalSide == Side.TOP){
-            onGround = true;
-            speed.y = 0;
-        }else{
-            onGround = false;
+        if (finalSide != null){
+            var nrm = finalSide.getNormal();
+
+            var v = point.sub(center);
+
+            speed.x = speed.x * (1 - Math.abs(nrm.x));
+            speed.y = speed.y * (1 - Math.abs(nrm.y));
+            speed.z = speed.z * (1 - Math.abs(nrm.z));
+
+            double smallAddition = 0.01;
+
+            box = box.move(v);
+            Vector3d addition = new Vector3d(
+                    nrm.x * smallAddition,
+                    nrm.y * smallAddition,
+                    nrm.z * smallAddition
+            );
+            box = box.move(addition);
+
+            ignoreSides.add(finalSide);
+            ignoreSides.add(finalSide.getOpposite());
+
+            if (ignoreSides.size() != 6) {
+                point = this.collide(box, colliders, speed, ignoreSides).sub(addition);
+            }
+
         }
 
-
-        return point.sub(0,yd,0);
+        return point;
     }
 
 

@@ -17,6 +17,31 @@ public enum Side {
         this.normal = new Vector3i(x,y,z);
     }
 
+    public Side getOpposite(){
+        switch (this){
+            case TOP -> {
+                return BOTTOM;
+            }
+            case EAST -> {
+                return WEST;
+            }
+            case WEST -> {
+                return EAST;
+            }
+            case BOTTOM -> {
+                return TOP;
+            }
+            case SOUTH -> {
+                return NORTH;
+            }
+            case NORTH -> {
+                return SOUTH;
+            }
+            default -> {
+                return TOP;
+            }
+        }
+    }
 
     public Vector3i getNormal() {
         return new Vector3i(normal);
