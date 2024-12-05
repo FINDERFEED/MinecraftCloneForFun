@@ -4,6 +4,7 @@ import com.finderfeed.blocks.Side;
 import org.joml.Math;
 import org.joml.Vector3d;
 import org.joml.Vector3f;
+import org.joml.Vector3i;
 
 import java.util.List;
 
@@ -91,6 +92,27 @@ public class AABox {
                 this.maxX + x,
                 this.maxY + y,
                 this.maxZ + z
+        );
+    }
+
+    public AABox move(Vector3d v){
+        return new AABox(
+                this.minX + v.x,
+                this.minY + v.y,
+                this.minZ + v.z,
+                this.maxX + v.x,
+                this.maxY + v.y,
+                this.maxZ + v.z
+        );
+    }
+    public AABox move(Vector3i v){
+        return new AABox(
+                this.minX + v.x,
+                this.minY + v.y,
+                this.minZ + v.z,
+                this.maxX + v.x,
+                this.maxY + v.y,
+                this.maxZ + v.z
         );
     }
 

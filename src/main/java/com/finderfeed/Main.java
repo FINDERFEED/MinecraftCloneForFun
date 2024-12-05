@@ -188,6 +188,11 @@ public class Main {
                 }else if (button == GLFW_MOUSE_BUTTON_LEFT){
                     world.setBlock(Block.AIR, blockpos.x, blockpos.y, blockpos.z);
                 }
+
+                System.out.println("BlockPos: " + blockpos.x);
+                System.out.println("BlockPos: " + blockpos.y);
+                System.out.println("BlockPos: " + blockpos.z);
+
             }
         }
     }
