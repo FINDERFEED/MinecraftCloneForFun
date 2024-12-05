@@ -1,6 +1,7 @@
 package com.finderfeed.blocks;
 
 import org.joml.Vector2i;
+import org.joml.Vector3d;
 import org.joml.Vector3i;
 
 public enum Side {
@@ -21,4 +22,13 @@ public enum Side {
     public Vector3i getNormal() {
         return new Vector3i(normal);
     }
+
+    public Vector3d normal3d(){
+
+        return new Vector3d(
+                normal.x,normal.y,normal.z
+        );
+
+    }
+
 }

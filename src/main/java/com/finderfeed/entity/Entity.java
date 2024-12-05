@@ -48,7 +48,8 @@ public class Entity {
         );
 
         this.checkInBlocks();
-        this.movement.y = MathUtil.clamp(movement.y,-3,3);
+        float maxYSpeed = 3f;
+        this.movement.y = MathUtil.clamp(movement.y,-maxYSpeed,maxYSpeed);
 
         oldPosition = new Vector3d(position);
 
@@ -85,10 +86,13 @@ public class Entity {
         this.position = collidePos;
     }
 
+    public static List<AABox> colliders = new ArrayList<>();
+
     public List<AABox> collectColliders(Vector3d pos,Vector3d speed){
 
+        colliders.clear();
         List<AABox> boxes = new ArrayList<>();
-        int rad = 5;
+        int rad = 4;
         Vector3i bp = new Vector3i(
                 (int)Math.floor(pos.x),
                 (int)Math.floor(pos.y),
@@ -106,6 +110,7 @@ public class Entity {
                 }
             }
         }
+        colliders.addAll(boxes);
 
         return boxes;
     }
@@ -114,58 +119,82 @@ public class Entity {
     public Vector3d collide(AABox box,List<AABox> colliders, Vector3d speed){
 
 
+        double xr = box.getXRadius();
+        double yr = box.getYRadius();
+        double zr = box.getZRadius();
+
+        Vector3d currentPos = box.centerAtY0();
+        Vector3d addition = new Vector3d();
+
+        boolean collidedGround = false;
+
+        while (true){
+
+            //check if speed is zero, then end
+            if (speed.x == 0 && speed.y == 0 && speed.z == 0){
+                break;
+            }
+
+            //find begin and end vectors
+            Vector3d begin = currentPos.add(speed.mul(-0.0001,new Vector3d()),new Vector3d());
+            Vector3d end = currentPos.add(speed,new Vector3d());
+
+            double mindist = end.distance(begin);
+
+            Side collidedSide = null;
+
+            //cycle through all colliders to find closest raycast point
+            for (AABox collider : colliders){
+
+                AABox b = collider.inflate(
+                        xr,0,zr
+                ); b.minY -= (box.maxY - box.minY);
 
 
-        var xd = (box.maxX - box.minX) / 2;
-        var yd = (box.maxY - box.minY) / 2;
-        var zd = (box.maxZ - box.minZ) / 2;
-        var mind = Math.min(zd,Math.min(xd,yd));
+                var res = RaycastUtil.traceBox(b,begin,end);
+                if (res == null) continue;
+
+                Side side = res.first();
+                Vector3d nrm = side.normal3d();
+                if (nrm.dot(speed) > 0) continue;
 
 
-        Vector3d center = box.center();
-
-        Vector3d rayStart = center.add(speed.mul(-1,new Vector3d()).normalize().mul(mind),new Vector3d());
-        Vector3d rayEnd = center.add(speed,new Vector3d());
-
-        Side finalSide = null;
-        Vector3d point = new Vector3d(rayEnd);
-        double dist = speed.length();
-
-        for (AABox collider : colliders){
-
-            var c = collider.inflate(
-                    xd,yd,zd
-            );
+                Vector3d point = res.second();
 
 
-            var raycastResult = RaycastUtil.traceBox(c,rayStart,rayEnd);
-
-            if (raycastResult == null) continue;
-
-
-            Side s = raycastResult.first();
-            var n = s.getNormal();
-            double d = speed.dot(n.x,n.y,n.z);
-            if (d < 0){
-                Vector3d p = raycastResult.second();
-                double l = center.sub(p,new Vector3d()).length();
-                if (l < dist){
-                    dist = l;
-                    point = p;
-                    finalSide = s;
+                double d = begin.distance(point);
+                if (d < mindist){
+                    collidedSide = side;
+                    mindist = d;
+                    currentPos = point;
                 }
             }
+
+            //collided side = null equals to no collision occured.
+            if (collidedSide == null) {
+                 break;
+            }else{
+                collidedGround = collidedSide == Side.TOP;
+            }
+
+            Vector3i nrm = collidedSide.getNormal();
+
+            //remove the corresponding speed component
+            speed.mul(
+                    1 - Math.abs(nrm.x),
+                    1 - Math.abs(nrm.y),
+                    1 - Math.abs(nrm.z)
+            );
+            float smallAddition = 0.0001f;
+            Vector3f add = new Vector3f(nrm.x * smallAddition,nrm.y * smallAddition,nrm.z * smallAddition);
+            currentPos.add(add);
+            addition.add(add);
         }
 
-        if (finalSide == Side.TOP){
-            onGround = true;
-            speed.y = 0;
-        }else{
-            onGround = false;
-        }
+        this.onGround = collidedGround;
 
 
-        return point.sub(0,yd,0);
+        return currentPos.add(speed).sub(addition);
     }
 
 

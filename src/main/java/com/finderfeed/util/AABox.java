@@ -50,6 +50,14 @@ public class AABox {
         );
     }
 
+    public Vector3d centerAtY0(){
+        return new Vector3d(
+                minX + (maxX - minX) / 2,
+                minY,
+                minZ + (maxZ - minZ) / 2
+        );
+    }
+
     public AABox offset(float x,float y,float z){
         return new AABox(
                 this.minX + x,

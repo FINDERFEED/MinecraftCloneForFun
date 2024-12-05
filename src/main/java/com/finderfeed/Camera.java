@@ -93,9 +93,9 @@ public class Camera {
             }
 
             if (keyboard.isKeyPressed(GLFW.GLFW_KEY_SPACE)) {
-//                if (entity.onGround){
+                if (entity.onGround){
                     entity.addMovement(0,0.55,0);
-//                }
+                }
             }
         }
     }

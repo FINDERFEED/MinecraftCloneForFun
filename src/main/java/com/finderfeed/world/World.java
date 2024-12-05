@@ -78,27 +78,27 @@ public class World implements WorldAccessor {
                 buf.position(offsetMat,new Vector3f(box.center())).color(1f,1f,0f,1f);
                 buf.position(offsetMat,new Vector3f(box.center().add(entity.getMovement()))).color(1f,1f,0f,1f);
 
-                for (int x = -1; x <= 1;x++){
-                    for (int y = -1; y <= 1;y++){
-                        for (int z = -1; z <= 1;z++){
-                            Vector3i v = bpos.add(x,y,z,new Vector3i());
-                            if (!this.getBlock(v.x,v.y,v.z).isAir()){
-
-                                AABox b = new AABox(v.x,v.y,v.z,v.x + 1,v.y + 1,v.z + 1).inflate(xd,yd,zd);
-                                RenderUtil.renderBox(new Matrix4f(),buf,b
-                                        .offset(-pos.x,-pos.y,-pos.z),1f,0f,0f,1f
-                                );
-                                var r = RaycastUtil.traceBox(b,rayStart,rayEnd);
-                                if (r != null){
-                                    Vector3f vec = new Vector3f(r.second());
-                                    buf.position(offsetMat,vec.x,vec.y,vec.z).color(0f,0f,1f,1f);
-                                    buf.position(offsetMat,vec.x + 0.1f,vec.y + 0.1f,vec.z).color(0f,0f,1f,1f);
-                                }
-
-                            }
-                        }
-                    }
-                }
+//                for (int x = -1; x <= 1;x++){
+//                    for (int y = -1; y <= 1;y++){
+//                        for (int z = -1; z <= 1;z++){
+//                            Vector3i v = bpos.add(x,y,z,new Vector3i());
+//                            if (!this.getBlock(v.x,v.y,v.z).isAir()){
+//
+//                                AABox b = new AABox(v.x,v.y,v.z,v.x + 1,v.y + 1,v.z + 1).inflate(xd,yd,zd);
+//                                RenderUtil.renderBox(new Matrix4f(),buf,b
+//                                        .offset(-pos.x,-pos.y,-pos.z),1f,0f,0f,1f
+//                                );
+//                                var r = RaycastUtil.traceBox(b,rayStart,rayEnd);
+//                                if (r != null){
+//                                    Vector3f vec = new Vector3f(r.second());
+//                                    buf.position(offsetMat,vec.x,vec.y,vec.z).color(0f,0f,1f,1f);
+//                                    buf.position(offsetMat,vec.x + 0.1f,vec.y + 0.1f,vec.z).color(0f,0f,1f,1f);
+//                                }
+//
+//                            }
+//                        }
+//                    }
+//                }
 
 
             }
@@ -178,6 +178,13 @@ public class World implements WorldAccessor {
             RenderUtil.renderBox(new Matrix4f(),b,new AABox(
                     v.x - offs,v.y - offs,v.z - offs,v.x + 1 + offs,v.y + 1 + offs,v.z + 1 + offs
             ),1f,1f,1f,1f);
+
+            for (AABox box : Entity.colliders){
+                Vector3f vs = camera.coordToLocal((float)box.minX,(float)box.minY,(float)box.minZ,partialTick);
+                RenderUtil.renderBox(new Matrix4f(),b,new AABox(
+                        vs.x,vs.y,vs.z,vs.x + 1,vs.y + 1,vs.z + 1
+                ).inflate(0.25,0,0.25),1f,0f,0f,1f);
+            }
 
             GL11.glLineWidth(3);
             ImmediateBufferSupplier.drawCurrent();
