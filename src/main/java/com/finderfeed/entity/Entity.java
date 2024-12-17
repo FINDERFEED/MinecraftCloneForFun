@@ -91,25 +91,25 @@ public class Entity {
     public List<AABox> collectColliders(Vector3d pos,Vector3d speed){
 
         colliders.clear();
-        List<AABox> boxes = new ArrayList<>();
-        int rad = 4;
-        Vector3i bp = new Vector3i(
-                (int)Math.floor(pos.x),
-                (int)Math.floor(pos.y),
-                (int)Math.floor(pos.z)
-        );
 
-        for (int x = -rad;x <= rad;x++){
-            for (int y = -rad;y <= rad;y++){
-                for (int z = -rad;z <= rad;z++){
-                    if (!world.getBlock(x + bp.x,y + bp.y,z + bp.z).isAir()) {
-                        AABox box = new AABox(x, y, z, x + 1, y + 1, z + 1)
-                                .offset(bp.x,bp.y,bp.z);
-                        boxes.add(box);
+        AABox box = this.getBox(pos);
+        AABox inflated = box.inflateInDirection(speed);
+
+        List<AABox> boxes = new ArrayList<>();
+
+        for (int x = (int) Math.floor(inflated.minX); x <= (int)Math.ceil(inflated.maxX); x++){
+            for (int y = (int) Math.floor(inflated.minY); y <= (int)Math.ceil(inflated.maxY); y++){
+                for (int z = (int) Math.floor(inflated.minZ); z <= (int)Math.ceil(inflated.maxZ); z++){
+                    if (!world.getBlock(x,y,z).isAir()) {
+                        AABox b = new AABox(x, y, z, x + 1, y + 1, z + 1);
+                        boxes.add(b);
                     }
+
                 }
             }
         }
+
+
         colliders.addAll(boxes);
 
         return boxes;

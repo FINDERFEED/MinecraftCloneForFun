@@ -18,6 +18,15 @@ public class AABox {
     public double maxY;
     public double maxZ;
 
+    public AABox(AABox box){
+        this.minX = box.minX;
+        this.minY = box.minY;
+        this.minZ = box.minZ;
+        this.maxX = box.maxX;
+        this.maxY = box.maxY;
+        this.maxZ = box.maxZ;
+    }
+
     public AABox(double bx,double by,double bz,double ex,double ey,double ez){
         this.minX = Math.min(bx,ex);
         this.minY = Math.min(by,ey);
@@ -114,6 +123,26 @@ public class AABox {
                 this.maxY + v.y,
                 this.maxZ + v.z
         );
+    }
+
+    public AABox inflateInDirection(Vector3d dir){
+        AABox copy = new AABox(this);
+        if (dir.x > 0){
+            copy.maxX += dir.x;
+        }else{
+            copy.minX += dir.x;
+        }
+        if (dir.y > 0){
+            copy.maxY += dir.y;
+        }else{
+            copy.minY += dir.y;
+        }
+        if (dir.z > 0){
+            copy.maxZ += dir.z;
+        }else{
+            copy.minZ += dir.z;
+        }
+        return copy;
     }
 
 

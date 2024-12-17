@@ -113,11 +113,7 @@ public class WorldChunk extends Chunk implements AutoCloseable {
 
     private Block decideBlock(int x, int y, int z,int globalX,int globalZ){
 
-        if (y > 100){
-            return Block.AIR;
-        }else if (y <= 100){
-            return Block.STONE;
-        }
+
 
         int gx = globalX;
         int gz = globalZ;
