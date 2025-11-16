@@ -23,7 +23,7 @@ public class GameRenderer {
     public void render(){
 
         Matrix4f cameraMat = camera.calculateModelviewMatrix();
-        RenderEngine.setProjectionPerspectiveMatrix(Main.FOV, Main.width,Main.height,Main.Z_NEAR,Main.Z_FAR);
+        RenderEngine.setProjectionPerspectiveMatrix(Main.FOV, Main.window.getWidth(),Main.window.getHeight(),Main.Z_NEAR,Main.Z_FAR);
 
         var stack = RenderEngine.getModelviewStack();
 
@@ -40,7 +40,7 @@ public class GameRenderer {
         stack.popMatrix();
         RenderEngine.applyModelviewMatrix();
 
-        RenderEngine.setProjectionOrthoMatrix(Main.width,Main.height,Main.Z_NEAR,Main.Z_FAR);
+        RenderEngine.setProjectionOrthoMatrix(Main.window.getWidth(),Main.window.getHeight(),Main.Z_NEAR,Main.Z_FAR);
 
         stack.pushMatrix();
         stack.set(new Matrix4f().identity());
@@ -55,8 +55,8 @@ public class GameRenderer {
     private void renderCrosshair(){
         if (!Main.debugRendering) {
             VertexBuffer lines = ImmediateBufferSupplier.get(RenderOptions.DEFAULT_LINES);
-            float w = Main.width;
-            float h = Main.height;
+            float w = Main.window.getWidth();
+            float h = Main.window.getHeight();
             lines.position(w/2,h/2 - 10,-100).color(1f,1f,1f,1f);
             lines.position(w/2,h/2 + 10,-100).color(1f,1f,1f,1f);
 
@@ -82,7 +82,7 @@ public class GameRenderer {
             Matrix4fStack rot = new Matrix4fStack(3);
             rot.pushMatrix();
             rot.translate(
-                    Main.width/2f,Main.height/2f,-100
+                    Main.window.getWidth()/2f,Main.window.getHeight()/2f,-100
             );
             rot.rotateX(Math.toRadians(camera.pitch));
 

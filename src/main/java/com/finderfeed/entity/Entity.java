@@ -227,6 +227,9 @@ public class Entity {
     }
 
     public float getFriction(){
+        if (this.onGround){
+            return 0.6f;
+        }
         return 0.7f;
     }
 

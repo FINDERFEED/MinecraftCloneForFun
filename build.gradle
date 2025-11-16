@@ -15,6 +15,8 @@ repositories {
 project.ext.lwjglVersion = "3.3.4"
 project.ext.lwjglNatives = "natives-windows"
 project.ext.jomlVersion = "1.10.8"
+project.ext.imguiVersion = "1.90.0"
+
 repositories {
     mavenCentral()
     maven {
@@ -43,4 +45,10 @@ dependencies {
 
     implementation "org.spongepowered:noise:2.0.0-SNAPSHOT"
 
+    implementation "io.github.spair:imgui-java-app:${imguiVersion}"
+
+    implementation "io.github.spair:imgui-java-binding:$imguiVersion"
+    implementation "io.github.spair:imgui-java-lwjgl3:$imguiVersion"
+
+    implementation "io.github.spair:imgui-java-natives-windows:$imguiVersion"
 }

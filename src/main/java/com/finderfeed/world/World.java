@@ -64,43 +64,10 @@ public class World implements WorldAccessor {
             Matrix4f offsetMat = new Matrix4f().translate(-(float)pos.x,-(float)pos.y,-(float)pos.z);
             AABox box = entity.getBox(entity.position);
             AABox bbox = box.offset(-pos.x,-pos.y,-pos.z);
-            Vector3i bpos = entity.getBlockPos();
-            var xd = (box.maxX - box.minX) / 2;
-            var yd = (box.maxY - box.minY) / 2;
-            var zd = (box.maxZ - box.minZ) / 2;
             if (Main.frustum.isVisible(bbox)){
-
                 RenderUtil.renderBox(new Matrix4f(),buf,bbox,1f,1f,1f,1f);
-
-                Vector3d rayStart = box.center();
-                Vector3d rayEnd = box.center().add(entity.getMovement());
-
                 buf.position(offsetMat,new Vector3f(box.center())).color(1f,1f,0f,1f);
                 buf.position(offsetMat,new Vector3f(box.center().add(entity.getMovement()))).color(1f,1f,0f,1f);
-
-//                for (int x = -1; x <= 1;x++){
-//                    for (int y = -1; y <= 1;y++){
-//                        for (int z = -1; z <= 1;z++){
-//                            Vector3i v = bpos.add(x,y,z,new Vector3i());
-//                            if (!this.getBlock(v.x,v.y,v.z).isAir()){
-//
-//                                AABox b = new AABox(v.x,v.y,v.z,v.x + 1,v.y + 1,v.z + 1).inflate(xd,yd,zd);
-//                                RenderUtil.renderBox(new Matrix4f(),buf,b
-//                                        .offset(-pos.x,-pos.y,-pos.z),1f,0f,0f,1f
-//                                );
-//                                var r = RaycastUtil.traceBox(b,rayStart,rayEnd);
-//                                if (r != null){
-//                                    Vector3f vec = new Vector3f(r.second());
-//                                    buf.position(offsetMat,vec.x,vec.y,vec.z).color(0f,0f,1f,1f);
-//                                    buf.position(offsetMat,vec.x + 0.1f,vec.y + 0.1f,vec.z).color(0f,0f,1f,1f);
-//                                }
-//
-//                            }
-//                        }
-//                    }
-//                }
-
-
             }
         }
         ImmediateBufferSupplier.drawCurrent();
