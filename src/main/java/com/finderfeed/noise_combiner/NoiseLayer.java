@@ -9,12 +9,12 @@ import java.util.List;
 
 public class NoiseLayer {
 
-    private FDNoise noise;
+    private FDNoise<?> noise;
     private List<FDValueModifier> valueModifiers = new ArrayList<>();
 
 
     public NoiseLayer(){
-        this.noise = NoiseRegistry.NOISE_REGISTRY.getFactories().getFirst().get();
+        this.noise = NoiseRegistry.CONSTANT_VALUE.generateObject();
     }
 
     public void moveValueModifier(int id, boolean up){
@@ -48,6 +48,14 @@ public class NoiseLayer {
 
     public void setNoise(FDNoise noise) {
         this.noise = noise;
+    }
+
+    public FDNoise<?> getNoise() {
+        return noise;
+    }
+
+    public List<FDValueModifier> getValueModifiers() {
+        return valueModifiers;
     }
 
 }

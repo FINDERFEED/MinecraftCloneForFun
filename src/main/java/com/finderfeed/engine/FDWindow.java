@@ -3,6 +3,7 @@ package com.finderfeed.engine;
 import com.finderfeed.Main;
 import com.finderfeed.engine.shaders.Shader;
 import com.finderfeed.engine.textures.atlases.AtlasTexture;
+import com.finderfeed.menu.MainMenu;
 import imgui.ImGui;
 import imgui.ImVec2;
 import imgui.flag.ImGuiChildFlags;
@@ -35,8 +36,10 @@ public class FDWindow {
     private String glslVersion;
     private long windowId;
 
-    public FDWindow(){
+    private MainMenu mainMenu;
 
+    public FDWindow(){
+        this.mainMenu = new MainMenu();
     }
 
     public ImGuiImplGlfw getImGuiImplGlfw() {
@@ -49,46 +52,7 @@ public class FDWindow {
     public void renderImGui(){
         this.prepareFrame();
 
-        if (ImGui.beginMainMenuBar()) {
-
-            ImGui.endMainMenuBar();
-        }
-
-
-
-        if (ImGui.beginMenu("Menu")){
-
-            if (ImGui.beginMenu("Menu inside menu")){
-
-                if (ImGui.beginCombo("Values", "Pizdec")) {
-
-                    if (ImGui.selectable("Pizdec")) {
-                        System.out.println("Ooooh iiiiits this time of the year");
-                    }
-                    if (ImGui.selectable("Pizdec2")) {
-                        System.out.println("A very so merry niiiight we hold deeeaaaar");
-                    }
-
-                    if (ImGui.selectable("Pizdec3")) {
-                        System.out.println("So maaaany so maaaaaany reeeegrets bring me to tears");
-                    }
-
-                    ImGui.endCombo();
-                }
-
-
-
-
-
-
-
-                ImGui.endMenu();
-            }
-
-
-            ImGui.endMenu();
-        }
-
+        mainMenu.renderGui();
 
         this.endFrame();
     }

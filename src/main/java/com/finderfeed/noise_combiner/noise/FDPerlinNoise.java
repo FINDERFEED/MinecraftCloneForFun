@@ -1,12 +1,13 @@
 package com.finderfeed.noise_combiner.noise;
 
 import com.finderfeed.noise_combiner.ComputationContext;
+import com.finderfeed.noise_combiner.registry.ObjectType;
 import org.joml.Vector3d;
 import org.spongepowered.noise.Noise;
 import org.spongepowered.noise.NoiseQuality;
 import org.spongepowered.noise.module.source.Perlin;
 
-public class FDPerlinNoise extends FDNoise {
+public class FDPerlinNoise extends FDNoise<FDPerlinNoise> {
 
     private Perlin perlin = new Perlin();
 
@@ -37,6 +38,11 @@ public class FDPerlinNoise extends FDNoise {
                 worldPos.z
         );
 
+    }
+
+    @Override
+    public ObjectType<FDPerlinNoise> getObjectType() {
+        return NoiseRegistry.PERLIN_NOISE;
     }
 
 }

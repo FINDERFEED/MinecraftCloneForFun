@@ -1,8 +1,9 @@
 package com.finderfeed.noise_combiner.noise;
 
 import com.finderfeed.noise_combiner.ComputationContext;
+import com.finderfeed.noise_combiner.registry.ObjectType;
 
-public class FDConstantValueNoise extends FDNoise{
+public class FDConstantValueNoise extends FDNoise<FDConstantValueNoise> {
 
     public float constantValue;
 
@@ -17,6 +18,11 @@ public class FDConstantValueNoise extends FDNoise{
     @Override
     public float computeNoiseValue(ComputationContext computationContext) {
         return constantValue;
+    }
+
+    @Override
+    public ObjectType<FDConstantValueNoise> getObjectType() {
+        return NoiseRegistry.CONSTANT_VALUE;
     }
 
 }
