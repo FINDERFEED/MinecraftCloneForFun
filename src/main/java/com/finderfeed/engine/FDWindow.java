@@ -60,9 +60,25 @@ public class FDWindow {
 
             if (ImGui.beginMenu("Menu inside menu")){
 
-                if (ImGui.inputDouble("Test", imDouble)){
-                    System.out.println(imDouble.get());
+                if (ImGui.beginCombo("Values", "Pizdec")) {
+
+                    if (ImGui.selectable("Pizdec")) {
+                        System.out.println("Ooooh iiiiits this time of the year");
+                    }
+                    if (ImGui.selectable("Pizdec2")) {
+                        System.out.println("A very so merry niiiight we hold deeeaaaar");
+                    }
+
+                    if (ImGui.selectable("Pizdec3")) {
+                        System.out.println("So maaaany so maaaaaany reeeegrets bring me to tears");
+                    }
+
+                    ImGui.endCombo();
                 }
+
+
+
+
 
 
 

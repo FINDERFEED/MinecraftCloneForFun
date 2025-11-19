@@ -10,6 +10,9 @@ public class FactoryRegistry<T> {
     private LinkedHashMap<String, Supplier<? extends T>> factories = new LinkedHashMap<>();
 
     public <D extends T> Supplier<D> register(String id, Supplier<D> factory){
+        if (this.factories.containsKey(id)){
+            throw new RuntimeException("Object with id: " + id + " is already registered!");
+        }
         this.factories.put(id, factory);
         return factory;
     }
