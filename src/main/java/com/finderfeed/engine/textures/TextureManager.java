@@ -19,4 +19,19 @@ public class TextureManager {
         this.textures.put(name,texture);
     }
 
+    public void destroyTexture(String texture){
+        if (this.textures.containsKey(texture)){
+            this.textures.remove(texture).destroyTexture();
+        }
+    }
+
+    public void destroyTexture(Texture texture){
+        if (this.textures.containsKey(texture.getName())){
+            this.textures.remove(texture.getName()).destroyTexture();
+        }else{
+            texture.destroyTexture();
+        }
+    }
+
+
 }

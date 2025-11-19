@@ -13,6 +13,7 @@ public class NoiseWrapperType<T extends FDNoiseWrapper<T, D>, D extends FDNoise<
     public NoiseWrapperType(String registryId, ObjectType<D> noiseObjectType, Function<D, FDNoiseWrapper<T, D>> noiseWrapperFactory) {
         super(registryId);
         this.factory = noiseWrapperFactory;
+        this.noiseObjectType = noiseObjectType;
     }
 
     public FDNoiseWrapper<T, D> generateWrapper(D noise){

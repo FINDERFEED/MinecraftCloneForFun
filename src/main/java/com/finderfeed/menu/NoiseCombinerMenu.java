@@ -1,9 +1,11 @@
 package com.finderfeed.menu;
 
-public class NoiseCombinerMenu extends Menu{
+import imgui.ImVec2;
+
+public class NoiseCombinerMenu extends Menu {
 
     public NoiseCombinerMenu(String menuTitle) {
-        super(menuTitle);
+        super(menuTitle, new ImVec2(400,600));
     }
 
     @Override

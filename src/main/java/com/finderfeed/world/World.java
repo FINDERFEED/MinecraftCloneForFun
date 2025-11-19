@@ -30,6 +30,8 @@ import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
 
 public class World implements WorldAccessor {
 
+
+
     public Object2ObjectMap<UUID,Entity> entityByUuid = new Object2ObjectOpenHashMap<>();
 
     public List<Entity> entities = new ArrayList<>();
@@ -40,7 +42,8 @@ public class World implements WorldAccessor {
 
     public volatile WorldChunks chunks;
 
-    public World(int seed){
+
+    public World(){
         this.chunks = new WorldChunks(this);
     }
 

@@ -1,5 +1,6 @@
 package com.finderfeed.menu.wrappers.fdnoise_wrapper;
 
+import com.finderfeed.engine.textures.Texture;
 import com.finderfeed.menu.wrappers.ObjectWrapper;
 import com.finderfeed.noise_combiner.noise.FDNoise;
 import com.finderfeed.noise_combiner.registry.ObjectType;
@@ -24,6 +25,7 @@ public abstract class FDNoiseWrapper<D extends FDNoiseWrapper<D, T>, T extends F
     public void close() {
         super.close();
     }
+
 
     public abstract void render();
 

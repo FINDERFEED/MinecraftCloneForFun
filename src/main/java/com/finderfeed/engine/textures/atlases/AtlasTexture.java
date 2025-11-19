@@ -3,6 +3,7 @@ package com.finderfeed.engine.textures.atlases;
 
 import com.finderfeed.engine.textures.Texture2DSettings;
 import com.finderfeed.engine.textures.Texture;
+import com.finderfeed.util.Util;
 import org.lwjgl.system.MemoryUtil;
 
 import javax.imageio.ImageIO;
@@ -33,7 +34,7 @@ public class AtlasTexture {
         BufferedImage atlasTexture = new BufferedImage(wh,wh,BufferedImage.TYPE_INT_ARGB);
         List<Image> images = getImagesFromDirectoryAndInner(directory);
         this.generate(atlasTexture,images);
-        ByteBuffer buffer = this.bufferedImageToBuffer(atlasTexture);
+        ByteBuffer buffer = Util.bufferedImageToBuffer(atlasTexture);
         Texture texture = new Texture(
                 name,
                 buffer,
@@ -44,27 +45,6 @@ public class AtlasTexture {
         this.atlas = texture;
         atlasTexture.flush();
         MemoryUtil.memFree(buffer);
-    }
-
-    //type int argb
-    private ByteBuffer bufferedImageToBuffer(BufferedImage image){
-        DataBufferInt dataBufferInt = (DataBufferInt) image.getRaster().getDataBuffer();
-        int[] data = dataBufferInt.getData();
-        ByteBuffer buffer = MemoryUtil.memAlloc(Integer.BYTES * data.length);
-        //0xaarrggbb
-        for (int col : data){
-            int r = (col & 0x00ff0000) >> 16;
-            int g = (col & 0x0000ff00);
-            int b = (col & 0x000000ff);
-            int a = (col & 0xff000000);
-            col = a + (b << 16) + g + r;
-            buffer.putInt(
-                    col
-            );
-        }
-        buffer.flip();
-
-        return buffer;
     }
 
     public void generate(BufferedImage atlasTexture,List<Image> images){

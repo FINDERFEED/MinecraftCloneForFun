@@ -20,6 +20,7 @@ public class FDConstantValueNoiseWrapper extends FDNoiseWrapper<FDConstantValueN
         var object = this.getObject();
         if (ImGui.inputFloat("Constant value", constantValue)){
             object.constantValue = this.constantValue.get();
+            this.changeListener.run();
         }
     }
 

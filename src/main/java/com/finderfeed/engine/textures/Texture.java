@@ -1,8 +1,11 @@
 package com.finderfeed.engine.textures;
 
+import com.finderfeed.util.Util;
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryUtil;
 
+import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
@@ -26,6 +29,8 @@ public class Texture {
     static {
 
     }
+
+    private Texture2DSettings settings;
     private int textureId;
     private int texWidth = -1;
     private int texHeight = -1;
@@ -38,6 +43,7 @@ public class Texture {
         this.setupTexture(textureData,settings);
         this.texWidth = settings.getWidth();
         this.texHeight = settings.getHeight();
+        this.settings = settings;
     }
 
     public Texture(String name, Texture2DSettings settings, boolean load){
@@ -56,16 +62,16 @@ public class Texture {
         if (buffer != null) {
             MemoryUtil.memFree(buffer);
         }
+        this.settings = settings;
     }
 
     public Texture(String name,Texture2DSettings settings){
         this(name,settings,true);
     }
+
     public Texture(String name){
         this(name,new Texture2DSettings(),true);
     }
-
-
 
     private ByteBuffer loadTextureBuffer(){
         InputStream stream = getClass().getClassLoader().getResourceAsStream("textures/" + name + ".png");
@@ -113,6 +119,18 @@ public class Texture {
         glBindTexture(GL_TEXTURE_2D,this.getTextureId());
     }
 
+    public void updateTextureWithBufferedImage(BufferedImage image){
+
+        if (image.getWidth() != this.getTexWidth() || image.getHeight() != this.getTexHeight() || image.getType() != BufferedImage.TYPE_INT_ARGB)
+            throw new RuntimeException("Cannot update the texture with this buffered image! " + image);
+
+        var buffer = Util.bufferedImageToBuffer(image);
+        glBindTexture(GL_TEXTURE_2D, this.textureId);
+        settings.applyToTexture(buffer);
+
+        MemoryUtil.memFree(buffer);
+
+    }
 
     public int getTexHeight() {
         return texHeight;
@@ -129,4 +147,9 @@ public class Texture {
     public int getTextureId() {
         return textureId;
     }
+
+    public void destroyTexture(){
+        GL11.glDeleteTextures(textureId);
+    }
+
 }

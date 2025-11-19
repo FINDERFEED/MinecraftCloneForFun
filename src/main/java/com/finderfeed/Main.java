@@ -42,6 +42,9 @@ import static com.finderfeed.engine.shaders.Shaders.*;
 
 public class Main {
 
+    public static double coordinateScale = 23.334f;
+    public static int seed = 524652324;
+
 
     public static ExecutorService utilExecutor;
 
@@ -85,7 +88,7 @@ public class Main {
         textureManager = new TextureManager();
         textureManager.putTexture(atlasTexture.atlas.getName(),atlasTexture.atlas);
 
-        world = new World(5434544);
+        world = new World();
 
         Shaders.init();
 

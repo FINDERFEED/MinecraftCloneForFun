@@ -1,5 +1,7 @@
 package com.finderfeed.menu;
 
+import com.finderfeed.noise_combiner.NoiseLayer;
+import imgui.ImFontConfig;
 import imgui.ImGui;
 
 import java.util.ArrayList;
@@ -24,6 +26,11 @@ public class MainMenu {
     private void renderMainMenuButtons(){
         if (ImGui.button("Noise combiner menu") && openedMenus.stream().noneMatch(menu -> menu instanceof NoiseCombinerMenu)){
             this.openMenu(new NoiseCombinerMenu("Noise combiner"));
+        }
+
+        if (ImGui.button("Test noise layer redactor")){
+            NoiseLayer noiseLayer = new NoiseLayer();
+            this.openMenu(new NoiseLayerRedactorMenu("Noise Layer", noiseLayer));
         }
 
     }
