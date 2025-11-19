@@ -6,8 +6,10 @@ import com.finderfeed.engine.textures.atlases.AtlasTexture;
 import imgui.ImGui;
 import imgui.ImVec2;
 import imgui.flag.ImGuiChildFlags;
+import imgui.flag.ImGuiHoveredFlags;
 import imgui.gl3.ImGuiImplGl3;
 import imgui.glfw.ImGuiImplGlfw;
+import imgui.type.ImDouble;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL30;
@@ -41,27 +43,37 @@ public class FDWindow {
         return imGuiImplGlfw;
     }
 
+
+    ImDouble imDouble = new ImDouble(1);
+
     public void renderImGui(){
         this.prepareFrame();
 
-        if (ImGui.beginMainMenuBar()){
-
+        if (ImGui.beginMainMenuBar()) {
 
             ImGui.endMainMenuBar();
         }
 
 
 
-        ImGui.begin("Test window");
+        if (ImGui.beginMenu("Menu")){
 
-        if (ImGui.button("Test button")){
-            System.out.println("Pizdec");
+            if (ImGui.beginMenu("Menu inside menu")){
+
+                if (ImGui.inputDouble("Test", imDouble)){
+                    System.out.println(imDouble.get());
+                }
+
+
+
+                ImGui.endMenu();
+            }
+
+
+            ImGui.endMenu();
         }
 
-        ImGui.text("Jiorno jiovanna");
-        ImGui.image(Main.atlasTexture.atlas.getTextureId(), new ImVec2(300,300));
 
-        ImGui.end();
         this.endFrame();
     }
 
