@@ -3,25 +3,33 @@ package com.finderfeed.menu;
 import com.finderfeed.Main;
 import com.finderfeed.engine.textures.Texture;
 import com.finderfeed.engine.textures.Texture2DSettings;
-import com.finderfeed.menu.wrappers.fdnoise_wrapper.FDNoiseWrapper;
-import com.finderfeed.menu.wrappers.fdnoise_wrapper.FDNoiseWrapperRegistry;
+import com.finderfeed.menu.wrappers.fdnoise_wrapper.NoiseWrapper;
+import com.finderfeed.menu.wrappers.fdnoise_wrapper.NoiseWrapperRegistry;
 import com.finderfeed.menu.wrappers.fdnoise_wrapper.NoiseWrapperType;
+import com.finderfeed.menu.wrappers.value_modifier_wrappers.ValueModifierWrapper;
+import com.finderfeed.menu.wrappers.value_modifier_wrappers.ValueModifierWrapperRegistry;
+import com.finderfeed.menu.wrappers.value_modifier_wrappers.ValueModifierWrapperType;
 import com.finderfeed.noise_combiner.ComputationContext;
 import com.finderfeed.noise_combiner.NoiseLayer;
 import com.finderfeed.noise_combiner.noise.FDNoise;
+import com.finderfeed.noise_combiner.noise.NoiseRegistry;
+import com.finderfeed.noise_combiner.value_modifier.AddValueModifier;
+import com.finderfeed.noise_combiner.value_modifier.FDValueModifier;
+import com.finderfeed.noise_combiner.value_modifier.NoiseValueModifierRegistry;
 import com.finderfeed.util.FDColor;
-import com.finderfeed.util.MathUtil;
 import com.finderfeed.util.Util;
 import com.finderfeed.world.chunk.Chunk;
 import imgui.ImGui;
 import imgui.ImVec2;
+import imgui.flag.ImGuiDir;
 import org.joml.Vector3d;
 import org.joml.Vector3i;
-import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.MemoryUtil;
 
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 public class NoiseLayerRedactorMenu extends Menu {
 
@@ -30,29 +38,165 @@ public class NoiseLayerRedactorMenu extends Menu {
 
     private NoiseLayer noiseLayer;
 
-    private FDNoiseWrapper<?,?> noiseWrapper;
+    private NoiseWrapper<?,?> noiseWrapper;
+
+    private String currentNoiseType;
+
+    private final List<ValueModifierWrapper<?,?>> valueModifierWrappers = new ArrayList<>();
 
     public NoiseLayerRedactorMenu(String menuTitle, NoiseLayer noiseLayer) {
-        super(menuTitle, new ImVec2(400, 600));
+        super(menuTitle, new ImVec2(1000, 600));
         this.noiseLayer = noiseLayer;
+        this.currentNoiseType = noiseLayer.getNoise().getObjectType().getRegistryId();
         var noise = this.noiseLayer.getNoise();
         this.initNoiseWrapper(noise);
+        this.initValueModifierWrappers(noiseLayer.getValueModifiers());
     }
 
     @Override
     public void renderMenuContents() {
 
-        ImGui.image(noiseTexture.getTextureId(), new ImVec2(300,300));
-        ImGui.sameLine();
+        int noiseWindowSize = 350;
 
-        ImGui.beginChild("noiseParams");
+        ImGui.beginChild("noise", new ImVec2(noiseWindowSize,noiseWindowSize + 30));
+        ImGui.image(noiseTexture.getTextureId(), new ImVec2(noiseWindowSize,noiseWindowSize));
+        this.addNoiseSelectionCombo();
+        ImGui.endChild();
+
+        ImGui.sameLine();
+        ImGui.beginChild("noiseParams", new ImVec2(0,330));
         ImGui.text("Noise parameters");
         noiseWrapper.renderWrappedObject();
 
         ImGui.endChild();
 
+        ImGui.separator();
+
+        this.addValueModifierUiElements(noiseWindowSize);
+
+        ImGui.endChild();
+    }
+
+    private void addValueModifierUiElements(int noiseWindowSize){
+        ImGui.beginChild("noiseModifiers");
+        var valueModifiers = this.noiseLayer.getValueModifiers();
+
+        if (ImGui.button("Add noise modifier")){
+            this.noiseLayer.getValueModifiers().add(new AddValueModifier());
+            this.initValueModifierWrappers(valueModifiers);
+        }
+        Util.insertSimpleTooltip("Add a new modifier for this noise. Modifiers are processed from top to bottom.");
+
+
+        ImGui.separator();
+
+        for (int i = 0; i < valueModifiers.size(); i++){
+
+            ImGui.pushID("valueModifier_" + i);
+
+            ImGui.text("Modifer " + i);
+
+
+            if (ImGui.button("Remove modifier")){
+                valueModifiers.remove(i);
+                this.initValueModifierWrappers(valueModifiers);
+                this.noiseChanged();
+                ImGui.popID();
+                break;
+            }
+
+            ImGui.sameLine();
+            if (ImGui.arrowButton("Move Up",ImGuiDir.Up)){
+                if (noiseLayer.moveValueModifier(i, true)){
+                    this.initValueModifierWrappers(valueModifiers);
+                    this.noiseChanged();
+                    ImGui.popID();
+                    break;
+                }
+            }
+
+            ImGui.sameLine();
+            if (ImGui.arrowButton("Move Down",ImGuiDir.Down)){
+                if (noiseLayer.moveValueModifier(i, false)){
+                    this.initValueModifierWrappers(valueModifiers);
+                    this.noiseChanged();
+                    ImGui.popID();
+                    break;
+                }
+
+            }
+
+
+            ImGui.beginChild("valueModifier" + i,new ImVec2(0, 60));
+
+            this.addValueModifierTypeCombo(i);
+            var valueModifierWrapper = this.valueModifierWrappers.get(i);
+            valueModifierWrapper.renderWrappedObject();
+
+            ImGui.endChild();
+
+            ImGui.separator();
+
+            ImGui.popID();
+        }
+
+
 
     }
+
+    private void addNoiseSelectionCombo(){
+        if (ImGui.beginCombo("Noise type", currentNoiseType)){
+
+            for (var noise : NoiseRegistry.NOISE_REGISTRY.getObjectTypes()){
+                var regId = noise.getRegistryId();
+                if (ImGui.selectable(regId)){
+                    FDNoise<?> selectedNoise = noise.generateObject();
+                    noiseLayer.setNoise(selectedNoise);
+                    this.initNoiseWrapper(selectedNoise);
+                    currentNoiseType = regId;
+                    this.noiseChanged();
+                    break;
+                }
+
+            }
+
+            ImGui.endCombo();
+        }
+
+    }
+
+
+    private void addValueModifierTypeCombo(int valueModifierId){
+
+        var valueModifiers = this.noiseLayer.getValueModifiers();
+        FDValueModifier<?> fdValueModifier = valueModifiers.get(valueModifierId);
+
+        var objectType = fdValueModifier.getObjectType();
+
+        if (ImGui.beginCombo("Value modifier type", objectType.getRegistryId())){
+
+            for (var modifier : NoiseValueModifierRegistry.VALUE_MODIFIERS.getObjectTypes()){
+                var regId = modifier.getRegistryId();
+                if (ImGui.selectable(regId)){
+
+                    FDValueModifier<?> newValueModifier = modifier.generateObject();
+                    valueModifiers.set(valueModifierId, newValueModifier);
+
+                    this.initValueModifierWrappers(valueModifiers);
+
+                    this.noiseChanged();
+                    break;
+                }
+
+            }
+
+            ImGui.endCombo();
+        }
+
+    }
+
+
+
 
     @Override
     public void onOpen() {
@@ -134,18 +278,41 @@ public class NoiseLayerRedactorMenu extends Menu {
             }
         }
 
+    }
 
+    private void initValueModifierWrappers(List<FDValueModifier<?>> fdValueModifiers){
+
+        this.valueModifierWrappers.clear();
+
+        for (var valueModifier : fdValueModifiers){
+
+            ValueModifierWrapper<?,?> valueModifierWrapper = null;
+
+            var objectType = valueModifier.getObjectType();
+            for (var wrapperType : ValueModifierWrapperRegistry.VALUE_MODIFIER_WRAPPERS.getObjectTypes()){
+                if (objectType == wrapperType.getValueModifierType()){
+                    valueModifierWrapper = this.useValueModifierWrapperType(wrapperType, valueModifier);
+                    valueModifierWrapper.setChangeListener(this::noiseChanged);
+                    break;
+                }
+            }
+
+            if (valueModifierWrapper == null) throw new RuntimeException("No wrapper registered for value modifier type: " + objectType);
+
+            this.valueModifierWrappers.add(valueModifierWrapper);
+
+        }
 
     }
 
     private void initNoiseWrapper(FDNoise<?> fdNoise){
         var type = fdNoise.getObjectType();
 
-        FDNoiseWrapper<?,?> noiseWrapper = null;
+        NoiseWrapper<?,?> noiseWrapper = null;
 
-        for (var wrapperType : FDNoiseWrapperRegistry.NOISE_WRAPPERS.getObjectTypes()){
+        for (var wrapperType : NoiseWrapperRegistry.NOISE_WRAPPERS.getObjectTypes()){
             if (type == wrapperType.getNoiseObjectType()){
-                noiseWrapper = this.useWrapperType(wrapperType, fdNoise);
+                noiseWrapper = this.useNoiseWrapperType(wrapperType, fdNoise);
                 break;
             }
         }
@@ -164,8 +331,12 @@ public class NoiseLayerRedactorMenu extends Menu {
 
 
 
-    private <T extends FDNoiseWrapper<T, D>, D extends FDNoise<D>> FDNoiseWrapper<T, D> useWrapperType(NoiseWrapperType<T, D> noiseWrapperType, FDNoise<?> fdNoise){
+    private <T extends NoiseWrapper<T, D>, D extends FDNoise<D>> NoiseWrapper<T, D> useNoiseWrapperType(NoiseWrapperType<T, D> noiseWrapperType, FDNoise<?> fdNoise){
         return noiseWrapperType.generateWrapper((D) fdNoise);
+    }
+
+    private <T extends ValueModifierWrapper<T, D>, D extends FDValueModifier<D>> ValueModifierWrapper<T, D> useValueModifierWrapperType(ValueModifierWrapperType<T, D> noiseWrapperType, FDValueModifier<?> valueModifier){
+        return noiseWrapperType.getWrapperFactory().apply((D) valueModifier);
     }
 
 }

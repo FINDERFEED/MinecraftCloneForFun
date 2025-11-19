@@ -5,7 +5,7 @@ public abstract class ObjectWrapper<T> {
 
     private T object;
 
-    protected Runnable changeListener;
+    protected Runnable changeListener = () -> {};
 
     public ObjectWrapper(T object){
         this.object = object;

@@ -1,13 +1,14 @@
 package com.finderfeed.menu;
 
 import com.finderfeed.noise_combiner.NoiseLayer;
-import imgui.ImFontConfig;
 import imgui.ImGui;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MainMenu {
+
+    private static int MENU_ID = 0;
 
     private List<Menu> openedMenus = new ArrayList<>();
 
@@ -52,6 +53,12 @@ public class MainMenu {
     public void openMenu(Menu menu){
         menu.onOpen();
         this.openedMenus.add(menu);
+    }
+
+    public static int takeNextFreeMenuId(){
+        int ret = MENU_ID;
+        MENU_ID++;
+        return ret;
     }
 
 

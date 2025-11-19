@@ -1,5 +1,6 @@
 package com.finderfeed.util;
 
+import imgui.ImGui;
 import org.lwjgl.system.MemoryUtil;
 
 import java.awt.image.BufferedImage;
@@ -10,6 +11,14 @@ import java.util.Map;
 import java.util.function.Function;
 
 public class Util {
+
+    public static void insertSimpleTooltip(String text){
+        if (ImGui.isItemHovered()){
+            ImGui.beginTooltip();
+            ImGui.text(text);
+            ImGui.endTooltip();
+        }
+    }
 
     //Type of image - INT_ARGB
     public static ByteBuffer bufferedImageToBuffer(BufferedImage image){

@@ -1,6 +1,8 @@
 package com.finderfeed.noise_combiner.value_modifier;
 
-public class DivideValueModifier extends FDValueModifier {
+import com.finderfeed.noise_combiner.registry.ObjectType;
+
+public class DivideValueModifier extends FDValueModifier<DivideValueModifier> {
 
     private float divideBy = 1;
 
@@ -14,6 +16,19 @@ public class DivideValueModifier extends FDValueModifier {
             return 0;
         }
         return value / divideBy;
+    }
+
+    @Override
+    public ObjectType<DivideValueModifier> getObjectType() {
+        return NoiseValueModifierRegistry.DIVIDE_VALUE;
+    }
+
+    public float getDivideBy() {
+        return divideBy;
+    }
+
+    public void setDivideBy(float divideBy) {
+        this.divideBy = divideBy;
     }
 
 }

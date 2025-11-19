@@ -1,13 +1,11 @@
 package com.finderfeed.menu.wrappers.fdnoise_wrapper;
 
-import com.finderfeed.engine.textures.Texture;
 import com.finderfeed.menu.wrappers.ObjectWrapper;
 import com.finderfeed.noise_combiner.noise.FDNoise;
-import com.finderfeed.noise_combiner.registry.ObjectType;
 
-public abstract class FDNoiseWrapper<D extends FDNoiseWrapper<D, T>, T extends FDNoise<T>> extends ObjectWrapper<T> {
+public abstract class NoiseWrapper<D extends NoiseWrapper<D, T>, T extends FDNoise<T>> extends ObjectWrapper<T> {
 
-    public FDNoiseWrapper(T noise){
+    public NoiseWrapper(T noise){
         super(noise);
     }
 

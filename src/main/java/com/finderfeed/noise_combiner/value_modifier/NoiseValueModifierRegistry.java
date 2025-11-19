@@ -7,7 +7,7 @@ import java.util.function.Supplier;
 
 public class NoiseValueModifierRegistry {
 
-    public static final ObjectTypeRegistry<SimpleFactoryObjectType<FDValueModifier>, FDValueModifier> VALUE_MODIFIERS = new ObjectTypeRegistry<>();
+    public static final ObjectTypeRegistry<SimpleFactoryObjectType<FDValueModifier<?>>, FDValueModifier<?>> VALUE_MODIFIERS = new ObjectTypeRegistry<>();
 
     public static final SimpleFactoryObjectType<AddValueModifier> ADD_VALUE = VALUE_MODIFIERS.register(new SimpleFactoryObjectType<>("add_value", AddValueModifier::new));
     public static final SimpleFactoryObjectType<SubtractValueModifier> SUBTRACT_VALUE = VALUE_MODIFIERS.register(new SimpleFactoryObjectType<>("subtract_value", SubtractValueModifier::new));

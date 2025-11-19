@@ -1,6 +1,8 @@
 package com.finderfeed.noise_combiner.value_modifier;
 
-public class AddValueModifier extends FDValueModifier {
+import com.finderfeed.noise_combiner.registry.ObjectType;
+
+public class AddValueModifier extends FDValueModifier<AddValueModifier> {
 
     private float addedValue = 0;
 
@@ -11,6 +13,19 @@ public class AddValueModifier extends FDValueModifier {
     @Override
     public float transformValue(float value) {
         return value + addedValue;
+    }
+
+    @Override
+    public ObjectType<AddValueModifier> getObjectType() {
+        return NoiseValueModifierRegistry.ADD_VALUE;
+    }
+
+    public float getAddedValue() {
+        return addedValue;
+    }
+
+    public void setAddedValue(float addedValue) {
+        this.addedValue = addedValue;
     }
 
 }

@@ -5,18 +5,18 @@ import com.finderfeed.noise_combiner.registry.ObjectType;
 
 import java.util.function.Function;
 
-public class NoiseWrapperType<T extends FDNoiseWrapper<T, D>, D extends FDNoise<D>> extends ObjectType<T> {
+public class NoiseWrapperType<T extends NoiseWrapper<T, D>, D extends FDNoise<D>> extends ObjectType<T> {
 
-    private Function<D, FDNoiseWrapper<T, D>> factory;
+    private Function<D, NoiseWrapper<T, D>> factory;
     private ObjectType<D> noiseObjectType;
 
-    public NoiseWrapperType(String registryId, ObjectType<D> noiseObjectType, Function<D, FDNoiseWrapper<T, D>> noiseWrapperFactory) {
+    public NoiseWrapperType(String registryId, ObjectType<D> noiseObjectType, Function<D, NoiseWrapper<T, D>> noiseWrapperFactory) {
         super(registryId);
         this.factory = noiseWrapperFactory;
         this.noiseObjectType = noiseObjectType;
     }
 
-    public FDNoiseWrapper<T, D> generateWrapper(D noise){
+    public NoiseWrapper<T, D> generateWrapper(D noise){
         return factory.apply(noise);
     }
 
