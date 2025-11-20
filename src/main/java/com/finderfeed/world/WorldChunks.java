@@ -94,6 +94,35 @@ public class WorldChunks {
 //        }
     }
 
+    public void regenerateAllChunks(){
+        var entryIterator = this.chunkHashMap.long2ObjectEntrySet().iterator();
+
+        while (entryIterator.hasNext()){
+
+            var c = entryIterator.next();
+
+            Chunk chunk = c.getValue();
+
+            if (chunk.status == ChunkStatus.LOADING) {
+                Main.utilExecutor.submit(() -> {
+
+                    while (chunk.status == ChunkStatus.LOADING);
+
+                    chunk.blocks = null;
+                    chunk.close();
+                    chunk.status = ChunkStatus.EMPTY;
+
+                });
+            }else{
+                chunk.blocks = null;
+                chunk.close();
+                chunk.status = ChunkStatus.EMPTY;
+            }
+            entryIterator.remove();
+
+        }
+    }
+
 
 
     public List<Chunk> getChunksInSquareRadius(ChunkPos pos, Predicate<Chunk> chunkPredicate, int distance, boolean nullToDummies){

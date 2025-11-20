@@ -134,6 +134,10 @@ public class GLFWBindings {
                 } else {
                     Main.controllingEntity = null;
                 }
+            }else if (key == GLFW_KEY_F5){
+                Main.world.chunks.regenerateAllChunks();
+            }else if (key == GLFW_KEY_F6){
+                Main.mainEntity.position = Main.camera.pos;
             }
         }else{
             w.getImGuiImplGlfw().keyCallback(window, key, scancode, action, mods);
@@ -144,6 +148,12 @@ public class GLFWBindings {
                 int mode = glfwGetInputMode(window, GLFW_CURSOR);
                 if (mode == GLFW_CURSOR_NORMAL) {
                     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+                    Main.mouse.dx = 0;
+                    Main.mouse.dy = 0;
+                    Main.mouse.x = Main.window.getWidth() / 2f;
+                    Main.mouse.y = Main.window.getHeight() / 2f;
+                    Main.mouse.xo = Main.mouse.x;
+                    Main.mouse.yo = Main.mouse.y;
                     w.setGameFocused(true);
                 } else {
                     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);

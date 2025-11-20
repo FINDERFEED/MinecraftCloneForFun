@@ -147,7 +147,7 @@ public class NoiseCombinerMenu extends Menu {
 
     public static void paintNoise(NoiseCombination noiseLayer, BufferedImage bufferedImage, int blockDiameter){
 
-        var pos = new Vector3i(Main.mainEntity.getBlockPos());
+        var pos = new Vector3d(Main.camera.pos);
         int seed = GlobalWorldParameters.getSeed();
         double coordinateScale = GlobalWorldParameters.getCoordinateScale();
         if (coordinateScale <= 0){
@@ -163,7 +163,7 @@ public class NoiseCombinerMenu extends Menu {
 
             double xCoordOffset = (-blockDiameter / 2d + blockDiameter * xp) * GlobalWorldParameters.getNoiseScale();
 
-            double xCoord = (pos.x - xCoordOffset) / coordinateScale;
+            double xCoord = (pos.x + xCoordOffset) / coordinateScale;
 
             for (int z = 0; z < height; z++){
 
@@ -171,9 +171,9 @@ public class NoiseCombinerMenu extends Menu {
 
                 double zCoordOffset = (-blockDiameter / 2d + blockDiameter * zp) * GlobalWorldParameters.getNoiseScale();
 
-                double zCoord = (pos.z - zCoordOffset) / coordinateScale;
+                double zCoord = (pos.z + zCoordOffset) / coordinateScale;
 
-                Vector3d computePos = new Vector3d(xCoord, 32.545, zCoord);
+                Vector3d computePos = new Vector3d(xCoord, 131.04324, zCoord);
                 ComputationContext computationContext1 = new ComputationContext(computePos, seed);
                 float value = noiseLayer.compute(computationContext1);
 

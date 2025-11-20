@@ -1,5 +1,6 @@
 package com.finderfeed.menu;
 
+import com.finderfeed.GlobalWorldParameters;
 import com.finderfeed.noise_combiner.NoiseCombination;
 import com.finderfeed.noise_combiner.NoiseLayer;
 import imgui.ImGui;
@@ -28,7 +29,7 @@ public class MainMenu {
 
     private void renderMainMenuButtons(){
         if (ImGui.button("Noise combiner menu") && openedMenus.stream().noneMatch(menu -> menu instanceof NoiseCombinerMenu)){
-            NoiseCombination noiseCombination = new NoiseCombination();
+            NoiseCombination noiseCombination = GlobalWorldParameters.getCurrentNoiseCombination();
             this.openMenu(new NoiseCombinerMenu("Noise combiner",noiseCombination));
         }
 

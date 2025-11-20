@@ -105,11 +105,17 @@ public class World implements WorldAccessor {
         while (iter.hasNext()){
             var entry = iter.next();
             RenderedChunk c = entry.getValue();
-            if (c.readyToCompile && !this.isChunkInRenderDistance(c.renderedChunk,currentPos,Main.chunkRenderDistance)){
+            if (this.shouldRenderedChunkBeDeleted(currentPos, c)){
                 c.close();
                 iter.remove();
             }
         }
+    }
+
+    private boolean shouldRenderedChunkBeDeleted(ChunkPos cameraPos, RenderedChunk renderedChunk){
+        return renderedChunk.readyToCompile &&
+                !this.isChunkInRenderDistance(renderedChunk.renderedChunk,cameraPos,Main.chunkRenderDistance) ||
+                !this.chunks.chunkHashMap.containsValue(renderedChunk.renderedChunk);
     }
 
     public void addEntity(Entity entity){

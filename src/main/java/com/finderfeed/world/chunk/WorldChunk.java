@@ -1,6 +1,9 @@
 package com.finderfeed.world.chunk;
 
+import com.finderfeed.GlobalWorldParameters;
 import com.finderfeed.blocks.Block;
+import com.finderfeed.noise_combiner.ComputationContext;
+import com.finderfeed.noise_combiner.NoiseCombination;
 import com.finderfeed.util.EasingFunction;
 import com.finderfeed.util.MathUtil;
 import com.finderfeed.util.noises.Perlin3D;
@@ -11,6 +14,8 @@ import org.joml.*;
 import org.spongepowered.noise.Noise;
 import org.spongepowered.noise.NoiseQuality;
 import org.spongepowered.noise.module.source.Perlin;
+
+import java.lang.Math;
 
 public class WorldChunk extends Chunk implements AutoCloseable {
 
@@ -65,19 +70,41 @@ public class WorldChunk extends Chunk implements AutoCloseable {
     private void buildTerrain(){
         Vector2i global = this.pos.normalPos();
 
+        NoiseCombination combination = GlobalWorldParameters.getCurrentNoiseCombination();
+
         for (int x = 0; x < CHUNK_SIZE; x++){
             for (int z = 0; z < CHUNK_SIZE; z++){
                 int xn = (global.x + x);
                 int zn = (global.y + z);
-                int h = HEIGHT;
 
+                ComputationContext computationContext = new ComputationContext(
+                        new Vector3d(xn / GlobalWorldParameters.getCoordinateScale(),131.04324,zn / GlobalWorldParameters.getCoordinateScale()),
+                        GlobalWorldParameters.getSeed()
+                );
 
-                for (int y = 0; y < h;y++) {
-                    Block b = this.decideBlock(x,y,z,xn,zn);
-                    if (!b.isAir()){
-                        this.setHeight(x,z,y);
-                    }
+                var value = combination.compute(computationContext);
+
+                int h = 0;
+
+                if (value >= 0){
+                    h = (int) MathUtil.lerp(0, Chunk.HEIGHT - 1, Math.clamp(value,0,1));
                 }
+
+                for (int y = 0; y <= h; y++) {
+                    this.setBlock(Block.STONE,x,y,z);
+                }
+
+                this.setHeight(x,z,h);
+
+
+//                int h = HEIGHT;
+//
+//                for (int y = 0; y < h;y++) {
+//                    Block b = this.decideBlock(x,y,z,xn,zn);
+//                    if (!b.isAir()){
+//                        this.setHeight(x,z,y);
+//                    }
+//                }
             }
         }
 

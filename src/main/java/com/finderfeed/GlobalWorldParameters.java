@@ -1,5 +1,7 @@
 package com.finderfeed;
 
+import com.finderfeed.noise_combiner.NoiseCombination;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,6 +14,11 @@ public class GlobalWorldParameters {
     private static int seed = 524652324;
     private static double noiseScale = 1.0d;
 
+    private static NoiseCombination currentNoiseCombination = new NoiseCombination();
+
+    public static NoiseCombination getCurrentNoiseCombination() {
+        return currentNoiseCombination;
+    }
 
     public static double getCoordinateScale() {
         return coordinateScale;
