@@ -1,5 +1,6 @@
 package com.finderfeed.menu;
 
+import com.finderfeed.GlobalWorldParameters;
 import com.finderfeed.Main;
 import com.finderfeed.engine.textures.Texture;
 import com.finderfeed.engine.textures.Texture2DSettings;
@@ -203,13 +204,13 @@ public class NoiseLayerRedactorMenu extends Menu {
 
     @Override
     public void onOpen() {
-
         this.initNoiseTexture(this.noiseLayer);
-
+        GlobalWorldParameters.addGlobalParameterChangeListener(this, this::noiseChanged);
     }
 
     @Override
     public void onClose() {
+        GlobalWorldParameters.removeListener(this);
         this.onCloseListeners.forEach(Runnable::run);
         noiseImage.flush();
         noiseTexture.destroyTexture();
@@ -256,8 +257,8 @@ public class NoiseLayerRedactorMenu extends Menu {
     public static void paintNoise(NoiseLayer noiseLayer, BufferedImage bufferedImage, int blockDiameter){
 
         var pos = new Vector3i(Main.mainEntity.getBlockPos());
-        int seed = Main.seed;
-        double coordinateScale = Main.coordinateScale;
+        int seed = GlobalWorldParameters.getSeed();
+        double coordinateScale = GlobalWorldParameters.getCoordinateScale();
         if (coordinateScale <= 0){
             coordinateScale = 1;
         }
@@ -267,14 +268,17 @@ public class NoiseLayerRedactorMenu extends Menu {
 
         for (int x = 0; x < width; x++){
 
-            double xCoordOffset = (blockDiameter / 2d + x) * Main.noiseScale;
+            float xp = x / (float) (width - 1);
+
+            double xCoordOffset = (-blockDiameter / 2d + blockDiameter * xp) * GlobalWorldParameters.getNoiseScale();
 
             double xCoord = (pos.x - xCoordOffset) / coordinateScale;
 
             for (int z = 0; z < height; z++){
 
+                float zp = z / (float) (width - 1);
 
-                double zCoordOffset = (blockDiameter / 2d + z) * Main.noiseScale;
+                double zCoordOffset = (-blockDiameter / 2d + blockDiameter * zp) * GlobalWorldParameters.getNoiseScale();
 
                 double zCoord = (pos.z - zCoordOffset) / coordinateScale;
 

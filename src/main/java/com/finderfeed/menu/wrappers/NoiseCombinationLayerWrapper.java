@@ -1,5 +1,6 @@
 package com.finderfeed.menu.wrappers;
 
+import com.finderfeed.GlobalWorldParameters;
 import com.finderfeed.Main;
 import com.finderfeed.engine.textures.Texture;
 import com.finderfeed.engine.textures.Texture2DSettings;
@@ -66,6 +67,7 @@ public class NoiseCombinationLayerWrapper extends ObjectWrapper<NoiseCombination
         super.initialize();
         this.initNoiseTexture(this.getObject().getNoiseLayer());
         this.initLayerCombinerWrapper(this.getObject().getCombiner());
+        GlobalWorldParameters.addGlobalParameterChangeListener(this,this::noiseChanged);
     }
 
     @Override
@@ -77,6 +79,7 @@ public class NoiseCombinationLayerWrapper extends ObjectWrapper<NoiseCombination
         layerCombinerWrapper.close();
         this.noiseImage.flush();
         this.noiseTexture.destroyTexture();
+        GlobalWorldParameters.removeListener(this);
     }
 
     private void renderLayerCombinerWrapperCombo(){
@@ -93,6 +96,7 @@ public class NoiseCombinationLayerWrapper extends ObjectWrapper<NoiseCombination
                     var combiner = layerCombiner.generateObject();
                     this.getObject().setCombiner(combiner);
                     this.initLayerCombinerWrapper(combiner);
+                    this.changeListener.run();
                     break;
                 }
 
@@ -153,7 +157,7 @@ public class NoiseCombinationLayerWrapper extends ObjectWrapper<NoiseCombination
         }
 
 
-        int texDimension = 128;
+        int texDimension = 64;
         BufferedImage bufferedImage = new BufferedImage(texDimension,texDimension,BufferedImage.TYPE_INT_ARGB);
 
         NoiseLayerRedactorMenu.paintNoise(noiseLayer, bufferedImage, bufferedImage.getWidth());

@@ -12,6 +12,7 @@ public class MainMenu {
     private static int MENU_ID = 0;
 
     private List<Menu> openedMenus = new ArrayList<>();
+    private List<Runnable> delayedAfterMenuActions = new ArrayList<>();
 
     public MainMenu(){
 
@@ -31,10 +32,6 @@ public class MainMenu {
             this.openMenu(new NoiseCombinerMenu("Noise combiner",noiseCombination));
         }
 
-        if (ImGui.button("Test noise layer redactor")){
-            NoiseLayer noiseLayer = new NoiseLayer();
-            this.openMenu(new NoiseLayerRedactorMenu("Noise Layer", noiseLayer));
-        }
 
     }
 
@@ -50,11 +47,17 @@ public class MainMenu {
             }
 
         }
+
+        delayedAfterMenuActions.forEach(Runnable::run);
+        delayedAfterMenuActions.clear();
+
     }
 
     public void openMenu(Menu menu){
-        menu.onOpen();
-        this.openedMenus.add(menu);
+        delayedAfterMenuActions.add(()->{
+            menu.onOpen();
+            this.openedMenus.add(menu);
+        });
     }
 
     public static int takeNextFreeMenuId(){

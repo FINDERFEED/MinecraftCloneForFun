@@ -29,6 +29,8 @@ import org.lwjgl.opengl.GL30;
 import org.lwjgl.system.MemoryStack;
 
 import java.nio.IntBuffer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.*;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
@@ -41,11 +43,6 @@ import static com.finderfeed.engine.shaders.Shaders.*;
 
 
 public class Main {
-
-    public static double coordinateScale = 23.334f;
-    public static int seed = 524652324;
-    public static double noiseScale = 1.0d;
-
 
     public static ExecutorService utilExecutor;
 

@@ -20,15 +20,18 @@ public class NoiseLerpValuesCombinerWrapper extends LayerCombinerWrapper<NoiseLe
     public void renderWrappedObject() {
 
         if (ImGui.button("Open noise redactor")) {
-            int id = MainMenu.takeNextFreeMenuId();
-            NoiseLayerRedactorMenu noiseLayerRedactorMenu = new NoiseLayerRedactorMenu("Noise lerp layer redactor##" + id, this.getObject().getLayer());
-            noiseLayerRedactorMenu.addOnCloseListener(()->{
-                this.openedMenu = null;
-            });
-            noiseLayerRedactorMenu.addOnChangeListener(()->{
-                this.changeListener.run();
-            });
-            Main.window.getMainMenu().openMenu(noiseLayerRedactorMenu);
+            if (openedMenu == null) {
+                int id = MainMenu.takeNextFreeMenuId();
+                NoiseLayerRedactorMenu noiseLayerRedactorMenu = new NoiseLayerRedactorMenu("Noise lerp layer redactor##" + id, this.getObject().getLayer());
+                noiseLayerRedactorMenu.addOnCloseListener(() -> {
+                    this.openedMenu = null;
+                });
+                noiseLayerRedactorMenu.addOnChangeListener(() -> {
+                    this.changeListener.run();
+                });
+                Main.window.getMainMenu().openMenu(noiseLayerRedactorMenu);
+                openedMenu = noiseLayerRedactorMenu;
+            }
         }
 
     }
