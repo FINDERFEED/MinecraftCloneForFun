@@ -1,6 +1,7 @@
 package com.finderfeed.menu.wrappers.value_modifier_wrappers.instances;
 
 import com.finderfeed.menu.wrappers.value_modifier_wrappers.ValueModifierWrapper;
+import com.finderfeed.menu.wrappers.value_modifier_wrappers.ValueModifierWrapperRegistry;
 import com.finderfeed.menu.wrappers.value_modifier_wrappers.ValueModifierWrapperType;
 import com.finderfeed.noise_combiner.value_modifier.instances.DivideValueModifier;
 import imgui.ImGui;
@@ -17,7 +18,7 @@ public class DivideByValueModifierWrapper extends ValueModifierWrapper<DivideByV
 
     @Override
     public ValueModifierWrapperType<DivideByValueModifierWrapper, DivideValueModifier> type() {
-        return null;
+        return ValueModifierWrapperRegistry.DIVIDE_BY_VALUE_MODIFIER;
     }
 
     @Override

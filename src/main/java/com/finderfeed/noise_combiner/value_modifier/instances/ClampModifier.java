@@ -5,16 +5,24 @@ import com.finderfeed.noise_combiner.registry.ObjectType;
 import com.finderfeed.noise_combiner.value_modifier.FDValueModifier;
 import com.finderfeed.noise_combiner.value_modifier.NoiseValueModifierRegistry;
 
-public class InvertModifier extends FDValueModifier<InvertModifier> {
+public class ClampModifier extends FDValueModifier<ClampModifier> {
+
+    public float min = -1;
+    public float max = 1;
+
 
     @Override
     public float transformValue(ComputationContext context, float value) {
-        return 1 - value;
+        return Math.clamp(
+                value,
+                min,
+                Math.clamp(max, min + 0.001f, Float.MAX_VALUE)
+        );
     }
 
     @Override
-    public ObjectType<InvertModifier> getObjectType() {
-        return NoiseValueModifierRegistry.INVERT_VALUE;
+    public ObjectType<ClampModifier> getObjectType() {
+        return NoiseValueModifierRegistry.CLAMP_VALUE;
     }
 
 }

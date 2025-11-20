@@ -33,4 +33,16 @@ public class ValueModifierWrapperRegistry {
             "invert_value_modifier_wrapper", NoiseValueModifierRegistry.INVERT_VALUE, InvertValueModifierWrapper::new
     ));
 
+    public static final ValueModifierWrapperType<PowModifierWrapper, PowModifier> POWER_VALUE_MODIFIER = VALUE_MODIFIER_WRAPPERS.register(new ValueModifierWrapperType<>(
+            "power_value_modifier_wrapper", NoiseValueModifierRegistry.POW_VALUE, PowModifierWrapper::new
+    ));
+
+    public static final ValueModifierWrapperType<ClampModifierWrapper, ClampModifier> CLAMP_VALUE_MODIFIER = VALUE_MODIFIER_WRAPPERS.register(new ValueModifierWrapperType<>(
+            "clamp_value_modifier_wrapper", NoiseValueModifierRegistry.CLAMP_VALUE, ClampModifierWrapper::new
+    ));
+
+    public static final ValueModifierWrapperType<NoiseLerpModifierWrapper, NoiseLerpValueModifier> NOISE_LERP_VALUE_MODIFIER = VALUE_MODIFIER_WRAPPERS.register(new ValueModifierWrapperType<>(
+            "noise_lerp_value_modifier_wrapper", NoiseValueModifierRegistry.NOISE_LERP_VALUE, NoiseLerpModifierWrapper::new
+    ));
+
 }

@@ -9,9 +9,9 @@ import java.util.List;
 
 public class NoiseLayer {
 
+    public String layerName = "New noise layer";
     private FDNoise<?> noise;
     private List<FDValueModifier<?>> valueModifiers = new ArrayList<>();
-
 
     public NoiseLayer(){
         this.noise = NoiseRegistry.CONSTANT_VALUE.generateObject();
@@ -44,7 +44,7 @@ public class NoiseLayer {
     public float computeValue(ComputationContext computationContext){
         float baseValue = noise.computeNoiseValue(computationContext);
         for (var valueMod : valueModifiers){
-            baseValue = valueMod.transformValue(baseValue);
+            baseValue = valueMod.transformValue(computationContext, baseValue);
         }
         return baseValue;
     }

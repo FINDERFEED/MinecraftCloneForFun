@@ -4,28 +4,32 @@ import com.finderfeed.menu.wrappers.fdnoise_wrapper.NoiseWrapper;
 import com.finderfeed.menu.wrappers.fdnoise_wrapper.NoiseWrapperRegistry;
 import com.finderfeed.menu.wrappers.fdnoise_wrapper.NoiseWrapperType;
 import com.finderfeed.noise_combiner.noise.instances.FDPerlinNoise;
+import com.finderfeed.noise_combiner.noise.instances.FDRidgedNoise;
 import com.finderfeed.util.Util;
 import imgui.ImGui;
 import imgui.type.ImDouble;
 import org.spongepowered.noise.module.source.Perlin;
 
-public class PerlinNoiseWrapper extends NoiseWrapper<PerlinNoiseWrapper, FDPerlinNoise> {
+public class RidgedNoiseWrapper extends NoiseWrapper<RidgedNoiseWrapper, FDRidgedNoise> {
 
     public int[] octaves;
     public float[] lacunarity;
     public float[] frequency;
-    public float[] persistence;
+    public float[] offset;
+    public float[] gain;
 
     public ImDouble xOffset;
     public ImDouble yOffset;
     public ImDouble zOffset;
 
-    public PerlinNoiseWrapper(FDPerlinNoise noise) {
+    public RidgedNoiseWrapper(FDRidgedNoise noise) {
         super(noise);
         octaves = new int[]{noise.octaves};
         lacunarity = new float[]{(float)noise.lacunarity};
         frequency = new float[]{(float)noise.frequency};
-        persistence = new float[]{(float)noise.persistence};
+        offset = new float[]{(float)noise.offset};
+        gain = new float[]{(float)noise.gain};
+
         xOffset = new ImDouble(noise.xOffset);
         yOffset = new ImDouble(noise.yOffset);
         zOffset = new ImDouble(noise.zOffset);
@@ -54,11 +58,16 @@ public class PerlinNoiseWrapper extends NoiseWrapper<PerlinNoiseWrapper, FDPerli
             hasChanged = true;
         }
 
-        if (ImGui.sliderFloat("Persistence", this.persistence, 0.01f, 2)){
-            object.persistence = this.persistence[0];
+        if (ImGui.sliderFloat("Gain", gain, 0.01f, 10)){
+            object.gain = gain[0];
             hasChanged = true;
         }
-        Util.insertSimpleTooltip("Roughness of noise, best results between 0 and 1");
+
+        if (ImGui.sliderFloat("Noise offset", offset, 0.01f, 5)){
+            object.offset = offset[0];
+            hasChanged = true;
+        }
+
 
         if (ImGui.inputDouble("X Offset", xOffset)){
             object.xOffset = xOffset.get();
@@ -80,8 +89,8 @@ public class PerlinNoiseWrapper extends NoiseWrapper<PerlinNoiseWrapper, FDPerli
     }
 
     @Override
-    public NoiseWrapperType<PerlinNoiseWrapper, FDPerlinNoise> type() {
-        return NoiseWrapperRegistry.PERLIN_NOISE_WRAPPER;
+    public NoiseWrapperType<RidgedNoiseWrapper, FDRidgedNoise> type() {
+        return NoiseWrapperRegistry.RIDGED_NOISE_WRAPPER;
     }
 
 }

@@ -17,6 +17,9 @@ public class FDPerlinNoise extends FDNoise<FDPerlinNoise> {
     public double lacunarity = Perlin.DEFAULT_PERLIN_LACUNARITY;
     public double frequency = Perlin.DEFAULT_PERLIN_FREQUENCY;
     public double persistence = Perlin.DEFAULT_PERLIN_PERSISTENCE;
+    public double xOffset = 0;
+    public double yOffset = 0;
+    public double zOffset = 0;
 
     public FDPerlinNoise(){
 
@@ -36,9 +39,9 @@ public class FDPerlinNoise extends FDNoise<FDPerlinNoise> {
 
 
         float value = (float) perlin.get(
-                worldPos.x,
-                worldPos.y,
-                worldPos.z
+                worldPos.x + xOffset,
+                worldPos.y + yOffset,
+                worldPos.z + zOffset
         );
 
 

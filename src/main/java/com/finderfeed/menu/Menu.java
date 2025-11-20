@@ -53,4 +53,8 @@ public abstract class Menu {
         this.closed = closed;
     }
 
+    public String getTitle() {
+        return title;
+    }
+
 }

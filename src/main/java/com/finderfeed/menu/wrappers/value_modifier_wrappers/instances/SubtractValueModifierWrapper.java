@@ -1,6 +1,7 @@
 package com.finderfeed.menu.wrappers.value_modifier_wrappers.instances;
 
 import com.finderfeed.menu.wrappers.value_modifier_wrappers.ValueModifierWrapper;
+import com.finderfeed.menu.wrappers.value_modifier_wrappers.ValueModifierWrapperRegistry;
 import com.finderfeed.menu.wrappers.value_modifier_wrappers.ValueModifierWrapperType;
 import com.finderfeed.noise_combiner.value_modifier.instances.SubtractValueModifier;
 import imgui.ImGui;
@@ -17,7 +18,7 @@ public class SubtractValueModifierWrapper extends ValueModifierWrapper<SubtractV
 
     @Override
     public ValueModifierWrapperType<SubtractValueModifierWrapper, SubtractValueModifier> type() {
-        return null;
+        return ValueModifierWrapperRegistry.SUBTRACT_VALUE_MODIFIER;
     }
 
     @Override

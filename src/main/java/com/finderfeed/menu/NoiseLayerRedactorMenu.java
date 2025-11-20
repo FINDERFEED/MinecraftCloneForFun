@@ -286,8 +286,7 @@ public class NoiseLayerRedactorMenu extends Menu {
                 ComputationContext computationContext1 = new ComputationContext(computePos, seed);
                 float value = noiseLayer.computeValue(computationContext1);
 
-                value = Math.clamp(value, -1,1);
-                value = (value + 1) / 2f;
+                value = Math.clamp(value, 0,1);
 
                 int color = new FDColor(value,value,value,1f).encode();
 

@@ -14,5 +14,8 @@ public class NoiseValueModifierRegistry {
     public static final SimpleFactoryObjectType<DivideValueModifier> DIVIDE_VALUE = VALUE_MODIFIERS.register(new SimpleFactoryObjectType<>("divide_value", DivideValueModifier::new));
     public static final SimpleFactoryObjectType<AbsoluteModifier> ABS_VALUE = VALUE_MODIFIERS.register(new SimpleFactoryObjectType<>("abs_value", AbsoluteModifier::new));
     public static final SimpleFactoryObjectType<InvertModifier> INVERT_VALUE = VALUE_MODIFIERS.register(new SimpleFactoryObjectType<>("invert_value", InvertModifier::new));
+    public static final SimpleFactoryObjectType<ClampModifier> CLAMP_VALUE = VALUE_MODIFIERS.register(new SimpleFactoryObjectType<>("clamp_value", ClampModifier::new));
+    public static final SimpleFactoryObjectType<PowModifier> POW_VALUE = VALUE_MODIFIERS.register(new SimpleFactoryObjectType<>("power_value", PowModifier::new));
+    public static final SimpleFactoryObjectType<NoiseLerpValueModifier> NOISE_LERP_VALUE = VALUE_MODIFIERS.register(new SimpleFactoryObjectType<>("noise_lerp_value", NoiseLerpValueModifier::new));
 
 }

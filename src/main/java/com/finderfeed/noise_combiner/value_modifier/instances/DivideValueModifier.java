@@ -1,5 +1,6 @@
 package com.finderfeed.noise_combiner.value_modifier.instances;
 
+import com.finderfeed.noise_combiner.ComputationContext;
 import com.finderfeed.noise_combiner.registry.ObjectType;
 import com.finderfeed.noise_combiner.value_modifier.FDValueModifier;
 import com.finderfeed.noise_combiner.value_modifier.NoiseValueModifierRegistry;
@@ -13,7 +14,7 @@ public class DivideValueModifier extends FDValueModifier<DivideValueModifier> {
     }
 
     @Override
-    public float transformValue(float value) {
+    public float transformValue(ComputationContext context, float value) {
         if (divideBy == 0){
             return 0;
         }

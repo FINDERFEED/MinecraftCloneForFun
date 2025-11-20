@@ -4,27 +4,28 @@ import com.finderfeed.menu.wrappers.value_modifier_wrappers.ValueModifierWrapper
 import com.finderfeed.menu.wrappers.value_modifier_wrappers.ValueModifierWrapperRegistry;
 import com.finderfeed.menu.wrappers.value_modifier_wrappers.ValueModifierWrapperType;
 import com.finderfeed.noise_combiner.value_modifier.instances.AddValueModifier;
+import com.finderfeed.noise_combiner.value_modifier.instances.PowModifier;
 import imgui.ImGui;
 import imgui.type.ImFloat;
 
-public class AddValueModifierWrapper extends ValueModifierWrapper<AddValueModifierWrapper, AddValueModifier> {
+public class PowModifierWrapper extends ValueModifierWrapper<PowModifierWrapper, PowModifier> {
 
-    public ImFloat value;
+    public ImFloat power;
 
-    public AddValueModifierWrapper(AddValueModifier object) {
+    public PowModifierWrapper(PowModifier object) {
         super(object);
-        this.value = new ImFloat(object.getAddedValue());
+        this.power = new ImFloat(object.power);
     }
 
     @Override
-    public ValueModifierWrapperType<AddValueModifierWrapper, AddValueModifier> type() {
-        return ValueModifierWrapperRegistry.ADD_VALUE_MODIFIER;
+    public ValueModifierWrapperType<PowModifierWrapper, PowModifier> type() {
+        return ValueModifierWrapperRegistry.POWER_VALUE_MODIFIER;
     }
 
     @Override
     public void renderWrappedObject() {
-        if (ImGui.inputFloat("Added value", value)){
-            this.getObject().setAddedValue(value.get());
+        if (ImGui.inputFloat("Power", power)){
+            this.getObject().power = power.get();
             this.changeListener.run();
         }
     }

@@ -1,6 +1,7 @@
 package com.finderfeed.menu.wrappers.value_modifier_wrappers.instances;
 
 import com.finderfeed.menu.wrappers.value_modifier_wrappers.ValueModifierWrapper;
+import com.finderfeed.menu.wrappers.value_modifier_wrappers.ValueModifierWrapperRegistry;
 import com.finderfeed.menu.wrappers.value_modifier_wrappers.ValueModifierWrapperType;
 import com.finderfeed.noise_combiner.value_modifier.instances.MultiplyValueModifier;
 import imgui.ImGui;
@@ -17,7 +18,7 @@ public class MultiplyValueModifierWrapper extends ValueModifierWrapper<MultiplyV
 
     @Override
     public ValueModifierWrapperType<MultiplyValueModifierWrapper, MultiplyValueModifier> type() {
-        return null;
+        return ValueModifierWrapperRegistry.MULTIPLY_VALUE_MODIFIER;
     }
 
     @Override

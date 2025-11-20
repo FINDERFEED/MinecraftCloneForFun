@@ -1,5 +1,6 @@
 package com.finderfeed.noise_combiner.value_modifier.instances;
 
+import com.finderfeed.noise_combiner.ComputationContext;
 import com.finderfeed.noise_combiner.registry.ObjectType;
 import com.finderfeed.noise_combiner.value_modifier.FDValueModifier;
 import com.finderfeed.noise_combiner.value_modifier.NoiseValueModifierRegistry;
@@ -7,7 +8,7 @@ import com.finderfeed.noise_combiner.value_modifier.NoiseValueModifierRegistry;
 public class AbsoluteModifier extends FDValueModifier<AbsoluteModifier> {
 
     @Override
-    public float transformValue(float value) {
+    public float transformValue(ComputationContext context, float value) {
         return Math.abs(value);
     }
 

@@ -5,30 +5,23 @@ import com.finderfeed.noise_combiner.registry.ObjectType;
 import com.finderfeed.noise_combiner.value_modifier.FDValueModifier;
 import com.finderfeed.noise_combiner.value_modifier.NoiseValueModifierRegistry;
 
-public class AddValueModifier extends FDValueModifier<AddValueModifier> {
+public class PowModifier extends FDValueModifier<PowModifier> {
 
-    private float addedValue = 0;
+    public float power = 1;
 
-    public AddValueModifier(){
+    public PowModifier(){
 
     }
 
     @Override
     public float transformValue(ComputationContext context, float value) {
-        return value + addedValue;
+        return (float) Math.pow(value, power);
     }
 
     @Override
-    public ObjectType<AddValueModifier> getObjectType() {
-        return NoiseValueModifierRegistry.ADD_VALUE;
+    public ObjectType<PowModifier> getObjectType() {
+        return NoiseValueModifierRegistry.POW_VALUE;
     }
 
-    public float getAddedValue() {
-        return addedValue;
-    }
-
-    public void setAddedValue(float addedValue) {
-        this.addedValue = addedValue;
-    }
 
 }

@@ -17,6 +17,7 @@ import com.finderfeed.util.Util;
 import com.finderfeed.world.chunk.Chunk;
 import imgui.ImGui;
 import imgui.ImVec2;
+import imgui.type.ImString;
 import org.lwjgl.system.MemoryUtil;
 
 import java.awt.image.BufferedImage;
@@ -32,19 +33,34 @@ public class NoiseCombinationLayerWrapper extends ObjectWrapper<NoiseCombination
 
     private LayerCombinerWrapper<?,?> layerCombinerWrapper;
 
+    private ImString layerName;
+
     public NoiseCombinationLayerWrapper(NoiseCombinationLayer object) {
         super(object);
+        this.layerName = new ImString(object.getNoiseLayer().layerName);
     }
 
     @Override
     public void renderWrappedObject() {
-        ImGui.image(noiseTexture.getTextureId(), new ImVec2(100,100));
+
+        int imageDimensions = 100;
+
+        ImGui.image(noiseTexture.getTextureId(), new ImVec2(imageDimensions,imageDimensions));
+
         ImGui.sameLine();
+        ImGui.beginChild("layerEdit", new ImVec2(0,imageDimensions));
+        if (ImGui.inputText("Layer name", layerName)){
+            if (layerName.get().contains("##")){
+                layerName.set(layerName.get().replace("##",""));
+            }
+            this.getObject().getNoiseLayer().layerName = layerName.get();
+        }
 
         if (ImGui.button("Edit noise layer")){
             if (layerRedactorMenu == null) {
                 int id = MainMenu.takeNextFreeMenuId();
-                layerRedactorMenu = new NoiseLayerRedactorMenu("Noise layer editor##" + id, this.getObject().getNoiseLayer());
+                String layerName = this.getObject().getNoiseLayer().layerName;
+                layerRedactorMenu = new NoiseLayerRedactorMenu(layerName + "##" + id, this.getObject().getNoiseLayer());
                 layerRedactorMenu.addOnChangeListener(() -> {
                     this.noiseChanged();
                     this.changeListener.run();
@@ -55,6 +71,9 @@ public class NoiseCombinationLayerWrapper extends ObjectWrapper<NoiseCombination
                 Main.window.getMainMenu().openMenu(layerRedactorMenu);
             }
         }
+        ImGui.endChild();
+
+
 
         this.renderLayerCombinerWrapperCombo();
         this.layerCombinerWrapper.renderWrappedObject();
@@ -86,7 +105,7 @@ public class NoiseCombinationLayerWrapper extends ObjectWrapper<NoiseCombination
 
         String currentWrapperType = this.getObject().getCombiner().getType().getRegistryId();
 
-        if (ImGui.beginCombo("layerCombiner", currentWrapperType)){
+        if (ImGui.beginCombo("Combine method", currentWrapperType)){
 
             for (var layerCombiner : NoiseValueCombinerRegistry.NOISE_VALUE_COMBINERS.getObjectTypes()){
 

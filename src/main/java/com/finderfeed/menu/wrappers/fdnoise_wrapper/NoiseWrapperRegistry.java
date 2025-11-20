@@ -2,9 +2,11 @@ package com.finderfeed.menu.wrappers.fdnoise_wrapper;
 
 import com.finderfeed.menu.wrappers.fdnoise_wrapper.instances.ConstantValueNoiseWrapper;
 import com.finderfeed.menu.wrappers.fdnoise_wrapper.instances.PerlinNoiseWrapper;
+import com.finderfeed.menu.wrappers.fdnoise_wrapper.instances.RidgedNoiseWrapper;
 import com.finderfeed.noise_combiner.noise.instances.FDConstantValueNoise;
 import com.finderfeed.noise_combiner.noise.instances.FDPerlinNoise;
 import com.finderfeed.noise_combiner.noise.NoiseRegistry;
+import com.finderfeed.noise_combiner.noise.instances.FDRidgedNoise;
 import com.finderfeed.noise_combiner.registry.ObjectTypeRegistry;
 
 public class NoiseWrapperRegistry {
@@ -17,6 +19,10 @@ public class NoiseWrapperRegistry {
 
     public static final NoiseWrapperType<PerlinNoiseWrapper, FDPerlinNoise> PERLIN_NOISE_WRAPPER = NOISE_WRAPPERS.register(new NoiseWrapperType<>(
             "perlin_noise_wrapper", NoiseRegistry.PERLIN_NOISE, PerlinNoiseWrapper::new
+    ));
+
+    public static final NoiseWrapperType<RidgedNoiseWrapper, FDRidgedNoise> RIDGED_NOISE_WRAPPER = NOISE_WRAPPERS.register(new NoiseWrapperType<>(
+            "ridged_noise_wrapper", NoiseRegistry.RIDGED_NOISE, RidgedNoiseWrapper::new
     ));
 
 }
