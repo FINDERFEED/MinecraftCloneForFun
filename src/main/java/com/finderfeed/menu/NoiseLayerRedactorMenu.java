@@ -22,6 +22,7 @@ import com.finderfeed.util.Util;
 import com.finderfeed.world.chunk.Chunk;
 import imgui.ImGui;
 import imgui.ImVec2;
+import imgui.flag.ImGuiCol;
 import imgui.flag.ImGuiDir;
 import org.joml.Vector3d;
 import org.joml.Vector3i;
@@ -101,13 +102,18 @@ public class NoiseLayerRedactorMenu extends Menu {
             ImGui.text("Modifer " + i);
 
 
+            ImGui.pushStyleColor(ImGuiCol.Button, 0.5f,0f,0f,1f);
             if (ImGui.button("Remove modifier")){
                 valueModifiers.remove(i);
+                var valueMod = this.valueModifierWrappers.get(i);
+                valueMod.close();
                 this.initValueModifierWrappers(valueModifiers);
                 this.noiseChanged();
                 ImGui.popID();
+                ImGui.popStyleColor();
                 break;
             }
+            ImGui.popStyleColor();
 
             ImGui.sameLine();
             if (ImGui.arrowButton("Move Up",ImGuiDir.Up)){
