@@ -1,19 +1,19 @@
 package com.finderfeed.noise_combiner;
 
 import com.finderfeed.noise_combiner.layer_combiner.FDNoiseValueCombiner;
-import com.finderfeed.noise_combiner.layer_combiner.SumValuesCombiner;
+import com.finderfeed.noise_combiner.layer_combiner.instances.SumValuesCombiner;
 
 public class NoiseCombinationLayer {
 
     private NoiseLayer noiseLayer;
-    private FDNoiseValueCombiner combiner;
+    private FDNoiseValueCombiner<?> combiner;
 
     public NoiseCombinationLayer(){
         this.combiner = new SumValuesCombiner();
         this.noiseLayer = new NoiseLayer();
     }
 
-    public FDNoiseValueCombiner getCombiner() {
+    public FDNoiseValueCombiner<?> getCombiner() {
         return combiner;
     }
 
@@ -21,7 +21,7 @@ public class NoiseCombinationLayer {
         return noiseLayer;
     }
 
-    public void setCombiner(FDNoiseValueCombiner combiner) {
+    public void setCombiner(FDNoiseValueCombiner<?> combiner) {
         this.combiner = combiner;
     }
 }

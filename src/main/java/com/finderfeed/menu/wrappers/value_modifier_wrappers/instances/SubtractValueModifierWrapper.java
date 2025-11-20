@@ -2,8 +2,7 @@ package com.finderfeed.menu.wrappers.value_modifier_wrappers.instances;
 
 import com.finderfeed.menu.wrappers.value_modifier_wrappers.ValueModifierWrapper;
 import com.finderfeed.menu.wrappers.value_modifier_wrappers.ValueModifierWrapperType;
-import com.finderfeed.noise_combiner.value_modifier.AddValueModifier;
-import com.finderfeed.noise_combiner.value_modifier.SubtractValueModifier;
+import com.finderfeed.noise_combiner.value_modifier.instances.SubtractValueModifier;
 import imgui.ImGui;
 import imgui.type.ImFloat;
 

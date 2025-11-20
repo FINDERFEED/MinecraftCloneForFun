@@ -44,6 +44,7 @@ public class Main {
 
     public static double coordinateScale = 23.334f;
     public static int seed = 524652324;
+    public static double noiseScale = 1.0d;
 
 
     public static ExecutorService utilExecutor;

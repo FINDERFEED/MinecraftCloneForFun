@@ -1,6 +1,8 @@
-package com.finderfeed.noise_combiner.noise;
+package com.finderfeed.noise_combiner.noise.instances;
 
 import com.finderfeed.noise_combiner.ComputationContext;
+import com.finderfeed.noise_combiner.noise.FDNoise;
+import com.finderfeed.noise_combiner.noise.NoiseRegistry;
 import com.finderfeed.noise_combiner.registry.ObjectType;
 
 public class FDConstantValueNoise extends FDNoise<FDConstantValueNoise> {

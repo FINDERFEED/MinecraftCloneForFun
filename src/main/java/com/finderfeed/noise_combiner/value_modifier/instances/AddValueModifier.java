@@ -1,6 +1,8 @@
-package com.finderfeed.noise_combiner.value_modifier;
+package com.finderfeed.noise_combiner.value_modifier.instances;
 
 import com.finderfeed.noise_combiner.registry.ObjectType;
+import com.finderfeed.noise_combiner.value_modifier.FDValueModifier;
+import com.finderfeed.noise_combiner.value_modifier.NoiseValueModifierRegistry;
 
 public class AddValueModifier extends FDValueModifier<AddValueModifier> {
 

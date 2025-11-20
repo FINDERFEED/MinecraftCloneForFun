@@ -57,6 +57,10 @@ public class FDWindow {
         this.endFrame();
     }
 
+    public MainMenu getMainMenu() {
+        return mainMenu;
+    }
+
     public void initializeWindow(int width, int height){
         this.width = width;
         this.height = height;

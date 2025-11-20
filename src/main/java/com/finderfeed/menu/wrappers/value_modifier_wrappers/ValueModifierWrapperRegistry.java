@@ -3,6 +3,7 @@ package com.finderfeed.menu.wrappers.value_modifier_wrappers;
 import com.finderfeed.menu.wrappers.value_modifier_wrappers.instances.*;
 import com.finderfeed.noise_combiner.registry.ObjectTypeRegistry;
 import com.finderfeed.noise_combiner.value_modifier.*;
+import com.finderfeed.noise_combiner.value_modifier.instances.*;
 
 public class ValueModifierWrapperRegistry {
 

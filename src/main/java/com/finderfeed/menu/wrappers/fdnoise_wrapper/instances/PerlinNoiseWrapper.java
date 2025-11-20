@@ -3,7 +3,7 @@ package com.finderfeed.menu.wrappers.fdnoise_wrapper.instances;
 import com.finderfeed.menu.wrappers.fdnoise_wrapper.NoiseWrapper;
 import com.finderfeed.menu.wrappers.fdnoise_wrapper.NoiseWrapperRegistry;
 import com.finderfeed.menu.wrappers.fdnoise_wrapper.NoiseWrapperType;
-import com.finderfeed.noise_combiner.noise.FDPerlinNoise;
+import com.finderfeed.noise_combiner.noise.instances.FDPerlinNoise;
 import com.finderfeed.util.Util;
 import imgui.ImGui;
 import org.spongepowered.noise.module.source.Perlin;

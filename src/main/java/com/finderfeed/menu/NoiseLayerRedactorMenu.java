@@ -13,7 +13,7 @@ import com.finderfeed.noise_combiner.ComputationContext;
 import com.finderfeed.noise_combiner.NoiseLayer;
 import com.finderfeed.noise_combiner.noise.FDNoise;
 import com.finderfeed.noise_combiner.noise.NoiseRegistry;
-import com.finderfeed.noise_combiner.value_modifier.AddValueModifier;
+import com.finderfeed.noise_combiner.value_modifier.instances.AddValueModifier;
 import com.finderfeed.noise_combiner.value_modifier.FDValueModifier;
 import com.finderfeed.noise_combiner.value_modifier.NoiseValueModifierRegistry;
 import com.finderfeed.util.FDColor;
@@ -32,6 +32,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class NoiseLayerRedactorMenu extends Menu {
+
+    private List<Runnable> onCloseListeners = new ArrayList<>();
+    private List<Runnable> onChangeListeners = new ArrayList<>();
 
     private BufferedImage noiseImage;
     private Texture noiseTexture;
@@ -207,14 +210,20 @@ public class NoiseLayerRedactorMenu extends Menu {
 
     @Override
     public void onClose() {
+        this.onCloseListeners.forEach(Runnable::run);
         noiseImage.flush();
         noiseTexture.destroyTexture();
         noiseWrapper.close();
     }
 
+    public void addOnCloseListener(Runnable runnable){
+        this.onCloseListeners.add(runnable);
+    }
+
     private void noiseChanged(){
-        paintNoise(this.noiseLayer, this.noiseImage);
+        paintNoise(this.noiseLayer, this.noiseImage, this.noiseImage.getWidth());
         this.noiseTexture.updateTextureWithBufferedImage(this.noiseImage);
+        this.triggerOnChangeListeners();
     }
 
     private void initNoiseTexture(NoiseLayer noiseLayer){
@@ -230,7 +239,7 @@ public class NoiseLayerRedactorMenu extends Menu {
         int texDimension = renderDistance * Chunk.CHUNK_SIZE * 2;
         BufferedImage bufferedImage = new BufferedImage(texDimension,texDimension,BufferedImage.TYPE_INT_ARGB);
 
-        paintNoise(noiseLayer, bufferedImage);
+        paintNoise(noiseLayer, bufferedImage, bufferedImage.getWidth());
 
         ByteBuffer buffer = Util.bufferedImageToBuffer(bufferedImage);
 
@@ -244,7 +253,7 @@ public class NoiseLayerRedactorMenu extends Menu {
         MemoryUtil.memFree(buffer);
     }
 
-    public static void paintNoise(NoiseLayer noiseLayer, BufferedImage bufferedImage){
+    public static void paintNoise(NoiseLayer noiseLayer, BufferedImage bufferedImage, int blockDiameter){
 
         var pos = new Vector3i(Main.mainEntity.getBlockPos());
         int seed = Main.seed;
@@ -258,11 +267,16 @@ public class NoiseLayerRedactorMenu extends Menu {
 
         for (int x = 0; x < width; x++){
 
-            double xCoord = (pos.x - width / 2d + x) / coordinateScale;
+            double xCoordOffset = (blockDiameter / 2d + x) * Main.noiseScale;
+
+            double xCoord = (pos.x - xCoordOffset) / coordinateScale;
 
             for (int z = 0; z < height; z++){
 
-                double zCoord = (pos.z - height / 2d + z) / coordinateScale;
+
+                double zCoordOffset = (blockDiameter / 2d + z) * Main.noiseScale;
+
+                double zCoord = (pos.z - zCoordOffset) / coordinateScale;
 
                 Vector3d computePos = new Vector3d(xCoord, 32.545, zCoord);
                 ComputationContext computationContext1 = new ComputationContext(computePos, seed);
@@ -299,6 +313,7 @@ public class NoiseLayerRedactorMenu extends Menu {
 
             if (valueModifierWrapper == null) throw new RuntimeException("No wrapper registered for value modifier type: " + objectType);
 
+            valueModifierWrapper.initialize();
             this.valueModifierWrappers.add(valueModifierWrapper);
 
         }
@@ -329,6 +344,13 @@ public class NoiseLayerRedactorMenu extends Menu {
 
     }
 
+    private void triggerOnChangeListeners(){
+        onChangeListeners.forEach(Runnable::run);
+    }
+
+    public void addOnChangeListener(Runnable runnable){
+        this.onChangeListeners.add(runnable);
+    }
 
 
     private <T extends NoiseWrapper<T, D>, D extends FDNoise<D>> NoiseWrapper<T, D> useNoiseWrapperType(NoiseWrapperType<T, D> noiseWrapperType, FDNoise<?> fdNoise){

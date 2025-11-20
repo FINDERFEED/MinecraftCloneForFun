@@ -3,7 +3,7 @@ package com.finderfeed.menu.wrappers.fdnoise_wrapper.instances;
 import com.finderfeed.menu.wrappers.fdnoise_wrapper.NoiseWrapper;
 import com.finderfeed.menu.wrappers.fdnoise_wrapper.NoiseWrapperRegistry;
 import com.finderfeed.menu.wrappers.fdnoise_wrapper.NoiseWrapperType;
-import com.finderfeed.noise_combiner.noise.FDConstantValueNoise;
+import com.finderfeed.noise_combiner.noise.instances.FDConstantValueNoise;
 import imgui.ImGui;
 import imgui.type.ImFloat;
 

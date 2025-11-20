@@ -1,10 +1,8 @@
 package com.finderfeed.menu.wrappers.value_modifier_wrappers.instances;
 
 import com.finderfeed.menu.wrappers.value_modifier_wrappers.ValueModifierWrapper;
-import com.finderfeed.menu.wrappers.value_modifier_wrappers.ValueModifierWrapperRegistry;
 import com.finderfeed.menu.wrappers.value_modifier_wrappers.ValueModifierWrapperType;
-import com.finderfeed.noise_combiner.value_modifier.AbsoluteModifier;
-import com.finderfeed.noise_combiner.value_modifier.AddValueModifier;
+import com.finderfeed.noise_combiner.value_modifier.instances.AddValueModifier;
 import imgui.ImGui;
 import imgui.type.ImFloat;
 

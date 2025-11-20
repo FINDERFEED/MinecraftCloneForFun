@@ -1,10 +1,11 @@
-package com.finderfeed.noise_combiner.noise;
+package com.finderfeed.noise_combiner.noise.instances;
 
 import com.finderfeed.noise_combiner.ComputationContext;
+import com.finderfeed.noise_combiner.noise.FDNoise;
+import com.finderfeed.noise_combiner.noise.NoiseRegistry;
 import com.finderfeed.noise_combiner.registry.ObjectType;
 import com.finderfeed.util.MathUtil;
 import org.joml.Vector3d;
-import org.spongepowered.noise.Noise;
 import org.spongepowered.noise.NoiseQuality;
 import org.spongepowered.noise.module.source.Perlin;
 

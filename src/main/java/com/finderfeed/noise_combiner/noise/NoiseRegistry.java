@@ -1,9 +1,9 @@
 package com.finderfeed.noise_combiner.noise;
 
+import com.finderfeed.noise_combiner.noise.instances.FDConstantValueNoise;
+import com.finderfeed.noise_combiner.noise.instances.FDPerlinNoise;
 import com.finderfeed.noise_combiner.registry.ObjectTypeRegistry;
 import com.finderfeed.noise_combiner.registry.SimpleFactoryObjectType;
-
-import java.util.function.Supplier;
 
 public class NoiseRegistry {
 

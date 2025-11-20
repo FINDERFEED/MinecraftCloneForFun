@@ -2,8 +2,8 @@ package com.finderfeed.menu.wrappers.fdnoise_wrapper;
 
 import com.finderfeed.menu.wrappers.fdnoise_wrapper.instances.ConstantValueNoiseWrapper;
 import com.finderfeed.menu.wrappers.fdnoise_wrapper.instances.PerlinNoiseWrapper;
-import com.finderfeed.noise_combiner.noise.FDConstantValueNoise;
-import com.finderfeed.noise_combiner.noise.FDPerlinNoise;
+import com.finderfeed.noise_combiner.noise.instances.FDConstantValueNoise;
+import com.finderfeed.noise_combiner.noise.instances.FDPerlinNoise;
 import com.finderfeed.noise_combiner.noise.NoiseRegistry;
 import com.finderfeed.noise_combiner.registry.ObjectTypeRegistry;
 

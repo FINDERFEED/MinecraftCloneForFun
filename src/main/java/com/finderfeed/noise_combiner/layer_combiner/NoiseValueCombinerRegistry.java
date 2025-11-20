@@ -1,13 +1,12 @@
 package com.finderfeed.noise_combiner.layer_combiner;
 
+import com.finderfeed.noise_combiner.layer_combiner.instances.*;
 import com.finderfeed.noise_combiner.registry.ObjectTypeRegistry;
 import com.finderfeed.noise_combiner.registry.SimpleFactoryObjectType;
 
-import java.util.function.Supplier;
-
 public class NoiseValueCombinerRegistry {
 
-    public static final ObjectTypeRegistry<SimpleFactoryObjectType<FDNoiseValueCombiner>, FDNoiseValueCombiner> NOISE_VALUE_COMBINERS = new ObjectTypeRegistry<>();
+    public static final ObjectTypeRegistry<SimpleFactoryObjectType<FDNoiseValueCombiner<?>>, FDNoiseValueCombiner<?>> NOISE_VALUE_COMBINERS = new ObjectTypeRegistry<>();
 
     public static final SimpleFactoryObjectType<SumValuesCombiner> SUM = NOISE_VALUE_COMBINERS.register(new SimpleFactoryObjectType<>("sum", SumValuesCombiner::new));
     public static final SimpleFactoryObjectType<SubtractValuesCombiner> SUBTRACT = NOISE_VALUE_COMBINERS.register(new SimpleFactoryObjectType<>("subtract", SubtractValuesCombiner::new));

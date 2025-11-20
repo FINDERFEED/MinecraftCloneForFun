@@ -1,11 +1,13 @@
-package com.finderfeed.noise_combiner.layer_combiner;
+package com.finderfeed.noise_combiner.layer_combiner.instances;
 
 import com.finderfeed.noise_combiner.ComputationContext;
 import com.finderfeed.noise_combiner.NoiseLayer;
+import com.finderfeed.noise_combiner.layer_combiner.FDNoiseValueCombiner;
+import com.finderfeed.noise_combiner.layer_combiner.NoiseValueCombinerRegistry;
+import com.finderfeed.noise_combiner.registry.ObjectType;
 import com.finderfeed.util.MathUtil;
-import org.joml.Vector3d;
 
-public class NoiseLerpValuesCombiner extends FDNoiseValueCombiner {
+public class NoiseLerpValuesCombiner extends FDNoiseValueCombiner<NoiseLerpValuesCombiner> {
 
     private NoiseLayer layer;
 
@@ -22,6 +24,15 @@ public class NoiseLerpValuesCombiner extends FDNoiseValueCombiner {
         layerValue = (layerValue + 1) / 2f;
 
         return MathUtil.lerp(x,y,layerValue);
+    }
+
+    public NoiseLayer getLayer() {
+        return layer;
+    }
+
+    @Override
+    public ObjectType<NoiseLerpValuesCombiner> getType() {
+        return NoiseValueCombinerRegistry.NOISE_LERP;
     }
 
 }

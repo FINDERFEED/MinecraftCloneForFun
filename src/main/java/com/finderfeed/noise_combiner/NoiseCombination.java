@@ -1,6 +1,6 @@
 package com.finderfeed.noise_combiner;
 
-import com.finderfeed.noise_combiner.noise.FDConstantValueNoise;
+import com.finderfeed.noise_combiner.noise.instances.FDConstantValueNoise;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +30,10 @@ public class NoiseCombination {
         }
 
         return value;
+    }
+
+    public List<NoiseCombinationLayer> getNoiseCombinationLayers() {
+        return noiseCombinationLayers;
     }
 
     private NoiseCombinationLayer createDefault(){

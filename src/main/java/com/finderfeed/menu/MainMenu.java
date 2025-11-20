@@ -1,5 +1,6 @@
 package com.finderfeed.menu;
 
+import com.finderfeed.noise_combiner.NoiseCombination;
 import com.finderfeed.noise_combiner.NoiseLayer;
 import imgui.ImGui;
 
@@ -26,7 +27,8 @@ public class MainMenu {
 
     private void renderMainMenuButtons(){
         if (ImGui.button("Noise combiner menu") && openedMenus.stream().noneMatch(menu -> menu instanceof NoiseCombinerMenu)){
-            this.openMenu(new NoiseCombinerMenu("Noise combiner"));
+            NoiseCombination noiseCombination = new NoiseCombination();
+            this.openMenu(new NoiseCombinerMenu("Noise combiner",noiseCombination));
         }
 
         if (ImGui.button("Test noise layer redactor")){
