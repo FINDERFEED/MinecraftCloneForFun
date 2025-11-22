@@ -50,7 +50,7 @@ public class NoiseLayerRedactorMenu extends Menu {
     private final List<ValueModifierWrapper<?,?>> valueModifierWrappers = new ArrayList<>();
 
     public NoiseLayerRedactorMenu(String menuTitle, NoiseLayer noiseLayer) {
-        super(menuTitle, new ImVec2(1000, 600));
+        super(menuTitle, new ImVec2(1000, 1000));
         this.noiseLayer = noiseLayer;
         this.currentNoiseType = noiseLayer.getNoise().getObjectType().getRegistryId();
         var noise = this.noiseLayer.getNoise();
@@ -86,10 +86,13 @@ public class NoiseLayerRedactorMenu extends Menu {
         ImGui.beginChild("noiseModifiers");
         var valueModifiers = this.noiseLayer.getValueModifiers();
 
+
+        ImGui.pushStyleColor(ImGuiCol.Button, 0,128,0,255);
         if (ImGui.button("Add noise modifier")){
             this.noiseLayer.getValueModifiers().add(new AddValueModifier());
             this.initValueModifierWrappers(valueModifiers);
         }
+        ImGui.popStyleColor();
         Util.insertSimpleTooltip("Add a new modifier for this noise. Modifiers are processed from top to bottom.");
 
 

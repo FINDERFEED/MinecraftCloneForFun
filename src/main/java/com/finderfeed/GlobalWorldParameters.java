@@ -13,6 +13,7 @@ public class GlobalWorldParameters {
     private static double coordinateScale = 123.334f;
     private static int seed = 524652324;
     private static double noiseScale = 1.0d;
+    private static int worldHeight = 100;
 
     private static NoiseCombination currentNoiseCombination = new NoiseCombination();
 
@@ -59,6 +60,10 @@ public class GlobalWorldParameters {
 
     public static void addGlobalParameterChangeListener(Object o, Runnable action){
         globalWorldParametersChangeListeners.put(o, action);
+    }
+
+    public static int getWorldHeight() {
+        return worldHeight;
     }
 
 }

@@ -17,5 +17,6 @@ public class NoiseValueModifierRegistry {
     public static final SimpleFactoryObjectType<ClampModifier> CLAMP_VALUE = VALUE_MODIFIERS.register(new SimpleFactoryObjectType<>("clamp_value", ClampModifier::new));
     public static final SimpleFactoryObjectType<PowModifier> POW_VALUE = VALUE_MODIFIERS.register(new SimpleFactoryObjectType<>("power_value", PowModifier::new));
     public static final SimpleFactoryObjectType<NoiseLerpValueModifier> NOISE_LERP_VALUE = VALUE_MODIFIERS.register(new SimpleFactoryObjectType<>("noise_lerp_value", NoiseLerpValueModifier::new));
+    public static final SimpleFactoryObjectType<EasingValueModifier> APPLY_EASING = VALUE_MODIFIERS.register(new SimpleFactoryObjectType<>("apply_easing", EasingValueModifier::new));
 
 }

@@ -45,4 +45,8 @@ public class ValueModifierWrapperRegistry {
             "noise_lerp_value_modifier_wrapper", NoiseValueModifierRegistry.NOISE_LERP_VALUE, NoiseLerpModifierWrapper::new
     ));
 
+    public static final ValueModifierWrapperType<ApplyEasingValueModifierWrapper, EasingValueModifier> APPLY_EASING_MODIFIER = VALUE_MODIFIER_WRAPPERS.register(new ValueModifierWrapperType<>(
+            "apply_easing_modifier_wrapper", NoiseValueModifierRegistry.APPLY_EASING, ApplyEasingValueModifierWrapper::new
+    ));
+
 }

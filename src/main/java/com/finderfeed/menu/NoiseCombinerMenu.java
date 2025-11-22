@@ -14,6 +14,7 @@ import com.finderfeed.util.Util;
 import com.finderfeed.world.chunk.Chunk;
 import imgui.ImGui;
 import imgui.ImVec2;
+import imgui.flag.ImGuiCol;
 import imgui.flag.ImGuiDir;
 import imgui.type.ImFloat;
 import imgui.type.ImInt;
@@ -86,11 +87,14 @@ public class NoiseCombinerMenu extends Menu {
         ImGui.sameLine();
         ImGui.beginChild("noiseLayers");
 
+        ImGui.pushStyleColor(ImGuiCol.Button, 0,128,0,255);
         if (ImGui.button("Add noise layer")){
             var combinationLayers = this.noiseCombination.getNoiseCombinationLayers();
             combinationLayers.add(new NoiseCombinationLayer());
             this.layersChanged();
         }
+        ImGui.popStyleColor();
+
         ImGui.separator();
         this.renderNoiseLayers();
         ImGui.endChild();
@@ -232,6 +236,7 @@ public class NoiseCombinerMenu extends Menu {
 
         ImGui.pushID("noiseCombinationLayer" + index);
 
+        ImGui.pushStyleColor(ImGuiCol.Button, 128, 0, 0, 255);
         if (ImGui.button("Delete noise layer")){
             this.noiseCombination.getNoiseCombinationLayers().remove(layer);
             if (this.noiseCombination.getNoiseCombinationLayers().isEmpty()){
@@ -239,6 +244,7 @@ public class NoiseCombinerMenu extends Menu {
             }
             this.layersChanged();
         }
+        ImGui.popStyleColor();
 
         ImGui.sameLine();
         if (ImGui.arrowButton("moveNoiseCombinationUp", ImGuiDir.Up)){

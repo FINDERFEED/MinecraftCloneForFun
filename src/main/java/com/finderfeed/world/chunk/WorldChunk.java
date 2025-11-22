@@ -70,6 +70,7 @@ public class WorldChunk extends Chunk implements AutoCloseable {
     private void buildTerrain(){
         Vector2i global = this.pos.normalPos();
 
+        int worldHeight = Math.clamp(GlobalWorldParameters.getWorldHeight(),1, Chunk.HEIGHT);
         NoiseCombination combination = GlobalWorldParameters.getCurrentNoiseCombination();
 
         for (int x = 0; x < CHUNK_SIZE; x++){
@@ -86,8 +87,9 @@ public class WorldChunk extends Chunk implements AutoCloseable {
 
                 int h = 0;
 
+
                 if (value >= 0){
-                    h = (int) MathUtil.lerp(0, Chunk.HEIGHT - 1, Math.clamp(value,0,1));
+                    h = Math.round(MathUtil.lerp(0, worldHeight - 1, Math.clamp(value,0,1)));
                 }
 
                 for (int y = 0; y <= h; y++) {

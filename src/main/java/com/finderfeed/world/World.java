@@ -60,20 +60,20 @@ public class World implements WorldAccessor {
     public void render(Camera camera,float partialTick){
         this.renderChunks(camera,partialTick);
 
-        Vector3d pos = camera.calculateCameraPos(partialTick);
-        var buf = ImmediateBufferSupplier.get(RenderOptions.DEFAULT_LINES);
-        for (Entity entity : entities){
-
-            Matrix4f offsetMat = new Matrix4f().translate(-(float)pos.x,-(float)pos.y,-(float)pos.z);
-            AABox box = entity.getBox(entity.position);
-            AABox bbox = box.offset(-pos.x,-pos.y,-pos.z);
-            if (Main.frustum.isVisible(bbox)){
-                RenderUtil.renderBox(new Matrix4f(),buf,bbox,1f,1f,1f,1f);
-                buf.position(offsetMat,new Vector3f(box.center())).color(1f,1f,0f,1f);
-                buf.position(offsetMat,new Vector3f(box.center().add(entity.getMovement()))).color(1f,1f,0f,1f);
-            }
-        }
-        ImmediateBufferSupplier.drawCurrent();
+//        Vector3d pos = camera.calculateCameraPos(partialTick);
+//        var buf = ImmediateBufferSupplier.get(RenderOptions.DEFAULT_LINES);
+//        for (Entity entity : entities){
+//
+//            Matrix4f offsetMat = new Matrix4f().translate(-(float)pos.x,-(float)pos.y,-(float)pos.z);
+//            AABox box = entity.getBox(entity.position);
+//            AABox bbox = box.offset(-pos.x,-pos.y,-pos.z);
+//            if (Main.frustum.isVisible(bbox)){
+//                RenderUtil.renderBox(new Matrix4f(),buf,bbox,1f,1f,1f,1f);
+//                buf.position(offsetMat,new Vector3f(box.center())).color(1f,1f,0f,1f);
+//                buf.position(offsetMat,new Vector3f(box.center().add(entity.getMovement()))).color(1f,1f,0f,1f);
+//            }
+//        }
+//        ImmediateBufferSupplier.drawCurrent();
 
         this.renderTracedBlock(camera,partialTick);
     }
@@ -155,12 +155,12 @@ public class World implements WorldAccessor {
                     v.x - offs,v.y - offs,v.z - offs,v.x + 1 + offs,v.y + 1 + offs,v.z + 1 + offs
             ),1f,1f,1f,1f);
 
-            for (AABox box : Entity.colliders){
-                Vector3f vs = camera.coordToLocal((float)box.minX,(float)box.minY,(float)box.minZ,partialTick);
-                RenderUtil.renderBox(new Matrix4f(),b,new AABox(
-                        vs.x,vs.y,vs.z,vs.x + 1,vs.y + 1,vs.z + 1
-                ).inflate(0.25,0,0.25),1f,0f,0f,1f);
-            }
+//            for (AABox box : Entity.colliders){
+//                Vector3f vs = camera.coordToLocal((float)box.minX,(float)box.minY,(float)box.minZ,partialTick);
+//                RenderUtil.renderBox(new Matrix4f(),b,new AABox(
+//                        vs.x,vs.y,vs.z,vs.x + 1,vs.y + 1,vs.z + 1
+//                ).inflate(0.25,0,0.25),1f,0f,0f,1f);
+//            }
 
             GL11.glLineWidth(3);
             ImmediateBufferSupplier.drawCurrent();
