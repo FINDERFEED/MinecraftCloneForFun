@@ -17,6 +17,15 @@ public class ObjectTypeRegistry<O extends ObjectType<? extends T>, T> {
         return objectType;
     }
 
+    public String getObjectRegistryId(ObjectType<T> object){
+        for (var entry : objectTypes.entrySet()){
+            if (entry.getValue() == object){
+                return entry.getKey();
+            }
+        }
+        return null;
+    }
+
     public O getObjectType(String id){
         return objectTypes.get(id);
     }

@@ -170,7 +170,7 @@ public class Main {
 
         FDWindow fdWindow = new FDWindow();
         window = fdWindow;
-        window.initializeWindow(1920,1080);
+        window.initializeWindow(1800,1000);
 
     }
 
