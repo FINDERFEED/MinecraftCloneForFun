@@ -5,6 +5,7 @@ import com.finderfeed.noise_combiner.registry.ObjectType;
 import com.finderfeed.noise_combiner.value_modifier.FDValueModifier;
 import com.finderfeed.noise_combiner.value_modifier.NoiseValueModifierRegistry;
 import com.finderfeed.util.EasingType;
+import com.google.gson.JsonObject;
 
 public class EasingValueModifier extends FDValueModifier<EasingValueModifier> {
 
@@ -28,4 +29,13 @@ public class EasingValueModifier extends FDValueModifier<EasingValueModifier> {
         this.easingType = easingType;
     }
 
+    @Override
+    public void serializeToJson(JsonObject object) {
+        object.addProperty("easingType", easingType.name());
+    }
+
+    @Override
+    public void deserializeFromJson(JsonObject jsonObject) {
+        this.easingType = EasingType.valueOf(jsonObject.get("easingType").getAsString());
+    }
 }

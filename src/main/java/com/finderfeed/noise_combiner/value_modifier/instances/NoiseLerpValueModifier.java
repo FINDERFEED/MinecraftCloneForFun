@@ -6,6 +6,7 @@ import com.finderfeed.noise_combiner.registry.ObjectType;
 import com.finderfeed.noise_combiner.value_modifier.FDValueModifier;
 import com.finderfeed.noise_combiner.value_modifier.NoiseValueModifierRegistry;
 import com.finderfeed.util.MathUtil;
+import com.google.gson.JsonObject;
 
 public class NoiseLerpValueModifier extends FDValueModifier<NoiseLerpValueModifier> {
 
@@ -28,4 +29,23 @@ public class NoiseLerpValueModifier extends FDValueModifier<NoiseLerpValueModifi
     public ObjectType<NoiseLerpValueModifier> getObjectType() {
         return NoiseValueModifierRegistry.NOISE_LERP_VALUE;
     }
+
+    @Override
+    public void serializeToJson(JsonObject object) {
+        JsonObject layer1 = new JsonObject();
+        JsonObject layer2 = new JsonObject();
+        lerpNoise.serializeToJson(layer1);
+        targetNoise.serializeToJson(layer2);
+
+        object.add("lerpNoise", layer1);
+        object.add("targetNoise", layer2);
+
+    }
+
+    @Override
+    public void deserializeFromJson(JsonObject jsonObject) {
+        this.lerpNoise.deserializeFromJson(jsonObject.get("lerpNoise").getAsJsonObject());
+        this.targetNoise.deserializeFromJson(jsonObject.get("targetNoise").getAsJsonObject());
+    }
+
 }

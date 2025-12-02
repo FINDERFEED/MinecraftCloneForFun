@@ -4,6 +4,7 @@ import com.finderfeed.noise_combiner.ComputationContext;
 import com.finderfeed.noise_combiner.registry.ObjectType;
 import com.finderfeed.noise_combiner.value_modifier.FDValueModifier;
 import com.finderfeed.noise_combiner.value_modifier.NoiseValueModifierRegistry;
+import com.google.gson.JsonObject;
 
 public class MultiplyValueModifier extends FDValueModifier<MultiplyValueModifier> {
 
@@ -29,6 +30,16 @@ public class MultiplyValueModifier extends FDValueModifier<MultiplyValueModifier
 
     public void setMultiplyBy(float multiplyBy) {
         this.multiplyBy = multiplyBy;
+    }
+
+    @Override
+    public void serializeToJson(JsonObject object) {
+        object.addProperty("multiplyBy", this.multiplyBy);
+    }
+
+    @Override
+    public void deserializeFromJson(JsonObject jsonObject) {
+        this.multiplyBy = jsonObject.get("multiplyBy").getAsFloat();
     }
 
 }

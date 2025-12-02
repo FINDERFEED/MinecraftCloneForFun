@@ -34,6 +34,18 @@ public class MainMenu {
         }
 
 
+        if (ImGui.button("Save project")){
+
+        }
+
+        if (ImGui.button("Load project")){
+
+        }
+
+        if (ImGui.button("Export model")){
+
+        }
+
     }
 
     private void renderMenus(){

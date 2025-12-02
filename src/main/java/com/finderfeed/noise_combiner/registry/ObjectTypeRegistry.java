@@ -17,7 +17,7 @@ public class ObjectTypeRegistry<O extends ObjectType<? extends T>, T> {
         return objectType;
     }
 
-    public String getObjectRegistryId(ObjectType<T> object){
+    public String getObjectRegistryId(O object){
         for (var entry : objectTypes.entrySet()){
             if (entry.getValue() == object){
                 return entry.getKey();

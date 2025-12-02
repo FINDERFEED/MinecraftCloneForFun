@@ -2,7 +2,11 @@ package com.finderfeed.noise_combiner;
 
 import com.finderfeed.noise_combiner.noise.FDNoise;
 import com.finderfeed.noise_combiner.noise.NoiseRegistry;
+import com.finderfeed.noise_combiner.registry.ObjectType;
+import com.finderfeed.noise_combiner.registry.SimpleFactoryObjectType;
 import com.finderfeed.noise_combiner.value_modifier.FDValueModifier;
+import com.finderfeed.noise_combiner.value_modifier.NoiseValueModifierRegistry;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
@@ -50,7 +54,7 @@ public class NoiseLayer implements JsonSerializable<NoiseLayer> {
         return baseValue;
     }
 
-    public void setNoise(FDNoise noise) {
+    public void setNoise(FDNoise<?> noise) {
         this.noise = noise;
     }
 
@@ -66,15 +70,36 @@ public class NoiseLayer implements JsonSerializable<NoiseLayer> {
     public void serializeToJson(JsonObject object) {
         object.addProperty("layerName", this.layerName);
 
+        var noiseType = this.getNoise().getObjectType();
+        object.addProperty("noiseType", noiseType.getRegistryId());
 
+        JsonArray noiseModifiers = new JsonArray();
+        for (var modifier : this.getValueModifiers()){
+            JsonObject modifierJson = new JsonObject();
+            modifierJson.addProperty("modifierType", modifier.getObjectType().getRegistryId());
+            modifier.serializeToJson(modifierJson);
+            noiseModifiers.add(modifierJson);
+        }
+        object.add("noiseModifiers", noiseModifiers);
 
-        String noiseId = NoiseRegistry.NOISE_REGISTRY.getObjectRegistryId(this.noise.getObjectType());
-        object.addProperty("noiseType");
     }
 
     @Override
     public void deserializeFromJson(JsonObject jsonObject) {
         this.layerName = jsonObject.get("layerName").getAsString();
 
+        var noiseType = jsonObject.get("noiseType").getAsString();
+        this.setNoise(NoiseRegistry.NOISE_REGISTRY.getObjectType(noiseType).generateObject());
+
+        this.valueModifiers.clear();
+        JsonArray array = jsonObject.getAsJsonArray("noiseModifiers");
+        for (var mod : array){
+            var modifierObject = mod.getAsJsonObject();
+            var id = modifierObject.get("modifierType").getAsString();
+            var modifier = NoiseValueModifierRegistry.VALUE_MODIFIERS.getObjectType(id).generateObject();
+            modifier.deserializeFromJson(modifierObject);
+            this.valueModifiers.add(modifier);
+        }
     }
+
 }

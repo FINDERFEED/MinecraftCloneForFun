@@ -4,6 +4,7 @@ import com.finderfeed.noise_combiner.ComputationContext;
 import com.finderfeed.noise_combiner.registry.ObjectType;
 import com.finderfeed.noise_combiner.value_modifier.FDValueModifier;
 import com.finderfeed.noise_combiner.value_modifier.NoiseValueModifierRegistry;
+import com.google.gson.JsonObject;
 
 public class SubtractValueModifier extends FDValueModifier<SubtractValueModifier> {
 
@@ -29,6 +30,16 @@ public class SubtractValueModifier extends FDValueModifier<SubtractValueModifier
 
     public void setSubtractedValue(float subtractedValue) {
         this.subtractedValue = subtractedValue;
+    }
+
+    @Override
+    public void serializeToJson(JsonObject object) {
+        object.addProperty("subtractedValue", subtractedValue);
+    }
+
+    @Override
+    public void deserializeFromJson(JsonObject jsonObject) {
+        this.subtractedValue = jsonObject.get("subtractedValue").getAsFloat();
     }
 
 }

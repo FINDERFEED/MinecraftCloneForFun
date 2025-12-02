@@ -4,6 +4,7 @@ import com.finderfeed.noise_combiner.ComputationContext;
 import com.finderfeed.noise_combiner.registry.ObjectType;
 import com.finderfeed.noise_combiner.value_modifier.FDValueModifier;
 import com.finderfeed.noise_combiner.value_modifier.NoiseValueModifierRegistry;
+import com.google.gson.JsonObject;
 
 public class PowModifier extends FDValueModifier<PowModifier> {
 
@@ -23,5 +24,15 @@ public class PowModifier extends FDValueModifier<PowModifier> {
         return NoiseValueModifierRegistry.POW_VALUE;
     }
 
+
+    @Override
+    public void serializeToJson(JsonObject object) {
+        object.addProperty("power", this.power);
+    }
+
+    @Override
+    public void deserializeFromJson(JsonObject jsonObject) {
+        this.power = jsonObject.get("power").getAsFloat();
+    }
 
 }
