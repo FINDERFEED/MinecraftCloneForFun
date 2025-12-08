@@ -101,7 +101,7 @@ public class FDWindow {
         this.glslVersion = "#version 330";
 
         // Create the window
-        windowId = glfwCreateWindow(width, height, "Hello World!", NULL, NULL);
+        windowId = glfwCreateWindow(width, height, "Noise based terrain generator", NULL, NULL);
         if ( windowId == NULL )
             throw new RuntimeException("Failed to create the GLFW window");
 

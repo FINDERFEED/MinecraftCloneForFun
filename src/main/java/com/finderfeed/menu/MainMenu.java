@@ -46,6 +46,10 @@ public class MainMenu {
 
         }
 
+        if (ImGui.button("Documentation")){
+
+        }
+
     }
 
     private void renderMenus(){
