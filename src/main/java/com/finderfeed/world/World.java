@@ -93,7 +93,7 @@ public class World implements WorldAccessor {
         for (var entry : this.chunks.chunkHashMap.long2ObjectEntrySet()){
             long l = entry.getLongKey();
             Chunk c = entry.getValue();
-            if (!this.renderedChunks.containsKey(l) && c.status.value >= ChunkStatus.LOADED.value && this.checkNeighbors(c,chunk->chunk.status.value >= ChunkStatus.LOADED.value)) {
+            if (this.isChunkReadyForRendering(l,c)) {
                 RenderedChunk chunk = new RenderedChunk(c);
                 chunk.recompile(false);
                 this.renderedChunks.put(l, chunk);
@@ -110,6 +110,10 @@ public class World implements WorldAccessor {
                 iter.remove();
             }
         }
+    }
+
+    private boolean isChunkReadyForRendering(long chunkPos, Chunk c){
+        return !this.renderedChunks.containsKey(chunkPos) && c.status.value >= ChunkStatus.LOADED.value && this.checkNeighbors(c,chunk->chunk.status.value >= ChunkStatus.LOADED.value);
     }
 
     private boolean shouldRenderedChunkBeDeleted(ChunkPos cameraPos, RenderedChunk renderedChunk){

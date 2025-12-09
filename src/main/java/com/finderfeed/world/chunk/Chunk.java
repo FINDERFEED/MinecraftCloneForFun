@@ -92,6 +92,10 @@ public abstract class Chunk implements AutoCloseable {
         return Block.registeredBlocks.get(id);
     }
 
+    public boolean isEmpty(){
+        return status == ChunkStatus.EMPTY;
+    }
+
     @Override
     public void close() {
         this.status = ChunkStatus.LOADED;

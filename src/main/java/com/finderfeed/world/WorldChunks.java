@@ -8,6 +8,7 @@ import com.finderfeed.world.chunk.Chunk;
 import com.finderfeed.world.chunk.ChunkPos;
 import com.finderfeed.world.chunk.DummyChunk;
 import com.finderfeed.world.chunk.WorldChunk;
+import org.joml.Vector3d;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -44,10 +45,7 @@ public class WorldChunks {
                 var c = entryIterator.next();
 
                 Chunk chunk = c.getValue();
-                var pos = chunk.pos;
-                ChunkPos b = currentPos.subtract(pos);
-                int dist = Math.max(Math.abs(b.x),Math.abs(b.z));
-                if (dist > Main.chunkRenderDistance + 1 && this.canChunkBeUnloaded(chunk)){
+                if (this.isChunkOutOfRenderDistance(camera.pos, chunk) && this.canChunkBeUnloaded(chunk)){
                     chunk.blocks = null;
                     chunk.close();
                     chunk.status = ChunkStatus.EMPTY;
@@ -57,7 +55,7 @@ public class WorldChunks {
 
             var list = this.getChunksInSquareRadius(currentPos, null, Main.chunkRenderDistance + 1,false);
             for (Chunk c : list){
-                if (c.status == ChunkStatus.EMPTY) {
+                if (c.isEmpty()) {
                     c.status = ChunkStatus.LOADING;
                     CompletableFuture<Chunk> task = CompletableFuture.supplyAsync(() -> {
                         c.generate();
@@ -93,6 +91,16 @@ public class WorldChunks {
 //            }));
 //        }
     }
+
+
+    private boolean isChunkOutOfRenderDistance(Vector3d cameraPos, Chunk chunk){
+        ChunkPos currentPos = new ChunkPos(cameraPos);
+        var pos = chunk.pos;
+        ChunkPos b = currentPos.subtract(pos);
+        int dist = Math.max(Math.abs(b.x),Math.abs(b.z));
+        return dist > Main.chunkRenderDistance + 1;
+    }
+
 
     public void regenerateAllChunks(){
         var entryIterator = this.chunkHashMap.long2ObjectEntrySet().iterator();
