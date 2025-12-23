@@ -5,6 +5,7 @@ import com.finderfeed.noise_combiner.noise.FDNoise;
 import com.finderfeed.noise_combiner.noise.NoiseRegistry;
 import com.finderfeed.noise_combiner.registry.ObjectType;
 import com.finderfeed.util.MathUtil;
+import com.google.gson.JsonObject;
 import org.joml.Vector3d;
 import org.spongepowered.noise.NoiseQuality;
 import org.spongepowered.noise.module.source.Perlin;
@@ -53,4 +54,25 @@ public class FDPerlinNoise extends FDNoise<FDPerlinNoise> {
         return NoiseRegistry.PERLIN_NOISE;
     }
 
+    @Override
+    public void serializeToJson(JsonObject object) {
+        object.addProperty("octaves", this.octaves);
+        object.addProperty("lacunarity", this.lacunarity);
+        object.addProperty("frequency", this.frequency);
+        object.addProperty("persistence", this.persistence);
+        object.addProperty("xOffset", this.xOffset);
+        object.addProperty("yOffset", this.yOffset);
+        object.addProperty("zOffset", this.zOffset);
+    }
+
+    @Override
+    public void deserializeFromJson(JsonObject jsonObject) {
+        this.octaves = jsonObject.get("octaves").getAsInt();
+        this.lacunarity = jsonObject.get("lacunarity").getAsDouble();
+        this.frequency = jsonObject.get("frequency").getAsDouble();
+        this.persistence = jsonObject.get("persistence").getAsDouble();
+        this.xOffset = jsonObject.get("xOffset").getAsDouble();
+        this.yOffset = jsonObject.get("yOffset").getAsDouble();
+        this.zOffset = jsonObject.get("zOffset").getAsDouble();
+    }
 }

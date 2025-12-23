@@ -6,6 +6,7 @@ import com.finderfeed.noise_combiner.layer_combiner.FDNoiseValueCombiner;
 import com.finderfeed.noise_combiner.layer_combiner.NoiseValueCombinerRegistry;
 import com.finderfeed.noise_combiner.registry.ObjectType;
 import com.finderfeed.util.MathUtil;
+import com.google.gson.JsonObject;
 
 public class NoiseLerpValuesCombiner extends FDNoiseValueCombiner<NoiseLerpValuesCombiner> {
 
@@ -35,4 +36,15 @@ public class NoiseLerpValuesCombiner extends FDNoiseValueCombiner<NoiseLerpValue
         return NoiseValueCombinerRegistry.NOISE_LERP;
     }
 
+    @Override
+    public void serializeToJson(JsonObject object) {
+        JsonObject lerpByLayer = new JsonObject();
+        this.layer.serializeToJson(lerpByLayer);
+        object.add("lerpByLayer", lerpByLayer);
+    }
+
+    @Override
+    public void deserializeFromJson(JsonObject jsonObject) {
+        this.layer.deserializeFromJson(jsonObject.get("lerpByLayer").getAsJsonObject());
+    }
 }

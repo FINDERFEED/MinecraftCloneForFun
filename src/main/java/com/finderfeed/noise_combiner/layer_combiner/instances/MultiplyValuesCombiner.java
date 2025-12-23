@@ -4,6 +4,7 @@ import com.finderfeed.noise_combiner.ComputationContext;
 import com.finderfeed.noise_combiner.layer_combiner.FDNoiseValueCombiner;
 import com.finderfeed.noise_combiner.layer_combiner.NoiseValueCombinerRegistry;
 import com.finderfeed.noise_combiner.registry.ObjectType;
+import com.google.gson.JsonObject;
 
 public class MultiplyValuesCombiner extends FDNoiseValueCombiner<MultiplyValuesCombiner> {
 
@@ -17,4 +18,13 @@ public class MultiplyValuesCombiner extends FDNoiseValueCombiner<MultiplyValuesC
         return NoiseValueCombinerRegistry.MULTIPLY;
     }
 
+    @Override
+    public void serializeToJson(JsonObject object) {
+
+    }
+
+    @Override
+    public void deserializeFromJson(JsonObject jsonObject) {
+
+    }
 }

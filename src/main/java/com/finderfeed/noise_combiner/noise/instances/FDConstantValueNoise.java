@@ -4,6 +4,7 @@ import com.finderfeed.noise_combiner.ComputationContext;
 import com.finderfeed.noise_combiner.noise.FDNoise;
 import com.finderfeed.noise_combiner.noise.NoiseRegistry;
 import com.finderfeed.noise_combiner.registry.ObjectType;
+import com.google.gson.JsonObject;
 
 public class FDConstantValueNoise extends FDNoise<FDConstantValueNoise> {
 
@@ -27,4 +28,13 @@ public class FDConstantValueNoise extends FDNoise<FDConstantValueNoise> {
         return NoiseRegistry.CONSTANT_VALUE;
     }
 
+    @Override
+    public void serializeToJson(JsonObject object) {
+        object.addProperty("constantValue", this.constantValue);
+    }
+
+    @Override
+    public void deserializeFromJson(JsonObject jsonObject) {
+        this.constantValue = jsonObject.get("constantValue").getAsInt();
+    }
 }

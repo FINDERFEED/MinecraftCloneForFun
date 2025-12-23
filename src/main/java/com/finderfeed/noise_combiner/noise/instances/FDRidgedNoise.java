@@ -5,6 +5,7 @@ import com.finderfeed.noise_combiner.noise.FDNoise;
 import com.finderfeed.noise_combiner.noise.NoiseRegistry;
 import com.finderfeed.noise_combiner.registry.ObjectType;
 import com.finderfeed.util.MathUtil;
+import com.google.gson.JsonObject;
 import org.joml.Vector3d;
 import org.spongepowered.noise.Noise;
 import org.spongepowered.noise.NoiseQuality;
@@ -117,4 +118,28 @@ public class FDRidgedNoise extends FDNoise<FDRidgedNoise> {
         return NoiseRegistry.RIDGED_NOISE;
     }
 
+    @Override
+    public void serializeToJson(JsonObject object) {
+        object.addProperty("octaves",this.octaves);
+        object.addProperty("lacunarity", this.lacunarity);
+        object.addProperty("frequency", this.frequency);
+        object.addProperty("offset", this.offset);
+        object.addProperty("gain", this.gain);
+        object.addProperty("xOffset", this.xOffset);
+        object.addProperty("yOffset", this.yOffset);
+        object.addProperty("zOffset", this.zOffset);
+    }
+
+    @Override
+    public void deserializeFromJson(JsonObject jsonObject) {
+        this.octaves = jsonObject.get("octaves").getAsInt();
+        this.lacunarity = jsonObject.get("lacunarity").getAsDouble();
+        this.frequency = jsonObject.get("frequency").getAsDouble();
+        this.offset = jsonObject.get("offset").getAsDouble();
+        this.gain = jsonObject.get("gain").getAsDouble();
+        this.xOffset = jsonObject.get("xOffset").getAsDouble();
+        this.yOffset = jsonObject.get("yOffset").getAsDouble();
+        this.zOffset = jsonObject.get("zOffset").getAsDouble();
+        this.calcSpectralWeights();
+    }
 }

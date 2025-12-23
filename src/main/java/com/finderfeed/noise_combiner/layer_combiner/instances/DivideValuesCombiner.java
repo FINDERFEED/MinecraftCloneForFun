@@ -4,6 +4,7 @@ import com.finderfeed.noise_combiner.ComputationContext;
 import com.finderfeed.noise_combiner.layer_combiner.FDNoiseValueCombiner;
 import com.finderfeed.noise_combiner.layer_combiner.NoiseValueCombinerRegistry;
 import com.finderfeed.noise_combiner.registry.ObjectType;
+import com.google.gson.JsonObject;
 
 public class DivideValuesCombiner extends FDNoiseValueCombiner<DivideValuesCombiner> {
 
@@ -20,4 +21,13 @@ public class DivideValuesCombiner extends FDNoiseValueCombiner<DivideValuesCombi
         return NoiseValueCombinerRegistry.DIVIDE;
     }
 
+    @Override
+    public void serializeToJson(JsonObject object) {
+
+    }
+
+    @Override
+    public void deserializeFromJson(JsonObject jsonObject) {
+
+    }
 }

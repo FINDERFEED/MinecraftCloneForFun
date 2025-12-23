@@ -1,11 +1,13 @@
 package com.finderfeed.noise_combiner;
 
 import com.finderfeed.noise_combiner.noise.instances.FDConstantValueNoise;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class NoiseCombination {
+public class NoiseCombination implements JsonSerializable<NoiseCombination> {
 
     private List<NoiseCombinationLayer> noiseCombinationLayers = new ArrayList<>();
 
@@ -68,4 +70,26 @@ public class NoiseCombination {
         return noiseCombinationLayer;
     }
 
+    @Override
+    public void serializeToJson(JsonObject object) {
+        JsonArray layers = new JsonArray();
+        for (var layer : this.noiseCombinationLayers){
+            JsonObject layerObject = new JsonObject();
+            layer.serializeToJson(layerObject);
+            layers.add(layerObject);
+        }
+        object.add("layers", layers);
+    }
+
+    @Override
+    public void deserializeFromJson(JsonObject jsonObject) {
+        JsonArray jsonArray = jsonObject.getAsJsonArray("layers");
+        this.noiseCombinationLayers.clear();
+        for (var element : jsonArray){
+            var object = element.getAsJsonObject();
+            NoiseCombinationLayer layer = new NoiseCombinationLayer();
+            layer.deserializeFromJson(object);
+            this.noiseCombinationLayers.add(layer);
+        }
+    }
 }

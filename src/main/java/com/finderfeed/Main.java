@@ -20,6 +20,8 @@ import com.finderfeed.util.EasingFunction;
 import com.finderfeed.util.MathUtil;
 import com.finderfeed.world.World;
 import com.finderfeed.world.chunk.WorldChunk;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.joml.*;
 import org.joml.Math;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -44,6 +46,11 @@ import static com.finderfeed.engine.shaders.Shaders.*;
 
 
 public class Main {
+
+    public static final Gson GSON = new GsonBuilder()
+            .disableHtmlEscaping()
+            .setPrettyPrinting()
+            .create();
 
     public static ExecutorService utilExecutor;
 

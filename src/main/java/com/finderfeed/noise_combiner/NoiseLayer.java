@@ -70,8 +70,12 @@ public class NoiseLayer implements JsonSerializable<NoiseLayer> {
     public void serializeToJson(JsonObject object) {
         object.addProperty("layerName", this.layerName);
 
+        JsonObject noiseObject = new JsonObject();
+
         var noiseType = this.getNoise().getObjectType();
-        object.addProperty("noiseType", noiseType.getRegistryId());
+        noiseObject.addProperty("noiseType", noiseType.getRegistryId());
+        this.getNoise().serializeToJson(noiseObject);
+
 
         JsonArray noiseModifiers = new JsonArray();
         for (var modifier : this.getValueModifiers()){
@@ -80,6 +84,7 @@ public class NoiseLayer implements JsonSerializable<NoiseLayer> {
             modifier.serializeToJson(modifierJson);
             noiseModifiers.add(modifierJson);
         }
+        object.add("noise", noiseObject);
         object.add("noiseModifiers", noiseModifiers);
 
     }
@@ -88,8 +93,10 @@ public class NoiseLayer implements JsonSerializable<NoiseLayer> {
     public void deserializeFromJson(JsonObject jsonObject) {
         this.layerName = jsonObject.get("layerName").getAsString();
 
-        var noiseType = jsonObject.get("noiseType").getAsString();
-        this.setNoise(NoiseRegistry.NOISE_REGISTRY.getObjectType(noiseType).generateObject());
+        var noise = jsonObject.get("noise").getAsJsonObject();
+        var ntype = noise.get("noiseType").getAsString();
+        this.setNoise(NoiseRegistry.NOISE_REGISTRY.getObjectType(ntype).generateObject());
+        this.getNoise().deserializeFromJson(noise);
 
         this.valueModifiers.clear();
         JsonArray array = jsonObject.getAsJsonArray("noiseModifiers");
