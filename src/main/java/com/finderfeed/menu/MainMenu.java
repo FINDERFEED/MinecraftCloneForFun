@@ -6,16 +6,23 @@ import com.finderfeed.noise_combiner.NoiseCombination;
 import com.finderfeed.noise_combiner.NoiseLayer;
 import com.google.gson.JsonObject;
 import imgui.ImGui;
+import org.lwjgl.PointerBuffer;
+import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.MemoryUtil;
+import org.lwjgl.util.tinyfd.TinyFileDialogs;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.awt.*;
+import java.io.*;
+import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class MainMenu {
 
+    public static final String FILE_EXTENSION = ".gtf";
 
     private static int MENU_ID = 0;
 
@@ -41,29 +48,12 @@ public class MainMenu {
         }
 
 
-        String testpath  = "C:\\Users\\User\\Documents\\noisecombtesst\\test.json";
         if (ImGui.button("Save project")){
-            var noiseCombination = GlobalWorldParameters.getCurrentNoiseCombination();
-            var gson = Main.GSON;
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(testpath))){
-                JsonObject jsonObject = new JsonObject();
-                noiseCombination.serializeToJson(jsonObject);
-                gson.toJson(jsonObject, writer);
-            }catch (Exception e){
-                e.printStackTrace();
-            }
+            this.save();
         }
 
         if (ImGui.button("Load project")){
-            var noiseCombination = GlobalWorldParameters.getCurrentNoiseCombination();
-            var gson = Main.GSON;
-            try (BufferedReader reader = new BufferedReader(new FileReader(testpath))){
-                JsonObject object = gson.fromJson(reader, JsonObject.class);
-                noiseCombination.deserializeFromJson(object);
-            }catch (Exception e){
-                e.printStackTrace();
-            }
-
+            this.load();
         }
 
         if (ImGui.button("Export model")){
@@ -74,6 +64,105 @@ public class MainMenu {
 
         }
 
+    }
+
+    private void load(){
+
+
+        CompletableFuture.runAsync(()->{
+
+            String filter = "*" + FILE_EXTENSION;
+
+            MemoryStack memoryStack = MemoryStack.stackPush();
+
+            PointerBuffer filters = memoryStack.mallocPointer(1);
+            filters.put(memoryStack.UTF8(filter));
+            filters.flip();
+
+
+            String path = TinyFileDialogs.tinyfd_openFileDialog(
+                    "Save project",
+                    "project" + FILE_EXTENSION,
+                    filters,
+                    "Generated Terran Files",
+                    false
+            );
+
+            if (path != null && path.endsWith(FILE_EXTENSION)) {
+                try{
+
+                    Path p = Path.of(path);
+                    var noiseCombination = GlobalWorldParameters.getCurrentNoiseCombination();
+                    var gson = Main.GSON;
+
+                    try (BufferedReader reader = Files.newBufferedReader(p)){
+                        JsonObject object = gson.fromJson(reader, JsonObject.class);
+                        noiseCombination.deserializeFromJson(object);
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+
+
+
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+
+            memoryStack.pop();
+
+        });
+
+
+
+
+
+
+    }
+
+    private void save(){
+
+        CompletableFuture.runAsync(()->{
+
+            String filter = "*" + FILE_EXTENSION;
+
+            MemoryStack memoryStack = MemoryStack.stackPush();
+
+            PointerBuffer filters = memoryStack.mallocPointer(1);
+            filters.put(memoryStack.UTF8(filter));
+            filters.flip();
+
+
+            String path = TinyFileDialogs.tinyfd_saveFileDialog(
+                    "Save project",
+                    "project" + FILE_EXTENSION,
+                    filters,
+                    "Generated Terran Files"
+            );
+
+            if (path != null && path.endsWith(FILE_EXTENSION)) {
+                try{
+
+                    Path p = Path.of(path);
+
+                    var noiseCombination = GlobalWorldParameters.getCurrentNoiseCombination();
+                    var gson = Main.GSON;
+                    try (BufferedWriter writer = Files.newBufferedWriter(p)) {
+                        JsonObject jsonObject = new JsonObject();
+                        noiseCombination.serializeToJson(jsonObject);
+                        gson.toJson(jsonObject, writer);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+
+            memoryStack.pop();
+
+        });
     }
 
     private void renderMenus(){

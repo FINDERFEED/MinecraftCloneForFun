@@ -23,6 +23,11 @@ public class RenderOptions {
                 .add(RenderOption.DEFAULT_DEPTH_TEST);
     });
 
+    public static RenderOptions QUADS = new RenderOptions(DrawMode.QUADS, VertexFormat.POSITION_COLOR)
+            .add(new ShaderRenderOption(Shaders.POSITION_COLOR))
+            .add(RenderOption.DEFAULT_DEPTH_TEST)
+            .add(RenderOption.BLEND);
+
     public static RenderOptions DEFAULT_LINES = new RenderOptions(DrawMode.LINES,VertexFormat.POSITION_COLOR)
             .add(new ShaderRenderOption(Shaders.POSITION_COLOR));
 

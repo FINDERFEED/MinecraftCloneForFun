@@ -1,23 +1,13 @@
 package com.finderfeed;
 
-import com.finderfeed.blocks.Block;
 import com.finderfeed.engine.FDWindow;
 import com.finderfeed.engine.GameRenderer;
-import com.finderfeed.engine.RenderEngine;
-import com.finderfeed.engine.immediate_buffer_supplier.ImmediateBufferSupplier;
-import com.finderfeed.engine.immediate_buffer_supplier.RenderOptions;
-import com.finderfeed.engine.shaders.Matrix4fUniform;
 import com.finderfeed.engine.shaders.Shaders;
 import com.finderfeed.engine.textures.TextureManager;
-import com.finderfeed.engine.shaders.Shader;
 import com.finderfeed.entity.Entity;
 import com.finderfeed.periphery.Keyboard;
 import com.finderfeed.periphery.Mouse;
 import com.finderfeed.engine.textures.atlases.AtlasTexture;
-import com.finderfeed.util.AABox;
-import com.finderfeed.util.BlockRayTraceResult;
-import com.finderfeed.util.EasingFunction;
-import com.finderfeed.util.MathUtil;
 import com.finderfeed.world.World;
 import com.finderfeed.world.chunk.WorldChunk;
 import com.google.gson.Gson;
@@ -25,15 +15,7 @@ import com.google.gson.GsonBuilder;
 import org.joml.*;
 import org.joml.Math;
 import org.lwjgl.glfw.GLFWErrorCallback;
-import org.lwjgl.glfw.GLFWVidMode;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL30;
-import org.lwjgl.system.MemoryStack;
-import sun.misc.Unsafe;
 
-import java.nio.IntBuffer;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.*;
 
 import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;

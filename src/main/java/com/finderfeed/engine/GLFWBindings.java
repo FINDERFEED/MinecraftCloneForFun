@@ -130,6 +130,8 @@ public class GLFWBindings {
                 Main.debugRendering = !Main.debugRendering;
             } else if (key == GLFW_KEY_F4) {
                 if (Main.controllingEntity == null) {
+                    Main.mainEntity.position = Main.camera.pos;
+                    Main.mainEntity.oldPosition = Main.camera.pos;
                     Main.controllingEntity = Main.mainEntity;
                 } else {
                     Main.controllingEntity = null;

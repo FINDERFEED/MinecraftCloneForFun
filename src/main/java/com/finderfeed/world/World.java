@@ -76,6 +76,8 @@ public class World implements WorldAccessor {
 //        ImmediateBufferSupplier.drawCurrent();
 
         this.renderTracedBlock(camera,partialTick);
+
+
     }
 
     private void tickEntities(){
