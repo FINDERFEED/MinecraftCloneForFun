@@ -57,7 +57,7 @@ public class MainMenu {
         }
 
         if (ImGui.button("Export model")){
-
+            this.openMenu(new ModelExportMenu());
         }
 
         if (ImGui.button("Documentation")){
@@ -81,10 +81,10 @@ public class MainMenu {
 
 
             String path = TinyFileDialogs.tinyfd_openFileDialog(
-                    "Save project",
+                    "Load project",
                     "project" + FILE_EXTENSION,
                     filters,
-                    "Generated Terran Files",
+                    "Generated Terrain Files",
                     false
             );
 
@@ -120,6 +120,8 @@ public class MainMenu {
 
     }
 
+
+
     private void save(){
 
         CompletableFuture.runAsync(()->{
@@ -137,7 +139,7 @@ public class MainMenu {
                     "Save project",
                     "project" + FILE_EXTENSION,
                     filters,
-                    "Generated Terran Files"
+                    "Generated Terrain Files"
             );
 
             if (path != null && path.endsWith(FILE_EXTENSION)) {

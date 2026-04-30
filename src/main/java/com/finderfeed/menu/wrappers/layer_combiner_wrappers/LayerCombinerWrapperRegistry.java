@@ -31,4 +31,9 @@ public class LayerCombinerWrapperRegistry {
     ));
 
 
+    public static final LayerCombinerWrapperType<MaxValuesCombinerWrapper, MaxValuesCombiner> MAX_VALUES_COMBINER_WRAPPER = LAYER_COMBINER_WRAPPERS.register(new LayerCombinerWrapperType<>(
+            "max_values_combiner_wrapper", NoiseValueCombinerRegistry.MAX, MaxValuesCombinerWrapper::new
+    ));
+
+
 }

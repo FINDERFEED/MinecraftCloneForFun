@@ -12,6 +12,7 @@ public class NoiseValueCombinerRegistry {
     public static final SimpleFactoryObjectType<SubtractValuesCombiner> SUBTRACT = NOISE_VALUE_COMBINERS.register(new SimpleFactoryObjectType<>("subtract", SubtractValuesCombiner::new));
     public static final SimpleFactoryObjectType<MultiplyValuesCombiner> MULTIPLY = NOISE_VALUE_COMBINERS.register(new SimpleFactoryObjectType<>("multiply", MultiplyValuesCombiner::new));
     public static final SimpleFactoryObjectType<DivideValuesCombiner> DIVIDE = NOISE_VALUE_COMBINERS.register(new SimpleFactoryObjectType<>("divide", DivideValuesCombiner::new));
+    public static final SimpleFactoryObjectType<MaxValuesCombiner> MAX = NOISE_VALUE_COMBINERS.register(new SimpleFactoryObjectType<>("max", MaxValuesCombiner::new));
     public static final SimpleFactoryObjectType<NoiseLerpValuesCombiner> NOISE_LERP = NOISE_VALUE_COMBINERS.register(new SimpleFactoryObjectType<>("noise_lerp", NoiseLerpValuesCombiner::new));
 
 }
