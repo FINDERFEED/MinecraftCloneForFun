@@ -4,6 +4,7 @@ import com.finderfeed.menu.wrappers.value_modifier_wrappers.instances.*;
 import com.finderfeed.noise_combiner.registry.ObjectTypeRegistry;
 import com.finderfeed.noise_combiner.value_modifier.*;
 import com.finderfeed.noise_combiner.value_modifier.instances.*;
+import com.finderfeed.noise_combiner.value_modifier.instances.curve_modifier.CurveModifier;
 
 public class ValueModifierWrapperRegistry {
 
@@ -47,6 +48,10 @@ public class ValueModifierWrapperRegistry {
 
     public static final ValueModifierWrapperType<ApplyEasingValueModifierWrapper, EasingValueModifier> APPLY_EASING_MODIFIER = VALUE_MODIFIER_WRAPPERS.register(new ValueModifierWrapperType<>(
             "apply_easing_modifier_wrapper", NoiseValueModifierRegistry.APPLY_EASING, ApplyEasingValueModifierWrapper::new
+    ));
+
+    public static final ValueModifierWrapperType<CurveModifierWrapper, CurveModifier> CURVE_MODIFIER = VALUE_MODIFIER_WRAPPERS.register(new ValueModifierWrapperType<>(
+            "curve_modifier_wrapper", NoiseValueModifierRegistry.NOISE_CURVE, CurveModifierWrapper::new
     ));
 
 }

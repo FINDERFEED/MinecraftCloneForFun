@@ -3,6 +3,7 @@ package com.finderfeed.noise_combiner.value_modifier;
 import com.finderfeed.noise_combiner.registry.ObjectTypeRegistry;
 import com.finderfeed.noise_combiner.registry.SimpleFactoryObjectType;
 import com.finderfeed.noise_combiner.value_modifier.instances.*;
+import com.finderfeed.noise_combiner.value_modifier.instances.curve_modifier.CurveModifier;
 
 public class NoiseValueModifierRegistry {
 
@@ -18,5 +19,6 @@ public class NoiseValueModifierRegistry {
     public static final SimpleFactoryObjectType<PowModifier> POW_VALUE = VALUE_MODIFIERS.register(new SimpleFactoryObjectType<>("power_value", PowModifier::new));
     public static final SimpleFactoryObjectType<NoiseLerpValueModifier> NOISE_LERP_VALUE = VALUE_MODIFIERS.register(new SimpleFactoryObjectType<>("noise_lerp_value", NoiseLerpValueModifier::new));
     public static final SimpleFactoryObjectType<EasingValueModifier> APPLY_EASING = VALUE_MODIFIERS.register(new SimpleFactoryObjectType<>("apply_easing", EasingValueModifier::new));
+    public static final SimpleFactoryObjectType<CurveModifier> NOISE_CURVE = VALUE_MODIFIERS.register(new SimpleFactoryObjectType<>("noise_curve", CurveModifier::new));
 
 }
