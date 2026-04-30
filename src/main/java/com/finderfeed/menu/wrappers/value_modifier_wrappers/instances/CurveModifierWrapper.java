@@ -1,6 +1,7 @@
 package com.finderfeed.menu.wrappers.value_modifier_wrappers.instances;
 
 import com.finderfeed.Main;
+import com.finderfeed.menu.MainMenu;
 import com.finderfeed.menu.wrappers.value_modifier_wrappers.ValueModifierWrapper;
 import com.finderfeed.menu.wrappers.value_modifier_wrappers.ValueModifierWrapperRegistry;
 import com.finderfeed.menu.wrappers.value_modifier_wrappers.ValueModifierWrapperType;
@@ -28,7 +29,9 @@ public class CurveModifierWrapper extends ValueModifierWrapper<CurveModifierWrap
         //here a button that opens CurveModifierMenu, create CurveModifierMenu yourself
 
         if (ImGui.button("Open Curve Editor")) {
-            CurveModifierMenu menu = new CurveModifierMenu("Curve Modifier", curveModifier);
+
+            int id = MainMenu.takeNextFreeMenuId();
+            CurveModifierMenu menu = new CurveModifierMenu("Curve Modifier##" + id, curveModifier);
             menu.addOnChangeListener(this.changeListener);
             Main.window.getMainMenu().openMenu(menu);
         }

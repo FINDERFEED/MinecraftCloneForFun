@@ -1,6 +1,7 @@
 package com.finderfeed.menu.wrappers.value_modifier_wrappers.instances.curve_modifier_wrapper;
 
 import com.finderfeed.Main;
+import com.finderfeed.menu.MainMenu;
 import com.finderfeed.menu.Menu;
 import com.finderfeed.menu.NoiseLayerRedactorMenu;
 import com.finderfeed.noise_combiner.value_modifier.instances.curve_modifier.CurveModifier;
@@ -73,41 +74,18 @@ public class CurveModifierMenu extends Menu {
                 1f
         );
 
-        // X AXIS LABELS
-        draw.addText(
-                start.x + 4,
-                centerY + 4,
-                0xFFFFFFFF,
-                "-1"
-        );
-
-        draw.addText(
-                start.x + canvasW - 18,
-                centerY + 4,
-                0xFFFFFFFF,
-                "1"
-        );
-
-        // Y AXIS LABELS
-        draw.addText(
-                centerX + 4,
-                start.y + 2,
-                0xFFFFFFFF,
-                "1"
-        );
-
-        draw.addText(
-                centerX + 4,
-                start.y + canvasH - 18,
-                0xFFFFFFFF,
-                "-1"
-        );
+        // LABELS
+        draw.addText(start.x + 4, centerY + 4, 0xFFFFFFFF, "-1");
+        draw.addText(start.x + canvasW - 18, centerY + 4, 0xFFFFFFFF, "1");
+        draw.addText(centerX + 4, start.y + 2, 0xFFFFFFFF, "1");
+        draw.addText(centerX + 4, start.y + canvasH - 18, 0xFFFFFFFF, "-1");
 
         ImGui.invisibleButton("curve_canvas", canvasW, canvasH);
 
         float mouseX = ImGui.getIO().getMousePosX();
         float mouseY = ImGui.getIO().getMousePosY();
 
+        // START DRAGGING
         if (ImGui.isItemHovered() && ImGui.isMouseClicked(0)) {
 
             draggingPoint = -1;
@@ -130,19 +108,22 @@ public class CurveModifierMenu extends Menu {
             }
         }
 
-        if (!ImGui.isMouseDown(0)) {
-            draggingPoint = -1;
-        }
-
-        if (draggingPoint != -1) {
+        // MOVE POINT WHILE DRAGGING
+        if (draggingPoint != -1 && ImGui.isMouseDown(0)) {
 
             float gx = screenToGraphX(start.x, canvasW, mouseX);
             float gy = screenToGraphY(start.y, canvasH, mouseY);
 
             curve.setPointPos(draggingPoint, new Vector2f(gx, gy));
+        }
+
+        // FINISH DRAGGING -> UPDATE ONCE
+        if (draggingPoint != -1 && ImGui.isMouseReleased(0)) {
+            draggingPoint = -1;
             triggerChange();
         }
 
+        // CURVE LINES
         for (int i = 0; i < curve.getPointCount() - 1; i++) {
 
             Vector2f p1 = curve.getPointPos(i);
@@ -158,6 +139,7 @@ public class CurveModifierMenu extends Menu {
             );
         }
 
+        // POINTS
         for (int i = 0; i < curve.getPointCount(); i++) {
 
             Vector2f p = curve.getPointPos(i);
@@ -185,6 +167,7 @@ public class CurveModifierMenu extends Menu {
         ImGui.sameLine();
 
         if (ImGui.button("Remove Point")) {
+
             curve.removePoint(selectedPoint);
 
             if (selectedPoint >= curve.getPointCount()) {
@@ -198,7 +181,11 @@ public class CurveModifierMenu extends Menu {
 
             var layer = curve.getLayerAtPoint(selectedPoint);
 
-            var redactor = new NoiseLayerRedactorMenu("Point Layer " + selectedPoint, layer);
+            int id = MainMenu.takeNextFreeMenuId();
+            var redactor = new NoiseLayerRedactorMenu(
+                    "Point Layer " + selectedPoint + "##" + id,
+                    layer
+            );
 
             redactor.addOnChangeListener(this::triggerChange);
 
