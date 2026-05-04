@@ -180,19 +180,27 @@ public class ModelExportMenu extends Menu {
                 var vt4 = this.getElementIn2D(vts, x, z + 1, wholeSteps);
 
                 Vector3f normal = this.normal(p1.a,p2.a,p3.a);
+                Vector3f normal2 = this.normal(p3.a,p4.a,p1.a);
 
                 String normalString = "vn " + normal.x + " " + normal.y + " " + normal.z + "\n";
+                String normalString2 = "vn " + normal2.x + " " + normal2.y + " " + normal2.z + "\n";
                 file.insert(normalsFileIndex - 1, normalString);
+                file.insert(normalsFileIndex - 1, normalString2);
 
 
                 String firstPoint = (p1.b + 1) + "/" + (vt1.b + 1) + "/" + normalId;
                 String secondPoint = (p2.b + 1) + "/" + (vt2.b + 1) + "/" + normalId;
                 String thirdPoint = (p3.b + 1) + "/" + (vt3.b + 1) + "/" + normalId;
-                String forthPoint = (p4.b + 1) + "/" + (vt4.b + 1) + "/" + normalId;
 
-                file.append("f ").append(firstPoint).append(" ").append(secondPoint).append(" ").append(thirdPoint).append(" ").append(forthPoint).append("\n");
+                file.append("f ").append(firstPoint).append(" ").append(secondPoint).append(" ").append(thirdPoint).append("\n");
 
-                normalId++;
+                firstPoint = (p3.b + 1) + "/" + (vt3.b + 1) + "/" + (normalId + 1);
+                secondPoint = (p4.b + 1) + "/" + (vt4.b + 1) + "/" + (normalId + 1);
+                thirdPoint = (p1.b + 1) + "/" + (vt1.b + 1) + "/" + (normalId + 1);
+
+                file.append("f ").append(firstPoint).append(" ").append(secondPoint).append(" ").append(thirdPoint).append("\n");
+
+                normalId+=2;
 
             }
         }
