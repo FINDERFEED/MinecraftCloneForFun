@@ -12,6 +12,7 @@ import com.finderfeed.noise_combiner.NoiseLayer;
 import com.finderfeed.util.FDColor;
 import com.finderfeed.util.Util;
 import com.finderfeed.world.chunk.Chunk;
+import com.finderfeed.world.chunk.WorldChunk;
 import imgui.ImGui;
 import imgui.ImVec2;
 import imgui.flag.ImGuiCol;
@@ -177,7 +178,7 @@ public class NoiseCombinerMenu extends Menu {
 
                 double zCoord = (pos.z + zCoordOffset) / coordinateScale;
 
-                Vector3d computePos = new Vector3d(xCoord, 131.04324, zCoord);
+                Vector3d computePos = new Vector3d(xCoord, WorldChunk.NOISE_Y, zCoord);
                 ComputationContext computationContext1 = new ComputationContext(computePos, seed);
                 float value = noiseLayer.compute(computationContext1);
 

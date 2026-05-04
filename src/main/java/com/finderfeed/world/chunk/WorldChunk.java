@@ -19,6 +19,8 @@ import java.lang.Math;
 
 public class WorldChunk extends Chunk implements AutoCloseable {
 
+    public static float NOISE_Y = 131.04324f;
+
     public WorldChunk(World world, ChunkPos pos){
         super(world,pos,true);
     }
@@ -79,7 +81,7 @@ public class WorldChunk extends Chunk implements AutoCloseable {
                 int zn = (global.y + z);
 
                 ComputationContext computationContext = new ComputationContext(
-                        new Vector3d(xn / GlobalWorldParameters.getCoordinateScale(),131.04324,zn / GlobalWorldParameters.getCoordinateScale()),
+                        new Vector3d(xn / GlobalWorldParameters.getCoordinateScale(),NOISE_Y,zn / GlobalWorldParameters.getCoordinateScale()),
                         GlobalWorldParameters.getSeed()
                 );
 
